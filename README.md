@@ -34,7 +34,7 @@
 ## 📦 使い方
 
 ### 1. クラスモジュールを追加 / Add the class module 
-- `CFormPhysics`として本リポジトリのコードを貼り付けます。
+- `CFormPhysics.cls`として本リポジトリのコードを貼り付けます。
 - Create a class named **`CFormPhysics`** and paste the code.
 
 
@@ -42,7 +42,7 @@
 
 ```vb
 Private engine As New CFormPhysics
-Private Sub UserForm_Initialize()
+Private Sub UserForm_Activate()
     engine.Init Me
 End Sub
 ```
