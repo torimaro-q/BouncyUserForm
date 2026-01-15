@@ -6,6 +6,7 @@
 ※本コードでPCやデータに異常・損害が発生しても、作成者は一切責任を取りません。自己責任で遊んでください。
 - **BouncyUserForm** is a small VBA class module that gives an Excel UserForm simple physics. Add two lines to your form, then grab it, throw it, and watch it bounce around your screen. The form reacts to gravity, collisions, air resistance, and even takes “damage” when it hits walls. Controls may disappear as the form breaks apart. ⚠️ Use at your own risk. This is just for fun. 
 
+![screenshot](pic/dentaku.gif)
 
 ## 🚀 特徴 / Features
 
