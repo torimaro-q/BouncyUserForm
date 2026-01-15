@@ -7,16 +7,10 @@ Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
-Option Explicit
+'Option Explicit 'To determine the presence of an extension class
 Private Type POINT
     x As Double
     y As Double
-End Type
-Private Type RECT
-    Left As Double
-    Top As Double
-    Width As Double
-    Height As Double
 End Type
 Private Type RGBA
     r As Byte
@@ -49,27 +43,31 @@ Private Const ZETA As Double = 0.8
 Private Const GRAV As Double = 300
 Private Const DMGCOEFF As Double = 0.000000002
 Private Const SPDCOEFF As Double = 0.75
-Private Const PRES2VISRATIO As Double = 0.001
+Private Const PRES2VIS As Double = 0.001
 Private Const THICKNESS As Double = 1
 Private Const FORMATCAP As String = "0.000"
 Private WithEvents myForm As MSForms.UserForm
 Attribute myForm.VB_VarHelpID = -1
-Private myFormRaw As Object 'UserFormのTypeLibにLeft,Topが無い対策
+Private myFormRaw As Object 'Workaround for UserForm TypeLib lacking Left and Top properties
 Private DragCoeff As POINT
 Private Dst As POINT, VVec As POINT, AVec As POINT
-Private Scr As RECT
 Private Density As Double
-Private Px2Tw  As Double
 Private isDragging As Boolean, isAnimation As Boolean
 Private pTime As Long, cTime As Long, frameCnt As Long
 Private damage As Double
-Private CapArr(3) As String
-Private Mass As Double, InvMass As Double
+Private Caps(3) As String
+Private Mass As Double, InvMass As Double, hw As Double, hh As Double
 Private RChk As Double, TChk As Double
-Private defaultCaption As String
-Private Veloc As Double, pVeloc As Double
+Private dCaption As String
+Private cV As Double, pV As Double
 Private CrackPictArr() As Long
-Private sR As Long, sG As Long, sB As Long, tmpColor As Long
+Private sR As Long, sG As Long, sB As Long, tCl As Long
+Public ScrLeft As Double, ScrTop As Double, ScrWidth As Double, ScrHeight As Double
+Public Px2Tw  As Double
+Public Event Crash(ByRef x As Double, ByRef y As Double, dmg As Double)
+Public Event Move(ByRef x As Double, ByRef y As Double, ByRef veloc As Double)
+Public Event Stopped(ByRef x As Double, ByRef y As Double)
+Private ExColl As New Collection
 Private Sub AnimationLoop()
     Dim dt As Double, CrashFlg As Boolean
     With myFormRaw
@@ -81,8 +79,8 @@ Private Sub AnimationLoop()
             cTime = GetTickCount
             If pTime <> 0 Then
                 dt = SAFETYOFFSET + (cTime * 0.001 - pTime * 0.001)
-                AVec.x = -DragCoeff.x * InvMass * (.x + PRES2VISRATIO * (.x * Abs(.x)))
-                AVec.y = GRAV - DragCoeff.y * InvMass * (.y + PRES2VISRATIO * (.y * Abs(.y)))
+                AVec.x = -DragCoeff.x * InvMass * (.x + PRES2VIS * (.x * Abs(.x)))
+                AVec.y = GRAV - DragCoeff.y * InvMass * (.y + PRES2VIS * (.y * Abs(.y)))
                 .x = .x + AVec.x * dt
                 .y = .y + AVec.y * dt
                 Dst.x = Dst.x + .x * dt
@@ -94,24 +92,25 @@ Private Sub AnimationLoop()
             If isDragging Then Exit Do
             If isAnimation = False Then Exit Do
             If CrashFlg = True Then ApplyDamage
-            If Veloc < 10 Then Exit Do
+            If cV < 10 Then Exit Do
         End With
-        On Error GoTo err 'フォームを閉じた時にアクセスして、オートメーションエラーにならないように
+        On Error GoTo err 'Access when the form is closed to avoid automation errors
             myFormRaw.Move Dst.x, Dst.y
         On Error GoTo 0
         Render
     Loop
+    RaiseEvent Stopped(Dst.x + hw, Dst.y + hh)
     ResetPhysics
     Render
     Exit Sub
 err:
     isAnimation = False
 End Sub
-Private Function ApplyCollision() As Boolean  ' 壁との衝突処理
+Private Function ApplyCollision() As Boolean  'Wall collision detection
     ApplyCollision = False
     With VVec
-        If Dst.x < Scr.Left Then
-            Dst.x = Scr.Left
+        If Dst.x < ScrLeft Then
+            Dst.x = ScrLeft
             .x = -.x * ZETA
             .y = .y * ZETA
             ApplyCollision = True
@@ -120,8 +119,8 @@ Private Function ApplyCollision() As Boolean  ' 壁との衝突処理
             .x = -.x * ZETA
             .y = .y * ZETA
             ApplyCollision = True
-        ElseIf Dst.y < Scr.Top Then
-            Dst.y = Scr.Top
+        ElseIf Dst.y < ScrTop Then
+            Dst.y = ScrTop
             .x = .x * ZETA
             .y = -.y * ZETA
             ApplyCollision = True
@@ -134,16 +133,16 @@ Private Function ApplyCollision() As Boolean  ' 壁との衝突処理
     End With
 End Function
 Private Sub ApplyDamage()
-    Dim cntr As MSForms.Control, th As Double, ofs As Long
-    damage = damage + DMGCOEFF * 0.5 * Mass * Abs(pVeloc * pVeloc - Veloc * Veloc) '壁に衝突して失われた運動エネルギー
-    ofs = damage
+    Dim cntr As MSForms.Control, th As Double
+    damage = damage + DMGCOEFF * 0.5 * Mass * Abs(pV * pV - cV * cV) 'Kinetic energy lost upon colliding with the wall
+    RaiseEvent Crash(Dst.x + hw, Dst.y + hh, damage)
     With WorksheetFunction
-        tmpColor = RGB(.Min(sR + ofs, 255), .Max(sG - ofs * 0.1, sG * 0.9), .Max(sB - ofs * 0.1, sB * 0.9))
+        tCl = RGB(.Min(sR + damage, 255), .Max(sG - damage * 0.1, sG * 0.9), .Max(sB - damage * 0.1, sB * 0.9))
     End With
     If damage > 10 Then
         th = 0.995
         If damage > 100 Then th = 0.85
-        On Error GoTo err 'フォームを閉じた時にアクセスして、オートメーションエラーにならないように
+        On Error GoTo err 'Access when the form is closed to avoid automation errors
             For Each cntr In myFormRaw.Controls
                 If Rnd() > th Then cntr.Visible = False
             Next cntr
@@ -153,7 +152,7 @@ err:
 End Sub
 Private Sub myForm_Layout()
     If isAnimation Then
-        '強制終了条件
+        'Forced termination conditions
         With myFormRaw
             If Abs(Dst.x - .Left) > 30 Or Abs(Dst.y - .Top) > 30 Then
                 isDragging = False
@@ -165,10 +164,12 @@ Private Sub myForm_Layout()
         Mass = getMass
         InvMass = 1 / Mass
         With myFormRaw
-            RChk = Scr.Left + Scr.Width * Px2Tw - .Width
-            TChk = Scr.Top + Scr.Height * Px2Tw - .Height
+            RChk = ScrLeft + ScrWidth * Px2Tw - .Width
+            TChk = ScrTop + ScrHeight * Px2Tw - .Height
             DragCoeff.x = .Height * THICKNESS
             DragCoeff.y = .Width * THICKNESS
+            hh = .Height * 0.5
+            hw = .Width * 0.5
             Call Render
         End With
     End If
@@ -176,23 +177,24 @@ End Sub
 Private Function getVeloc(ByRef vx As Double, ByRef vy As Double) As Double
     Dim avx As Double: avx = Abs(vx)
     Dim avy As Double: avy = Abs(vy)
-    'ピタゴラスの定理の線形近似
+    'Linear Approximation of Pythagoras' Theorem
     If avx > avy Then getVeloc = ALPHA * avx + BETA * avy Else getVeloc = ALPHA * avy + BETA * avx
 End Function
 Private Sub Render()
-    On Error GoTo err 'フォームを閉じた時にアクセスして、オートメーションエラーにならないように
+    On Error GoTo err 'Access when the form is closed to avoid automation errors
         With myFormRaw
             If isAnimation = True Then
                 If frameCnt Mod 30 = 0 Then
-                    CapArr(1) = Format(Veloc, FORMATCAP)
-                    CapArr(3) = Format(damage, FORMATCAP)
-                    .Caption = Join(CapArr, "") '高速文字列結合
-                    .BackColor = tmpColor
+                    Caps(1) = Format(cV, FORMATCAP)
+                    Caps(3) = Format(damage, FORMATCAP)
+                    .Caption = Join(Caps, "") 'High-Speed String Concatenation
+                    .BackColor = tCl
+                    RaiseEvent Move(Dst.x + hw, Dst.y + hh, cV)
                 End If
             Else
-                .Caption = defaultCaption
+                .Caption = dCaption
                 If damage > 30 Then .Caption = .Caption & "?"
-                .BackColor = tmpColor
+                .BackColor = tCl
             End If
         End With
     On Error GoTo 0
@@ -204,9 +206,9 @@ Private Sub Render()
 err:
 End Sub
 Private Sub UpdateVeloc()
-    pVeloc = Veloc
     With VVec
-        Veloc = getVeloc(.x, .y)
+        pV = cV
+        cV = getVeloc(.x, .y)
     End With
 End Sub
 Private Function getMass() As Double
@@ -216,6 +218,7 @@ Private Function getMass() As Double
 End Function
 Private Sub Class_Terminate()
     isDragging = True
+    Set ExColl = Nothing
 End Sub
 Private Sub Restore()
     Dim cntr As MSForms.Control
@@ -223,7 +226,7 @@ Private Sub Restore()
     For Each cntr In myFormRaw.Controls
         cntr.Visible = True
     Next cntr
-    tmpColor = RGB(sR, sG, sB)
+    tCl = RGB(sR, sG, sB)
     Render
 End Sub
 Private Sub myForm_MouseDown(ByVal Button As Integer, ByVal Shift As Integer, ByVal x As Single, ByVal y As Single)
@@ -235,17 +238,17 @@ Private Sub myForm_MouseDown(ByVal Button As Integer, ByVal Shift As Integer, By
     End If
 End Sub
 Private Sub myForm_MouseMove(ByVal Button As Integer, ByVal Shift As Integer, ByVal x As Single, ByVal y As Single)
-    If isDragging Then 'タイトルバーを直接選択した場合は、物理演算を行わないようにする(ユーザーへの配慮)
+    If isDragging Then 'When the title bar is selected directly, disable physics calculations (for user consideration).
         With myFormRaw
             Dst.x = .Left
             Dst.y = .Top
             .Left = .Left + x - 0.5 * .Width
-            .Top = .Top + y + 10 'userformをクリックすると、自動でタイトルバーの中央を選択した状況にする為のオフセット
+            .Top = .Top + y + 10 'The offset to automatically center the selection in the title bar when the user form is clicked.
             cTime = GetTickCount
             If pTime <> 0 Then
                 Dim dt As Double, cff As Double
                 dt = SAFETYOFFSET + (cTime * 0.001 - pTime * 0.001)
-                cff = 1 / (dt + 0.005) '振動対策
+                cff = 1 / (dt + 0.005) 'Vibration Countermeasures
                 VVec.x = 0.5 * VVec.x + (.Left - Dst.x) * cff
                 VVec.y = 0.5 * VVec.y + (.Top - Dst.y) * cff
                 With VVec
@@ -256,55 +259,60 @@ Private Sub myForm_MouseMove(ByVal Button As Integer, ByVal Shift As Integer, By
             pTime = cTime
         End With
     Else
-        'ダメージ時にユーザーを避ける動作を入れる場合はここに入れる
+        'If you want to add an action to avoid the user when taking damage, put it here.
     End If
 End Sub
 Private Sub myForm_MouseUp(ByVal Button As Integer, ByVal Shift As Integer, ByVal x As Single, ByVal y As Single)
     If isDragging Then
         isDragging = False
         isAnimation = True
-        pVeloc = 0
+        pV = 0
         pTime = 0
         Call AnimationLoop
     End If
 End Sub
 Private Function ResetPhysics()
     With VVec
-        .x = 0
-        .y = 0
+        .x = 0: .y = 0
     End With
-    pVeloc = 0
-    Veloc = 0
-    pTime = 0
+    pV = 0: cV = 0: pTime = 0
     isAnimation = False
 End Function
 Private Function CL2RGBA(ByRef cl As Long) As RGBA
-    Dim L As LONGTYPE: L.Value = cl
-    LSet CL2RGBA = L
+    Dim l As LONGTYPE: l.Value = cl
+    LSet CL2RGBA = l 'Pseudo-Move Memory
 End Function
 Public Sub Init(ByRef form As Object)
-    Set myFormRaw = form
-    Set myForm = form
-    Px2Tw = 72 / GetDPI()
-    With myFormRaw
-        .DrawBuffer = 320000 'ちらつき防止にDrawBufferを上げておく
-        defaultCaption = .Caption
-        With CL2RGBA(SystemColorToRGB(.BackColor))
-            sR = .r: sG = .g: sB = .b
-            tmpColor = RGB(sR, sG, sB)
-            Density = (300 - WorksheetFunction.Max(sR, sG, sB)) / 5000
+    If myFormRaw Is Nothing Then
+        Set myFormRaw = form
+        Set myForm = form
+        Px2Tw = 72 / GetDPI()
+        With myFormRaw
+            .DrawBuffer = 320000 'Set the DrawBuffer to prevent flickering
+            dCaption = .Caption
+            With CL2RGBA(SystemColorToRGB(.BackColor))
+                sR = .r: sG = .g: sB = .b
+                tCl = RGB(sR, sG, sB)
+                Density = (300 - WorksheetFunction.Max(sR, sG, sB)) / 5000
+            End With
         End With
-    End With
-    isDragging = False
-    Call ResetPhysics
+        isDragging = False
+        Call ResetPhysics
+        On Error GoTo err
+            Set ExColl = New Collection
+            Dim cfex As Object
+            Set cfex = CFormPhysicsEx.CreateInstance(Me)
+            Call ExColl.Add(cfex) 'Load if an extension class exists
+    End If
+err:
 End Sub
 Private Sub Class_Initialize()
-    Scr.Left = GetSystemMetrics(SM_XVIRTUALSCREEN)
-    Scr.Top = GetSystemMetrics(SM_YVIRTUALSCREEN)
-    Scr.Width = GetSystemMetrics(SM_CXVIRTUALSCREEN)
-    Scr.Height = GetSystemMetrics(SM_CYVIRTUALSCREEN)
-    CapArr(0) = "speed : "
-    CapArr(2) = "   damage : "
+    ScrLeft = GetSystemMetrics(SM_XVIRTUALSCREEN)
+    ScrTop = GetSystemMetrics(SM_YVIRTUALSCREEN)
+    ScrWidth = GetSystemMetrics(SM_CXVIRTUALSCREEN)
+    ScrHeight = GetSystemMetrics(SM_CYVIRTUALSCREEN)
+    Caps(0) = "speed : "
+    Caps(2) = "   damage : "
 End Sub
 Private Function GetDPI() As Long
     Dim hdc As LongPtr: hdc = GetDC(0)
