@@ -50,7 +50,13 @@ End Sub
 ### 3. UserForm を表示 / Run the form
 
 - フォームをドラッグして投げると物理シミュレーションが開始します。
+  
+  ※タイトルバーではなく、ユーザーフォーム本体をドラッグしてください。
 - Run the form and throw it to start the physics.
+  
+  Note: Drag the form itself, not the title bar.
+
+
 
 ### ライセンス / License
 MIT License
