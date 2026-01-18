@@ -29,6 +29,7 @@ Private Const LOGPIXELSX As Long = 88
 Private Const GWL_EXSTYLE = -20
 Private Const WS_EX_LAYERED = &H80000
 Private Const LWA_COLORKEY = &H1
+Private Const CLMASK As Long = &H80000000
 Private Declare PtrSafe Function GetSysColor Lib "user32" (ByVal nIndex As Long) As Long
 Private Declare PtrSafe Function GetSystemMetrics Lib "user32" (ByVal nIndex As Long) As Long
 Private Declare PtrSafe Function GetDC Lib "user32" (ByVal hWnd As LongPtr) As LongPtr
@@ -46,8 +47,6 @@ Private Const SPDCF As Double = 0.75
 Private Const PRES2VIS As Double = 0.001
 Private Const THICKNESS As Double = 1
 Private Const FORMATCAP As String = "0.000"
-Private WithEvents mFrm As MSForms.UserForm, mFrmRaw As Object 'TypeLib lacking Left and Top properties
-Attribute mFrm.VB_VarHelpID = -1
 Private DragCf As POINT, Dst As POINT, VVec As POINT, AVec As POINT
 Private Dens As Double, Mass As Double
 Private InvMass As Double, hw As Double, hh As Double
@@ -56,6 +55,9 @@ Private Caps(3) As String, dCap As String, frameCnt As Long
 Private RChk As Double, TChk As Double
 Private cV As Double, pV As Double, sR As Long, sG As Long, sB As Long, tCl As Long
 Private ExColl As New Collection
+Private WithEvents mFrm As MSForms.UserForm
+Attribute mFrm.VB_VarHelpID = -1
+Public mFrmRaw As Object 'TypeLib lacking Left and Top properties
 Public Damage As Double, pTime As Long, cTime As Long
 Public ScrLeft As Double, ScrTop As Double, ScrWidth As Double, ScrHeight As Double
 Public Px2Tw  As Double
@@ -293,7 +295,7 @@ Public Sub Init(ByRef form As Object)
         With mFrmRaw
             .DrawBuffer = 320000 'Set the DrawBuffer to prevent flickering
             dCap = .Caption
-            With CL2RGBA(SystemColorToRGB(.BackColor))
+            With CL2RGBA(SysCL2RGB(.BackColor))
                 sR = .r: sG = .g: sB = .b
                 tCl = RGB(sR, sG, sB)
                 Dens = (300 - WorksheetFunction.Max(sR, sG, sB)) / 5000
@@ -323,6 +325,6 @@ Private Function GetDPI() As Long
     GetDPI = GetDeviceCaps(hdc, LOGPIXELSX)
     Call ReleaseDC(0, hdc)
 End Function
-Public Function SystemColorToRGB(ByVal sysColor As Long) As Long
-    If (sysColor And &H80000000) <> 0 Then SystemColorToRGB = GetSysColor(CLng(sysColor And &HFF&)) Else SystemColorToRGB = sysColor
+Public Function SysCL2RGB(ByVal sysCL As Long) As Long
+    If (sysCL And CLMASK) <> 0 Then SysCL2RGB = GetsysCL(CLng(sysCL And &HFF&)) Else SysCL2RGB = sysCL
 End Function
