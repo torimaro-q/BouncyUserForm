@@ -326,5 +326,5 @@ Private Function GetDPI() As Long
     Call ReleaseDC(0, hdc)
 End Function
 Public Function SysCL2RGB(ByVal sysCL As Long) As Long
-    If (sysCL And CLMASK) <> 0 Then SysCL2RGB = GetsysCL(CLng(sysCL And &HFF&)) Else SysCL2RGB = sysCL
+    If (sysCL And CLMASK) <> 0 Then SysCL2RGB = GetSysColor(CLng(sysCL And &HFF&)) Else SysCL2RGB = sysCL
 End Function
