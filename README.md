@@ -13,6 +13,14 @@ Please note that the creator assumes no responsibility for any issues or damage 
 
 ![screenshot](pic/dentaku.gif)
 
+
+---
+1/21 Add OpenGL extension
+
+The method for running OpenGL from VBA is based on this article.
+https://qiita.com/torimaro/items/87eac442f8bf86a52331
+![screenshot](pic/dentaku_with_gl.gif)
+
 ## 🚀 特徴 / Features
 
 - **重力シミュレーション**
