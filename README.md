@@ -15,7 +15,7 @@ Please note that the creator assumes no responsibility for any issues or damage 
 
 
 ---
-1/21 Add OpenGL extension
+**26/1/21 Add OpenGL extension**
 
 The method for running OpenGL from VBA is based on this article.
 https://qiita.com/torimaro/items/87eac442f8bf86a52331
@@ -54,10 +54,14 @@ https://qiita.com/torimaro/items/87eac442f8bf86a52331
 
 ### 2. UserForm に以下を追加 / Add this to your UserForm
 
+### !! Important: Always execute the Terminate function when releasing the userform (OpenGL will crash otherwise). !!
 ```vb
 Private engine As New CFormPhysics
 Private Sub UserForm_Activate()
     engine.Init Me
+End Sub
+Private Sub UserForm_Terminate()
+    engine.Terminate
 End Sub
 ```
 
