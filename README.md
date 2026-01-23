@@ -45,25 +45,71 @@ https://qiita.com/torimaro/items/87eac442f8bf86a52331
 
 
 
-## 📦 使い方
+## 📦 使い方 / How to use
 
 ### 1. クラスモジュールを追加 / Add the class module 
-- `CFormPhysics.cls`として本リポジトリのコードを貼り付けます。
-- Create a class named **`CFormPhysics`** and paste the code.
+#### 拡張機能なし版(No extensions)
+```
++ CFormPhysics.cls
+```
 
+#### 拡張機能あり版(with extensions)
+```
++ CFormPhysics.cls
++ CFormPhysicsLogger.cls
++ CFormPhysicsWsRenderer.cls
+```
 
-### 2. UserForm に以下を追加 / Add this to your UserForm
+#### OpenGL拡張機能あり版(with OpenGL extensions)
+```
++ CFormPhysics.cls
++ CFormPhysicsGLEffector.frm/frx
++ GLH.bas
++ OpenGL.cls
++ glExplosion.cls
++ glShockWave.cls
++ glMoveTrail.cls
+```
 
-### !! Important: Always execute the Terminate function when releasing the userform (OpenGL will crash otherwise). !!
+- 2. UserForm に以下を追加 / Add this to your UserForm
+
+拡張機能なし版(No extensions)
 ```vb
-Private engine As New CFormPhysics
-Private Sub UserForm_Activate()
+Private engine As CFormPhysics
+Private Sub UserForm_Initialize()
+    Set engine = New CFormPhysics
     engine.Init Me
 End Sub
 Private Sub UserForm_Terminate()
     engine.Terminate
 End Sub
 ```
+
+拡張機能あり版(with extensions)
+```vb
+Private engine As CFormPhysics
+Private Sub UserForm_Initialize()
+    Set engine = New CFormPhysics
+    engine.Init Me, Array(CFormPhysicsLogger, CFormPhysicsWsRenderer)
+End Sub
+Private Sub UserForm_Terminate()
+    engine.Terminate
+End Sub
+```
+
+
+OpenGL拡張機能あり版(with OpenGL extensions)
+```vb
+Private engine As CFormPhysics
+Private Sub UserForm_Initialize()
+    Set engine = New CFormPhysics
+    engine.Init Me, Array(CFormPhysicsGLEffector)
+End Sub
+Private Sub UserForm_Terminate()
+    engine.Terminate
+End Sub
+```
+
 
 ### 3. UserForm を表示 / Run the form
 
