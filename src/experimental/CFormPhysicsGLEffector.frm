@@ -1,7 +1,7 @@
 VERSION 5.00
 Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} CFormPhysicsGLEffector 
    Caption         =   "CFormPhysicsEffecter"
-   ClientHeight    =   9570
+   ClientHeight    =   9570.001
    ClientLeft      =   45
    ClientTop       =   390
    ClientWidth     =   11910
@@ -14,6 +14,7 @@ Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
+
 Option Explicit
 #If Win64 Then
     Private Declare PtrSafe Function GetWindowLongPtr Lib "user32" Alias "GetWindowLongPtrA" (ByVal hWnd As LongPtr, ByVal nIndex As Long) As LongPtr
@@ -33,25 +34,23 @@ Private Const WS_CAPTION = &HC00000
 Private Const WS_EX_DLGMODALFRAME = &H1&
 Private Const LWA_COLORKEY = &H1
 Private Const SW_SHOWMAXIMIZED = 3
+Private Const EFFECT_MAX_COUNT = 4
 Private GL As OpenGL
 Private hWnd As LongPtr, exStyle As LongPtr, style As LongPtr
 Private rndhWnd As LongPtr
-Private Width As Double, Height As Double
-Private WithEvents myCore As CFormPhysics, ptime As Long, pdmg As Double, Tw2Px As Double, ecnt As Long
+Private width As Double, height As Double
+Private WithEvents myCore As CFormPhysics, pTime As Long, pdmg As Double, Tw2Px As Double, ecnt2 As Long
 Attribute myCore.VB_VarHelpID = -1
-Private effects As Collection
+Private CrashDict As Object, ccnt As Long
+Private MoveDict As Object, mcnt As Long
 Private Sub myCore_Crash(x As Double, y As Double, dmg As Double, time As Long)
-    If (dmg - pdmg) > 1 Then
-        Debug.Print effects.Count
-        If effects.Count <= 3 Then
-            Dim ef As glExplosion
-            Set ef = New glExplosion
-            ef.Init GL
-            effects.Add ef
-        End If
-        Call effects.Item(ecnt).Reset(Tw2Px * x, Tw2Px * y)
-        ecnt = ecnt + 1
-        If ecnt > 3 Then ecnt = 1
+    If (dmg - pdmg) > 0.5 Then
+        Dim effName As Variant
+        For Each effName In CrashDict.keys()
+            Call CrashDict.Item(effName).Item(ccnt).Reset(Tw2Px * x, Tw2Px * y, (dmg - pdmg))
+        Next effName
+        ccnt = ccnt + 1
+        If ccnt > EFFECT_MAX_COUNT Then ccnt = 1
     End If
     pdmg = dmg
 End Sub
@@ -59,27 +58,32 @@ Private Sub myCore_Move(x As Double, y As Double, veloc As Double, time As Long)
     Render time, x * Tw2Px, y * Tw2Px
 End Sub
 Public Sub Render(Optional time = 0, Optional x = -1, Optional y = -1)
-    Dim dt As Long, r, i
+    Dim dt As Long, r, i As Long
+    Dim effName As Variant
     r = Rnd * 30
-    dt = time - ptime
-    ptime = time
+    dt = time - pTime
+    pTime = time
     With GL
         .Clear GL_COLOR_BUFFER_BIT Or GL_DEPTH_BUFFER_BIT
         .MatrixMode GL_PROJECTION
         .LoadIdentity
-        .Ortho2D 0, Width, Height, 0
+        .Ortho2D 0, width, height, 0
         .MatrixMode GL_MODELVIEW
         .LoadIdentity
         .PushMatrix
-        For i = 1 To effects.Count
-            effects.Item(i).Render x, y, dt
-        Next i
+            For Each effName In CrashDict.keys()
+                For i = 1 To EFFECT_MAX_COUNT
+                    Call CrashDict.Item(effName).Item(i).Render(x, y, dt)
+                Next i
+            Next effName
+        .PopMatrix
+        .PushMatrix
+            For Each effName In MoveDict.keys()
+                Call MoveDict.Item(effName).Render(x, y, dt)
+            Next effName
         .PopMatrix
         .SwapBuffers
     End With
-End Sub
-Private Sub myCore_Started(x As Double, y As Double, time As Long)
-    ecnt = 1
 End Sub
 Private Sub myCore_Stopped(x As Double, y As Double, time As Long)
     With GL
@@ -87,84 +91,110 @@ Private Sub myCore_Stopped(x As Double, y As Double, time As Long)
         .SwapBuffers
     End With
 End Sub
-Public Property Get CreateInstance(Optional ByRef core As CFormPhysics = Nothing) As CFormPhysicsGLEffector
-    Dim ch As CFormPhysicsGLEffector: Set ch = New CFormPhysicsGLEffector
-    If Not core Is Nothing Then ch.Init core
-    Set CreateInstance = ch
-End Property
-Public Sub Init(ByRef core As CFormPhysics)
-    Set myCore = core
-    Width = core.ScrWidth
-    Height = core.ScrHeight
-    Tw2Px = 1 / core.Px2Tw
-    Me.Show vbModeless
-End Sub
 Private Sub Label1_Click()
     Unload Me
 End Sub
+
+
+Private Sub RenderFrame_Click()
+
+End Sub
+
 Private Sub UserForm_Activate()
-    Me.RenderFrame.BackColor = RGB(254, 254, 254)
-    WindowFromAccessibleObject Me, hWnd
-    WindowFromAccessibleObject Me.RenderFrame, rndhWnd
-    #If Win64 Then
-        style = GetWindowLongPtr(hWnd, GWL_STYLE)
-    #Else
-        style = GetWindowLong(hWnd, GWL_STYLE)
-    #End If
-    style = (style Or WS_THICKFRAME Or &H30000) And Not WS_CAPTION
-    #If Win64 Then
-        SetWindowLongPtr hWnd, GWL_STYLE, style
-    #Else
-        SetWindowLong hWnd, GWL_STYLE, style
-    #End If
-    #If Win64 Then
-        exStyle = GetWindowLongPtr(hWnd, GWL_STYLE)
-    #Else
-        exStyle = GetWindowLong(hWnd, GWL_STYLE)
-    #End If
-    #If Win64 Then
-        SetWindowLongPtr hWnd, GWL_EXSTYLE, exStyle Or WS_EX_LAYERED
-    #Else
-        SetWindowLong hWnd, GWL_EXSTYLE, exStyle Or WS_EX_LAYERED
-    #End If
-    'Force-enable SetLayeredWindowAttributes by rendering OpenGL
-    'through GDI to make the background color transparent.Åh
-    SetLayeredWindowAttributes hWnd, RGB(254, 254, 254), 0, LWA_COLORKEY
-    ShowWindow hWnd, SW_SHOWMAXIMIZED
-    Call GLInit
+    If GL Is Nothing Then
+        Me.RenderFrame.BackColor = RGB(254, 254, 254)
+        WindowFromAccessibleObject Me, hWnd
+        WindowFromAccessibleObject Me.RenderFrame, rndhWnd
+        #If Win64 Then
+            style = GetWindowLongPtr(hWnd, GWL_STYLE)
+        #Else
+            style = GetWindowLong(hWnd, GWL_STYLE)
+        #End If
+        style = (style Or WS_THICKFRAME Or &H30000) And Not WS_CAPTION
+        #If Win64 Then
+            SetWindowLongPtr hWnd, GWL_STYLE, style
+        #Else
+            SetWindowLong hWnd, GWL_STYLE, style
+        #End If
+        #If Win64 Then
+            exStyle = GetWindowLongPtr(hWnd, GWL_EXSTYLE)
+        #Else
+            exStyle = GetWindowLong(hWnd, GWL_EXSTYLE)
+        #End If
+        #If Win64 Then
+            SetWindowLongPtr hWnd, GWL_EXSTYLE, exStyle Or WS_EX_LAYERED
+        #Else
+            SetWindowLong hWnd, GWL_EXSTYLE, exStyle Or WS_EX_LAYERED
+        #End If
+        'Force-enable SetLayeredWindowAttributes by rendering OpenGL
+        'through GDI to make the background color transparent.Åh
+        SetLayeredWindowAttributes hWnd, RGB(254, 254, 254), 0, LWA_COLORKEY
+        ShowWindow hWnd, SW_SHOWMAXIMIZED
+        Call GLInit
+    End If
 End Sub
 Public Sub GLInit()
-    If Width <= 0 Then
-        Width = 1920: Height = 1080
-    End If
+    If width <= 0 Then width = 1920: height = 1080
     Set GL = New OpenGL
-    DoEvents
     With GL
         .hWnd = rndhWnd
         .PaintStart
         .ClearColor 254 / 255, 254 / 255, 254 / 255, 0.5
         .Enable GL_DEPTH_TEST
-        .Viewport 0, 0, Width, Height
+        .Viewport 0, 0, width, height
         .Disable GL_LIGHTING
     End With
     DoEvents
-    Set effects = New Collection
+    Set CrashDict = CreateObject("Scripting.Dictionary")
+    Set MoveDict = CreateObject("Scripting.Dictionary")
+    Dim efs As Variant, ek As Variant, ef As Variant, i As Long, ci
+    On Error GoTo err:
+    For Each ef In Array(glExplosion, glShockWave)
+        ek = TypeName(ef)
+        If Not CrashDict.exists(ek) Then
+            Dim coll As Collection: Set coll = New Collection
+            For i = 1 To EFFECT_MAX_COUNT
+                Set ci = CallByName(ef, "CreateInstance", VbGet)
+                Call ci.Init(GL)
+                coll.Add ci
+            Next i
+            CrashDict.Add ek, coll
+        End If
+    Next ef
+    For Each ef In Array(glMoveTrail)
+        ek = TypeName(ef)
+        If Not MoveDict.exists(ek) Then
+            Set ci = CallByName(ef, "CreateInstance", VbGet)
+            Call ci.Init(GL)
+            MoveDict.Add ek, ci
+        End If
+    Next ef
+err:
     Call Render
 End Sub
 Private Sub UserForm_Layout()
-    Me.RenderFrame.Width = Me.Width
-    Me.Label1.Width = Me.Width
-    Me.RenderFrame.Height = Me.Height - Me.RenderFrame.top
+    Me.Label1.width = Me.width
+    Me.RenderFrame.width = Me.width
+    Me.RenderFrame.height = Me.height - Me.RenderFrame.top
 End Sub
-Private Sub UserForm_Terminate()
-    Dim effect
-    For Each effect In effects
-        effect.Terminate
-    Next effect
-    Set myCore = Nothing
-    GL.PaintEnd
-    Unload Me
+Public Property Get CreateInstance() As CFormPhysicsGLEffector
+    Set CreateInstance = New CFormPhysicsGLEffector
+End Property
+Public Sub Init(ByRef core As CFormPhysics)
+    Set myCore = core
+    width = core.ScrWidth
+    height = core.ScrHeight
+    Tw2Px = 1 / core.Px2Tw
+    ccnt = 1
+    Me.Show vbModeless
 End Sub
 Public Sub Terminate()
-    Call UserForm_Terminate
+On Error GoTo err
+    Set MoveDict = Nothing
+    Set CrashDict = Nothing
+    Set myCore = Nothing
+    GL.PaintEnd
+err:
+    Set GL = Nothing
+    Unload Me
 End Sub

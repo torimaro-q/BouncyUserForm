@@ -76,7 +76,8 @@ Private Sub HandleDamageUpdate(ByRef Damage As Double)
     UpdateChartSeries ofs
     pdmg = dmg
     pcnt = cnt
-    Application.Calculate
+    myChart.ChartArea.Select 'for excel 2024
+    Application.Calculate 'In excel 2024, chart updates are no longer triggered.
 End Sub
 Private Sub AppendToSeries(ByVal index As Long, ByVal x As Double, ByVal y As Double)
     With mySeries(index)
@@ -92,15 +93,6 @@ Private Sub UpdateChartSeries(ByVal seriesIndex As Long)
         .xvalues = mySeries(seriesIndex).xvalues
         .values = mySeries(seriesIndex).yvalues
     End With
-End Sub
-Public Sub Init(ByRef core As CFormPhysics)
-    Application.Calculation = xlCalculationManual
-    Set myCore = core
-    Set ws = ActiveSheet
-    interpCount = 7
-    Reset
-    ClearCharts
-    CreateChart
 End Sub
 Public Sub Reset()
     cnt = 0
@@ -134,7 +126,7 @@ Private Sub CreateChart()
         mySeries(i).cnt = 0
     Next i
     With myCore
-        Set chartObj = ws.ChartObjects.Add(Left:=5, Top:=5, Width:=(.ScrWidth * .Px2Tw) * 0.3, Height:=(.ScrHeight * .Px2Tw) * 0.3)
+        Set chartObj = ws.ChartObjects.Add(left:=5, top:=5, width:=(.ScrWidth * .Px2Tw) * 0.3, height:=(.ScrHeight * .Px2Tw) * 0.3)
     End With
     With chartObj
         .name = "CFormPhysicLogScatter"
@@ -147,7 +139,7 @@ Private Sub CreateChart()
                 nw.name = labels(i)
                 If i = 0 Then
                     nw.ChartType = xlXYScatterLinesNoMarkers
-                    nw.Format.Line.Weight = 0.01
+                    nw.format.Line.Weight = 0.01
                 Else
                     nw.ChartType = xlXYScatter
                     nw.MarkerSize = 2 + (i - 1) * 3
@@ -175,77 +167,88 @@ Private Sub ConfigureAxes(ByRef ax As Axes)
         .MinimumScaleIsAuto = False
     End With
 End Sub
-Public Property Get CreateInstance(Optional ByRef core As CFormPhysics = Nothing) As CFormPhysicsLogger
-    'Constructor using the default instance
-    Dim ch As CFormPhysicsLogger: Set ch = New CFormPhysicsLogger
-    If Not core Is Nothing Then ch.Init core
-    Set CreateInstance = ch
-End Property
 Public Sub ApplyBrilliantTemplate(ByVal ch As Chart)
     Dim colors As Variant
     Dim i As Long
     colors = Array(RGB(0, 200, 255), RGB(255, 80, 80), RGB(255, 150, 0), RGB(255, 255, 0), RGB(0, 255, 120))
     With ch
-        .ChartArea.Format.Fill.ForeColor.RGB = RGB(20, 20, 20)
-        .PlotArea.Format.Fill.ForeColor.RGB = RGB(20, 20, 20)
+        .ChartArea.format.Fill.ForeColor.RGB = RGB(20, 20, 20)
+        .PlotArea.format.Fill.ForeColor.RGB = RGB(20, 20, 20)
     End With
-    With ch.Axes(xlValue).MajorGridlines.Format.Line
+    With ch.Axes(xlValue).MajorGridlines.format.Line
         .Visible = msoTrue
         .ForeColor.RGB = RGB(60, 60, 60)
         .Weight = 0.25
     End With
-    With ch.Axes(xlCategory).MajorGridlines.Format.Line
+    With ch.Axes(xlCategory).MajorGridlines.format.Line
         .Visible = msoTrue
         .ForeColor.RGB = RGB(60, 60, 60)
         .Weight = 0.25
     End With
-    With ch.Axes(xlCategory).Format.Line
+    With ch.Axes(xlCategory).format.Line
         .ForeColor.RGB = RGB(200, 200, 200)
         .Weight = 0.75
     End With
-    With ch.Axes(xlValue).Format.Line
+    With ch.Axes(xlValue).format.Line
         .ForeColor.RGB = RGB(200, 200, 200)
         .Weight = 0.75
     End With
     For i = 1 To ch.SeriesCollection.Count
         With ch.SeriesCollection(i)
-            With .Format.Glow
+            With .format.Glow
                 .Color.RGB = colors(i - 1)
                 .Radius = 5
                 .Transparency = 0.8
             End With
-            .Format.Fill.ForeColor.RGB = colors(i - 1)
+            .format.Fill.ForeColor.RGB = colors(i - 1)
         End With
     Next i
     With ch.Legend
         .Position = xlLegendPositionTop
-        .Format.Fill.Visible = msoFalse
-        .Format.Line.Visible = msoFalse
+        .format.Fill.Visible = msoFalse
+        .format.Line.Visible = msoFalse
         .Font.Color = RGB(230, 230, 230)
     End With
     With ch
         .HasTitle = True
         .ChartTitle.Text = "CFormPhysics Trajectory Log"
         .ChartTitle.Font.Color = RGB(240, 240, 240)
-        .ChartTitle.Font.Size = 14
+        .ChartTitle.Font.size = 14
         .ChartTitle.Font.name = "Segoe UI Semibold"
     End With
-    With ch.Axes(xlCategory).Format.Line
+    With ch.Axes(xlCategory).format.Line
         .ForeColor.RGB = RGB(200, 200, 200)
         .Weight = 0.75
     End With
-    With ch.Axes(xlValue).Format.Line
+    With ch.Axes(xlValue).format.Line
         .ForeColor.RGB = RGB(200, 200, 200)
         .Weight = 0.75
     End With
     With ch.Axes(xlCategory).TickLabels
         .Font.Color = RGB(220, 220, 220)
-        .Font.Size = 9
+        .Font.size = 9
     End With
     With ch.Axes(xlValue).TickLabels
         .Font.Color = RGB(220, 220, 220)
-        .Font.Size = 9
+        .Font.size = 9
     End With
 End Sub
-
+Public Sub Init(ByRef core As CFormPhysics)
+    Application.Calculation = xlCalculationManual
+    Set myCore = core
+    Set ws = ActiveSheet
+    interpCount = 7
+    Reset
+    ClearCharts
+    CreateChart
+End Sub
+Public Property Get CreateInstance() As CFormPhysicsLogger
+    Set CreateInstance = New CFormPhysicsLogger
+End Property
+Private Sub Class_Terminate()
+    Set myCore = Nothing
+End Sub
+Public Sub Terminate()
+    Call Class_Terminate
+End Sub
 

@@ -24,7 +24,7 @@ Private Declare PtrSafe Function wglMakeCurrent Lib "opengl32.dll" (ByVal hdc As
 Private Declare PtrSafe Function wglDeleteContext Lib "opengl32.dll" (ByVal hdc As LongPtr) As Long
 Private Declare PtrSafe Sub glColor4f Lib "opengl32.dll" (ByVal red As Single, ByVal green As Single, ByVal blue As Single, ByVal alpha As Single)
 Private Declare PtrSafe Sub glColor3d Lib "opengl32.dll" (ByVal red As Double, ByVal green As Double, ByVal blue As Double)
-Private Declare PtrSafe Sub glVertex2d Lib "opengl32.dll" (ByVal a As Double, ByVal B As Double)
+Private Declare PtrSafe Sub glVertex2d Lib "opengl32.dll" (ByVal a As Double, ByVal b As Double)
 Private Declare PtrSafe Sub glVertex3d Lib "opengl32.dll" (ByVal x As Double, ByVal y As Double, ByVal z As Double)
 Private Declare PtrSafe Sub glNormal3d Lib "opengl32.dll" (ByVal x As Double, ByVal y As Double, ByVal z As Double)
 Private Declare PtrSafe Sub glVertex3dv Lib "opengl32.dll" (ByVal dPtr As LongPtr)
@@ -36,10 +36,12 @@ Private Declare PtrSafe Sub glMatrixMode Lib "opengl32.dll" (ByVal Glenum As Lon
 Private Declare PtrSafe Sub glPushMatrix Lib "opengl32.dll" ()
 Private Declare PtrSafe Sub glPopMatrix Lib "opengl32.dll" ()
 Private Declare PtrSafe Sub glLoadIdentity Lib "opengl32.dll" ()
-Private Declare PtrSafe Sub glViewport Lib "opengl32.dll" (ByVal x As Long, ByVal y As Long, ByVal Width As Long, ByVal Height As Long)
+Private Declare PtrSafe Sub glViewport Lib "opengl32.dll" (ByVal x As Long, ByVal y As Long, ByVal width As Long, ByVal height As Long)
 Private Declare PtrSafe Sub glEnable Lib "opengl32.dll" (ByVal Glenum As Long)
 Private Declare PtrSafe Sub glDisable Lib "opengl32.dll" (ByVal Glenum As Long)
 Private Declare PtrSafe Sub glPointSize Lib "opengl32.dll" (ByVal size As Single)
+Private Declare PtrSafe Sub glLineWidth Lib "opengl32.dll" (ByVal width As Single)
+
 Private Declare PtrSafe Sub glEnableClientState Lib "opengl32.dll" (ByVal Glenum As Long)
 Private Declare PtrSafe Sub glDisableClientState Lib "opengl32.dll" (ByVal Glenum As Long)
 Private Declare PtrSafe Sub glMaterialfv Lib "opengl32.dll" (ByVal Face As Long, ByVal pname As Long, ByVal param As LongPtr)
@@ -61,6 +63,9 @@ Public Function FastCos(ByRef th As Double) As Double
 End Function
 Public Sub PointSize(ByVal size As Single)
     Call glPointSize(size)
+End Sub
+Public Sub LineWidth(ByVal size As Single)
+    Call glLineWidth(size)
 End Sub
 Public Sub EnableClientState(ByVal Gle As Glenum)
     Call glEnableClientState(Gle)
@@ -96,8 +101,8 @@ End Sub
 Public Sub SwapBuffers()
     Call SwapBuffersA(hdc)
 End Sub
-Public Sub Viewport(ByVal x As Long, ByVal y As Long, ByVal Width As Long, ByVal Height As Long)
-    Call glViewport(x, y, Width, Height)
+Public Sub Viewport(ByVal x As Long, ByVal y As Long, ByVal width As Long, ByVal height As Long)
+    Call glViewport(x, y, width, height)
 End Sub
 Public Sub Enable(ByVal Gle As Glenum)
     Call glEnable(Gle)
@@ -132,8 +137,8 @@ End Sub
 Public Sub Color3d(ByVal red As Double, ByVal green As Double, ByVal blue As Double)
     Call glColor3d(red, green, blue)
 End Sub
-Public Sub Vertex2d(ByVal a As Double, ByVal B As Double)
-    Call glVertex2d(a, B)
+Public Sub Vertex2d(ByVal a As Double, ByVal b As Double)
+    Call glVertex2d(a, b)
 End Sub
 Public Sub Vertex3d(ByVal x As Double, ByVal y As Double, ByVal z As Double)
     Call glVertex3d(x, y, z)

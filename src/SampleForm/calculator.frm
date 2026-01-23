@@ -1,7 +1,7 @@
 VERSION 5.00
 Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} calculator 
    Caption         =   "calculator"
-   ClientHeight    =   5625
+   ClientHeight    =   4710
    ClientLeft      =   45
    ClientTop       =   390
    ClientWidth     =   4455
@@ -18,8 +18,23 @@ Option Explicit
 Private ph As CFormPhysics
 Private Sub UserForm_Initialize()
     Set ph = New CFormPhysics
-    ph.Init Me
+    ph.Init Me, Array(CFormPhysicsLogger, CFormPhysicsWsRenderer)
+    'ph.Init Me, Array(CFormPhysicsLogger, CFormPhysicsWsRenderer, CFormPhysicsGLEffector)
 End Sub
+Private Sub UserForm_Terminate()
+    ph.Terminate
+End Sub
+
+
+
+
+
+
+
+
+
+
+
 Private Sub btnInput(ByVal inp As String)
     With Me.TextBox1
         .Value = .Value & inp

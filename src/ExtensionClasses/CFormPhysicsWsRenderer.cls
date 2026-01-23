@@ -72,12 +72,36 @@ Private Sub myCore_Stopped(x As Double, y As Double, time As Long)
 End Sub
 Private Sub ClearCell(ByRef rc As rc)
 End Sub
-Public Property Get CreateInstance(Optional ByRef core As CFormPhysics = Nothing) As CFormPhysicsWsRenderer
-    'Constructor using the default instance
-    Dim ch As CFormPhysicsWsRenderer: Set ch = New CFormPhysicsWsRenderer
-    If Not core Is Nothing Then ch.Init core
-    Set CreateInstance = ch
-End Property
+Private Sub BuildSheetLut()
+    Dim tmp As Range, Area As Range
+    Dim r As Long, c As Long
+    Dim ll As Long, lt As Long, ul As Long, ut As Long
+    Dim v As Variant
+    Dim i As Long, j As Long
+    Set Area = ws.Range("A1:DA80")
+    For Each tmp In Area
+        With tmp
+            r = .Row
+            c = .Column
+            v = .Value
+            ll = CLng(.left)
+            lt = CLng(.top)
+            ul = CLng(.left + .width)
+            ut = CLng(.top + .height)
+            If ul <= ScrW And ut <= ScrH Then
+                For i = ll To ul
+                    For j = lt To ut
+                        With SheetLut(i, j)
+                            .r = r
+                            .c = c
+                            .isUsed = (v <> Empty)
+                        End With
+                    Next j
+                Next i
+            End If
+        End With
+    Next tmp
+End Sub
 Public Sub Init(ByRef core As CFormPhysics)
     Set myCore = core
     Set ws = ActiveSheet
@@ -97,33 +121,12 @@ Public Sub Init(ByRef core As CFormPhysics)
     cnt = 1
     BuildSheetLut
 End Sub
-Private Sub BuildSheetLut()
-    Dim tmp As Range, Area As Range
-    Dim r As Long, c As Long
-    Dim ll As Long, lt As Long, ul As Long, ut As Long
-    Dim v As Variant
-    Dim i As Long, j As Long
-    Set Area = ws.Range("A1:DA80")
-    For Each tmp In Area
-        With tmp
-            r = .Row
-            c = .Column
-            v = .Value
-            ll = CLng(.Left)
-            lt = CLng(.Top)
-            ul = CLng(.Left + .Width)
-            ut = CLng(.Top + .Height)
-            If ul <= ScrW And ut <= ScrH Then
-                For i = ll To ul
-                    For j = lt To ut
-                        With SheetLut(i, j)
-                            .r = r
-                            .c = c
-                            .isUsed = (v <> Empty)
-                        End With
-                    Next j
-                Next i
-            End If
-        End With
-    Next tmp
+Public Property Get CreateInstance() As CFormPhysicsWsRenderer
+    Set CreateInstance = New CFormPhysicsWsRenderer
+End Property
+Private Sub Class_Terminate()
+    Set myCore = Nothing
+End Sub
+Public Sub Terminate()
+    Call Class_Terminate
 End Sub
