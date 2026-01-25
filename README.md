@@ -1,18 +1,16 @@
 # **BouncyUserForm**
 - BouncyUserForm は、**Excel VBA の UserForm を物理オブジェクトとして扱い、
-重力・反発・空気抵抗・ダメージ表現を伴うアニメーションを実現するクラスモジュール**です。
+重力・反発・空気抵抗・ダメージ表現を伴うアニメーションを実現するモジュール**です。
 フォームをぶん投げてストレスを解消できます。
 フォームが画面内を跳ね回り、衝突時にはコントロールが破損（非表示）します。
 - 本コードでPCやデータに異常・損害が発生しても、作成者は一切責任を取りません。自己責任で遊んでください。
 
 ---
-- BouncyUserForm is a class module that treats an Excel VBA UserForm as a physical object, enabling real‑time animation with gravity, bounce, air resistance, and damage simulation.
+- BouncyUserForm is a module that treats an Excel VBA UserForm as a physical object, enabling animations with gravity, bouncing, air resistance, and damage effects.
 You can throw the form around to relieve stress.
-It bounces inside the screen boundaries, and when it crashes, its controls may “break” (become hidden).
-- ⚠ Disclaimer  
-The author is not responsible for any issues, data loss, or damage caused by this code.
-Use it at your own risk and enjoy responsibly.
-
+The form bounces around the screen, and when it collides with something, its controls can break (become hidden).
+- The creator assumes no responsibility for any issues or damage to your PC or data caused by this code.
+Use it at your own risk.
 
 
 # 🧩拡張機能 / Extensions
