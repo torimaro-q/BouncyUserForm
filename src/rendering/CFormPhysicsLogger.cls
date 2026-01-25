@@ -8,15 +8,16 @@ Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
 Option Explicit
-Private Const BUF_SIZE As Long = 5000
+Implements ICFormPhysicsEx
+Private Const BUF_SIZE As Long = 10000
 Private WithEvents myCore As CFormPhysics
 Attribute myCore.VB_VarHelpID = -1
 Private ws As Worksheet
 Private myChart As Chart
 Private chartObj As ChartObject
 Private Type POINT
-    x As Double
-    y As Double
+    X As Double
+    Y As Double
     dmg As Double
 End Type
 Private Type SeriesType
@@ -31,47 +32,47 @@ Private cnt As Long
 Private dmg As Double
 Private pdmg As Double
 Private interp() As Double, interpCount As Long
-Private Sub UpdatePoint(ByRef x As Double, ByRef y As Double, Optional ByRef Damage As Double = 0)
+Private Sub UpdatePoint(ByRef X As Double, ByRef Y As Double, Optional ByRef Damage As Double = 0)
     With buf(cnt)
-        .x = x
-        .y = y
+        .X = X
+        .Y = Y
         .dmg = Damage
     End With
     If Damage > 0 Then HandleDamageUpdate Damage
     cnt = cnt + 1
     If cnt > UBound(buf) Then cnt = 0
 End Sub
-Private Sub myCore_Move(ByRef x As Double, ByRef y As Double, ByRef veloc As Double, ByRef time As Long)
-    UpdatePoint x, y
+Private Sub myCore_Move(ByRef X As Double, ByRef Y As Double, ByRef veloc As Double, ByRef time As Long)
+    UpdatePoint X, Y
 End Sub
-Private Sub myCore_Crash(ByRef x As Double, ByRef y As Double, ByRef dmg As Double, ByRef time As Long)
-    UpdatePoint x, y, dmg
+Private Sub myCore_Crash(ByRef X As Double, ByRef Y As Double, ByRef dmg As Double, ByRef time As Long)
+    UpdatePoint X, Y, dmg
 End Sub
-Private Sub myCore_Started(ByRef x As Double, ByRef y As Double, ByRef time As Long)
+Private Sub myCore_Started(ByRef X As Double, ByRef Y As Double, ByRef time As Long)
     Reset
-    UpdatePoint x, y
+    UpdatePoint X, Y
 End Sub
-Private Sub myCore_Stopped(ByRef x As Double, ByRef y As Double, ByRef time As Long)
-    UpdatePoint x, y
+Private Sub myCore_Stopped(ByRef X As Double, ByRef Y As Double, ByRef time As Long)
+    UpdatePoint X, Y
 End Sub
 Private Sub HandleDamageUpdate(ByRef Damage As Double)
-    Dim i As Long, hcnt As Long, delta As Long
+    Dim i As Long, HCnt As Long, delta As Long
     Dim dc As Long, ofs As Long
     delta = cnt - pcnt
     If delta < 0 Then delta = delta + UBound(buf)
     For i = LBound(interp) To UBound(interp)
         dc = CLng(delta * interp(i))
         If dc > 1 Then
-            hcnt = pcnt + dc
-            If hcnt > UBound(buf) Then hcnt = hcnt - UBound(buf)
-            AppendToSeries 0, buf(hcnt).x, buf(hcnt).y
+            HCnt = pcnt + dc
+            If HCnt > UBound(buf) Then HCnt = HCnt - UBound(buf)
+            AppendToSeries 0, buf(HCnt).X, buf(HCnt).Y
         End If
     Next i
     dmg = buf(cnt).dmg
     ofs = 1 + Fix((dmg - pdmg) * 0.2)
     If ofs > 4 Then ofs = 4
-    AppendToSeries 0, buf(cnt).x, buf(cnt).y
-    AppendToSeries ofs, buf(cnt).x, buf(cnt).y
+    AppendToSeries 0, buf(cnt).X, buf(cnt).Y
+    AppendToSeries ofs, buf(cnt).X, buf(cnt).Y
     UpdateChartSeries 0
     UpdateChartSeries ofs
     pdmg = dmg
@@ -79,12 +80,12 @@ Private Sub HandleDamageUpdate(ByRef Damage As Double)
     myChart.ChartArea.Select 'for excel 2024
     Application.Calculate 'In excel 2024, chart updates are no longer triggered.
 End Sub
-Private Sub AppendToSeries(ByVal index As Long, ByVal x As Double, ByVal y As Double)
+Private Sub AppendToSeries(ByVal index As Long, ByVal X As Double, ByVal Y As Double)
     With mySeries(index)
         ReDim Preserve .xvalues(0 To .cnt)
         ReDim Preserve .yvalues(0 To .cnt)
-        .xvalues(.cnt) = x
-        .yvalues(.cnt) = y
+        .xvalues(.cnt) = X
+        .yvalues(.cnt) = Y
         .cnt = .cnt + 1
     End With
 End Sub
@@ -106,7 +107,6 @@ Public Sub Reset()
     Next i
     ReDim buf(0 To BUF_SIZE) As POINT
 End Sub
-
 Private Sub ClearCharts()
     Dim tcht As ChartObject
     If ws Is Nothing Then Exit Sub
@@ -117,7 +117,7 @@ Private Sub ClearCharts()
     Next tcht
 End Sub
 Private Sub CreateChart()
-    Dim i As Long, nw As Series, ax As Axes, labels As Variant
+    Dim i As Long, nw As Series, AX As Axes, labels As Variant
     labels = Array("Y", "dmg<1", "dmg<5", "dmg<10", "10<dmg")
     ReDim mySeries(LBound(labels) To UBound(labels))
     For i = LBound(mySeries) To UBound(mySeries)
@@ -146,20 +146,20 @@ Private Sub CreateChart()
                     nw.MarkerStyle = xlMarkerStyleCircle
                 End If
             Next i
-            Set ax = .Axes
-            ConfigureAxes ax
+            Set AX = .Axes
+            ConfigureAxes AX
         End With
     End With
     ApplyBrilliantTemplate myChart
 End Sub
-Private Sub ConfigureAxes(ByRef ax As Axes)
-    With ax.Item(1) ' X axis
+Private Sub ConfigureAxes(ByRef AX As Axes)
+    With AX.Item(1) ' X axis
         .MaximumScale = (myCore.ScrLeft + myCore.ScrWidth) * myCore.Px2Tw
         .MinimumScale = myCore.ScrLeft * myCore.Px2Tw
         .MaximumScaleIsAuto = False
         .MinimumScaleIsAuto = False
     End With
-    With ax.Item(2) ' Y axis
+    With AX.Item(2) ' Y axis
         .ReversePlotOrder = True
         .MaximumScale = (myCore.ScrTop + myCore.ScrHeight) * myCore.Px2Tw
         .MinimumScale = myCore.ScrTop * myCore.Px2Tw
@@ -233,7 +233,10 @@ Public Sub ApplyBrilliantTemplate(ByVal ch As Chart)
         .Font.size = 9
     End With
 End Sub
-Public Sub Init(ByRef core As CFormPhysics)
+Private Property Get ICFormPhysicsEx_CreateInstance() As ICFormPhysicsEx
+    Set ICFormPhysicsEx_CreateInstance = New CFormPhysicsLogger
+End Property
+Private Sub ICFormPhysicsEx_init(core As CFormPhysics, Optional params As Variant = Empty)
     Application.Calculation = xlCalculationManual
     Set myCore = core
     Set ws = ActiveSheet
@@ -242,13 +245,7 @@ Public Sub Init(ByRef core As CFormPhysics)
     ClearCharts
     CreateChart
 End Sub
-Public Property Get CreateInstance() As CFormPhysicsLogger
-    Set CreateInstance = New CFormPhysicsLogger
-End Property
-Private Sub Class_Terminate()
+Private Sub ICFormPhysicsEx_Terminate()
     Set myCore = Nothing
-End Sub
-Public Sub Terminate()
-    Call Class_Terminate
 End Sub
 

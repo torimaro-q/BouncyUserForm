@@ -8,8 +8,8 @@ Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
 Option Explicit
-Private Declare PtrSafe Function GetDC Lib "user32" (ByVal hWnd As LongPtr) As LongPtr
-Private Declare PtrSafe Function ReleaseDC Lib "user32" (ByVal hWnd As LongPtr, ByVal hdc As LongPtr) As Long
+Private Declare PtrSafe Function GetDC Lib "user32" (ByVal hwnd As LongPtr) As LongPtr
+Private Declare PtrSafe Function ReleaseDC Lib "user32" (ByVal hwnd As LongPtr, ByVal hdc As LongPtr) As Long
 Private Declare PtrSafe Function SelectObject Lib "gdi32" (ByVal hdc As LongPtr, ByVal hObject As LongPtr) As LongPtr
 Private Declare PtrSafe Function DeleteObject Lib "gdi32" (ByVal hObject As LongPtr) As Long
 Private Declare PtrSafe Function ChoosePixelFormat Lib "gdi32" (ByVal hdc As LongPtr, ByRef pfd As PIXELFORMATDESCRIPTOR) As Long
@@ -24,9 +24,9 @@ Private Declare PtrSafe Function wglMakeCurrent Lib "opengl32.dll" (ByVal hdc As
 Private Declare PtrSafe Function wglDeleteContext Lib "opengl32.dll" (ByVal hdc As LongPtr) As Long
 Private Declare PtrSafe Sub glColor4f Lib "opengl32.dll" (ByVal red As Single, ByVal green As Single, ByVal blue As Single, ByVal alpha As Single)
 Private Declare PtrSafe Sub glColor3d Lib "opengl32.dll" (ByVal red As Double, ByVal green As Double, ByVal blue As Double)
-Private Declare PtrSafe Sub glVertex2d Lib "opengl32.dll" (ByVal a As Double, ByVal b As Double)
-Private Declare PtrSafe Sub glVertex3d Lib "opengl32.dll" (ByVal x As Double, ByVal y As Double, ByVal z As Double)
-Private Declare PtrSafe Sub glNormal3d Lib "opengl32.dll" (ByVal x As Double, ByVal y As Double, ByVal z As Double)
+Private Declare PtrSafe Sub glVertex2d Lib "opengl32.dll" (ByVal a As Double, ByVal B As Double)
+Private Declare PtrSafe Sub glVertex3d Lib "opengl32.dll" (ByVal X As Double, ByVal Y As Double, ByVal z As Double)
+Private Declare PtrSafe Sub glNormal3d Lib "opengl32.dll" (ByVal X As Double, ByVal Y As Double, ByVal z As Double)
 Private Declare PtrSafe Sub glVertex3dv Lib "opengl32.dll" (ByVal dPtr As LongPtr)
 Private Declare PtrSafe Sub glNormal3dv Lib "opengl32.dll" (ByVal dPtr As LongPtr)
 Private Declare PtrSafe Sub glBegin Lib "opengl32.dll" (ByVal Glenum As Long)
@@ -36,12 +36,11 @@ Private Declare PtrSafe Sub glMatrixMode Lib "opengl32.dll" (ByVal Glenum As Lon
 Private Declare PtrSafe Sub glPushMatrix Lib "opengl32.dll" ()
 Private Declare PtrSafe Sub glPopMatrix Lib "opengl32.dll" ()
 Private Declare PtrSafe Sub glLoadIdentity Lib "opengl32.dll" ()
-Private Declare PtrSafe Sub glViewport Lib "opengl32.dll" (ByVal x As Long, ByVal y As Long, ByVal width As Long, ByVal height As Long)
+Private Declare PtrSafe Sub glViewport Lib "opengl32.dll" (ByVal X As Long, ByVal Y As Long, ByVal width As Long, ByVal height As Long)
 Private Declare PtrSafe Sub glEnable Lib "opengl32.dll" (ByVal Glenum As Long)
 Private Declare PtrSafe Sub glDisable Lib "opengl32.dll" (ByVal Glenum As Long)
 Private Declare PtrSafe Sub glPointSize Lib "opengl32.dll" (ByVal size As Single)
 Private Declare PtrSafe Sub glLineWidth Lib "opengl32.dll" (ByVal width As Single)
-
 Private Declare PtrSafe Sub glEnableClientState Lib "opengl32.dll" (ByVal Glenum As Long)
 Private Declare PtrSafe Sub glDisableClientState Lib "opengl32.dll" (ByVal Glenum As Long)
 Private Declare PtrSafe Sub glMaterialfv Lib "opengl32.dll" (ByVal Face As Long, ByVal pname As Long, ByVal param As LongPtr)
@@ -53,14 +52,7 @@ Private Declare PtrSafe Sub glVertexPointer Lib "opengl32.dll" (ByVal size As Lo
 Private Declare PtrSafe Sub glDrawArrays Lib "opengl32.dll" (ByVal Glenum As Long, ByVal First As Long, ByVal size As Long)
 Private pfd As PIXELFORMATDESCRIPTOR
 Public hformat As Long, hGLRC As LongPtr, hdc As LongPtr
-Private mySin(2000) As Double, myCos(2000) As Double
 Private myhwnd As LongPtr
-Public Function FastSin(ByRef th As Double) As Double
-    FastSin = mySin(CLng(th * 100))
-End Function
-Public Function FastCos(ByRef th As Double) As Double
-    FastCos = myCos(CLng(th * 100))
-End Function
 Public Sub PointSize(ByVal size As Single)
     Call glPointSize(size)
 End Sub
@@ -101,8 +93,8 @@ End Sub
 Public Sub SwapBuffers()
     Call SwapBuffersA(hdc)
 End Sub
-Public Sub Viewport(ByVal x As Long, ByVal y As Long, ByVal width As Long, ByVal height As Long)
-    Call glViewport(x, y, width, height)
+Public Sub Viewport(ByVal X As Long, ByVal Y As Long, ByVal width As Long, ByVal height As Long)
+    Call glViewport(X, Y, width, height)
 End Sub
 Public Sub Enable(ByVal Gle As Glenum)
     Call glEnable(Gle)
@@ -137,14 +129,14 @@ End Sub
 Public Sub Color3d(ByVal red As Double, ByVal green As Double, ByVal blue As Double)
     Call glColor3d(red, green, blue)
 End Sub
-Public Sub Vertex2d(ByVal a As Double, ByVal b As Double)
-    Call glVertex2d(a, b)
+Public Sub Vertex2d(ByVal a As Double, ByVal B As Double)
+    Call glVertex2d(a, B)
 End Sub
-Public Sub Vertex3d(ByVal x As Double, ByVal y As Double, ByVal z As Double)
-    Call glVertex3d(x, y, z)
+Public Sub Vertex3d(ByVal X As Double, ByVal Y As Double, ByVal z As Double)
+    Call glVertex3d(X, Y, z)
 End Sub
-Public Sub Normal3d(ByVal x As Double, ByVal y As Double, ByVal z As Double)
-    Call glNormal3d(x, y, z)
+Public Sub Normal3d(ByVal X As Double, ByVal Y As Double, ByVal z As Double)
+    Call glNormal3d(X, Y, z)
 End Sub
 Public Sub Vertex3dv(ByVal Vec4Ptr As LongPtr)
     Call glVertex3dv(Vec4Ptr)
@@ -171,12 +163,12 @@ Public Sub LookAt(ByVal eyex As Double, ByVal eyey As Double, ByVal eyez As Doub
     Call gluLookAt(eyex, eyey, eyez, centerx, centery, centerz, upx, upy, upz)
 End Sub
 '//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-Public Property Let hWnd(newPtr As LongPtr)
+Public Property Let hwnd(newPtr As LongPtr)
     myhwnd = newPtr
     Call Inithwnd
 End Property
-Public Property Get hWnd() As LongPtr
-    hWnd = myhwnd
+Public Property Get hwnd() As LongPtr
+    hwnd = myhwnd
 End Property
 Private Sub Inithwnd()
     If hdc <> 0 Then Releasehwnd
@@ -218,11 +210,6 @@ Private Sub Class_Initialize()
         .dwVisibleMask = 0
         .dwDamageMask = 0
     End With
-    Dim i As Long
-    For i = 0 To UBound(mySin)
-        mySin(i) = Sin(i * 0.01)
-        myCos(i) = Cos(i * 0.01)
-    Next i
 End Sub
 Private Sub Class_Terminate()
     Call Releasehwnd

@@ -7,15 +7,11 @@ Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
-'Option Explicit 'To determine the presence of an extension class
-Private Type POINT
-    x As Double
-    y As Double
-End Type
+Option Explicit 'To determine the presence of an extension class
 Private Type RGBA
-    r As Byte
-    g As Byte
-    b As Byte
+    R As Byte
+    G As Byte
+    B As Byte
     a As Byte
 End Type
 Private Type LONGTYPE
@@ -32,11 +28,12 @@ Private Const LWA_COLORKEY = &H1
 Private Const CLMASK As Long = &H80000000
 Private Declare PtrSafe Function GetSysColor Lib "user32" (ByVal nIndex As Long) As Long
 Private Declare PtrSafe Function GetSystemMetrics Lib "user32" (ByVal nIndex As Long) As Long
-Private Declare PtrSafe Function GetDC Lib "user32" (ByVal hWnd As LongPtr) As LongPtr
+Private Declare PtrSafe Function GetDC Lib "user32" (ByVal hwnd As LongPtr) As LongPtr
 Private Declare PtrSafe Function GetDeviceCaps Lib "gdi32" (ByVal hdc As LongPtr, ByVal nIndex As Long) As Long
-Private Declare PtrSafe Function ReleaseDC Lib "user32" (ByVal hWnd As LongPtr, ByVal hdc As LongPtr) As Long
+Private Declare PtrSafe Function ReleaseDC Lib "user32" (ByVal hwnd As LongPtr, ByVal hdc As LongPtr) As Long
 Private Declare PtrSafe Function GetTickCount Lib "kernel32" () As Long
 '##############################################################################################
+Private Const SPDLMT As Double = 10000
 Private Const SAFEOFS As Double = 0.00001
 Private Const PA As Double = 0.9604
 Private Const PB As Double = 0.3978
@@ -47,56 +44,52 @@ Private Const GRAV As Double = 300
 Private Const DMGCF As Double = 0.00000001
 Private Const SPDCF As Double = 0.75
 Private Const PRES2VIS As Double = 0.001
-Private DragCf As POINT, dst As POINT, VV As POINT, VA As POINT
-Private InvMass As Double, hw As Double, hh As Double
+Private DragX As Double, DragY As Double
 Private isDragging As Boolean, isAnimation As Boolean
 Private Caps(3) As String, dCap As String, frameCnt As Long
-Private RChk As Double, TChk As Double
-Private cV As Double, pV As Double, sR As Long, sG As Long, sB As Long, tCl As Long
-Private Ex As Object
+Private RChk As Double, TChk As Double, cV As Double, pV As Double, tCl As Long
 Private WithEvents mFrm As MSForms.UserForm
 Attribute mFrm.VB_VarHelpID = -1
-Public mFrmRaw As Object
-Public Damage As Double, pTime As Long, cTime As Long, Dens As Double, Mass As Double
+Public mFrmRaw As Object, ex As Object
+Public LX As Double, ty As Double, VX As Double, VY As Double, AX As Double, AY As Double
+Public Damage As Double, pTime As Long, cTime As Long, Dens As Double, Mass As Double, InvMass As Double, hw As Double, hh As Double
 Public ScrLeft As Double, ScrTop As Double, ScrWidth As Double, ScrHeight As Double, Px2Tw As Double
-Public Event Crash(ByRef x As Double, ByRef y As Double, ByRef dmg As Double, ByRef time As Long)
-Public Event Broke(ByRef x As Double, ByRef y As Double, ByRef ofsx As Double, ByRef ofsy As Double, ByRef hw As Double, ByRef hh As Long)
-Public Event Move(ByRef x As Double, ByRef y As Double, ByRef veloc As Double, ByRef time As Long)
-Public Event Started(ByRef x As Double, ByRef y As Double, ByRef time As Long)
-Public Event Stopped(ByRef x As Double, ByRef y As Double, ByRef time As Long)
+Public Event Crash(ByRef X As Double, ByRef Y As Double, ByRef dmg As Double, ByRef time As Long)
+Public Event Break(ByRef X As Double, ByRef Y As Double, ByRef ofsx As Double, ByRef ofsy As Double, ByRef hw As Double, ByRef hh As Long)
+Public Event Move(ByRef X As Double, ByRef Y As Double, ByRef veloc As Double, ByRef time As Long)
+Public Event Started(ByRef X As Double, ByRef Y As Double, ByRef time As Long)
+Public Event Stopped(ByRef X As Double, ByRef Y As Double, ByRef time As Long)
 Private Sub AnimationLoop()
     Dim dt As Double, isCrashed As Boolean
     With mFrmRaw
-        dst.x = .left
-        dst.y = .top
+        LX = .left
+        ty = .top
     End With
-    RaiseEvent Started(dst.x + hw, dst.y + hh, cTime)
+    RaiseEvent Started(LX + hw, ty + hh, cTime)
     Do
-        With VV
-            cTime = GetTickCount
-            If pTime <> 0 Then
-                dt = SAFEOFS + (cTime - pTime) * 0.001
-                VA.x = -DragCf.x * InvMass * (.x + PRES2VIS * (.x * Abs(.x)))
-                VA.y = GRAV - DragCf.y * InvMass * (.y + PRES2VIS * (.y * Abs(.y)))
-                .x = .x + VA.x * dt
-                .y = .y + VA.y * dt
-                dst.x = dst.x + .x * dt
-                dst.y = dst.y + .y * dt
-            End If
-            pTime = cTime
-            isCrashed = ApplyCollision
-            Call UpdateVeloc
-            If isDragging Then Exit Do
-            If isAnimation = False Then Exit Do
-            If isCrashed = True Then ApplyDamage
-            If cV < 10 Then Exit Do
-        End With
+        cTime = GetTickCount
+        If pTime <> 0 Then
+            dt = SAFEOFS + (cTime - pTime) * 0.001
+            AX = -DragX * InvMass * (VX + PRES2VIS * (VX * Abs(VX)))
+            AY = GRAV - DragY * InvMass * (VY + PRES2VIS * (VY * Abs(VY)))
+            VX = VX + AX * dt
+            VY = VY + AY * dt
+            LX = LX + VX * dt
+            ty = ty + VY * dt
+        End If
+        pTime = cTime
+        isCrashed = ApplyCollision
+        Call UpdateVeloc
+        If isDragging Then Exit Do
+        If isAnimation = False Then Exit Do
+        If isCrashed = True Then ApplyDamage
+        If cV < 10 Then Exit Do
         On Error GoTo err 'avoid automation errors
-            mFrmRaw.Move dst.x, dst.y
+            mFrmRaw.Move LX, ty
         On Error GoTo 0
         Render
     Loop
-    RaiseEvent Stopped(dst.x + hw, dst.y + hh, cTime)
+    RaiseEvent Stopped(LX + hw, ty + hh, cTime)
     ResetPhysics
     Render
     Exit Sub
@@ -104,43 +97,38 @@ err:
     isAnimation = False
 End Sub
 Private Function ApplyCollision() As Boolean
-    With VV
-        ApplyCollision = True
-        If dst.x < ScrLeft Then
-            dst.x = ScrLeft
-            .x = -.x * ZETA
-            .y = .y * ZETA
-        ElseIf dst.x > RChk Then
-            dst.x = RChk
-            .x = -.x * ZETA
-            .y = .y * ZETA
-        ElseIf dst.y < ScrTop Then
-            dst.y = ScrTop
-            .x = .x * ZETA
-            .y = -.y * ZETA
-        ElseIf dst.y > TChk Then
-            dst.y = TChk
-            .x = .x * ZETA
-            .y = -.y * ZETA
-        Else
-            ApplyCollision = False
-        End If
-    End With
+    ApplyCollision = True
+    If LX < ScrLeft Then
+        LX = ScrLeft
+        VX = -VX * ZETA
+        VY = VY * ZETA
+    ElseIf LX > RChk Then
+        LX = RChk
+        VX = -VX * ZETA
+        VY = VY * ZETA
+    ElseIf ty < ScrTop Then
+        ty = ScrTop
+        VX = VX * ZETA
+        VY = -VY * ZETA
+    ElseIf ty > TChk Then
+        ty = TChk
+        VX = VX * ZETA
+        VY = -VY * ZETA
+    Else
+        ApplyCollision = False
+    End If
 End Function
 Private Sub ApplyDamage()
-    Dim cntr As MSForms.Control, th As Double, xn As Long, yn As Long
     Damage = Damage + DMGCF * 0.5 * Mass * Abs(pV * pV - cV * cV)
-    RaiseEvent Crash(dst.x + hw, dst.y + hh, Damage, cTime)
-    With WorksheetFunction
-        tCl = RGB(.Min(sR + Damage, 255), .Max(sG - Damage * 0.1, sG * 0.9), .Max(sB - Damage * 0.1, sB * 0.9))
-    End With
+    RaiseEvent Crash(LX + hw, ty + hh, Damage, cTime)
     If Damage > 10 Then
+        Dim th As Double, cntr As MSForms.Control
         th = 1 - Damage * 0.002
         On Error GoTo err 'avoid automation errors
             For Each cntr In mFrmRaw.Controls
                 If Rnd() > th Then
                     With cntr
-                        RaiseEvent Broke(dst.x + hw, dst.y + hh, dst.x + .left, dst.y + .top, 0.5 * .width, 0.5 * .height)
+                        RaiseEvent Break(LX + hw, ty + hh, LX + .left, ty + .top, 0.5 * .width, 0.5 * .height)
                         .Visible = False
                     End With
                 End If
@@ -153,7 +141,7 @@ Private Sub mFrm_Layout()
     If isAnimation Then
         'Forced termination conditions
         With mFrmRaw
-            If Abs(dst.x - .left) > 30 Or Abs(dst.y - .top) > 30 Then
+            If Abs(LX - .left) > 30 Or Abs(ty - .top) > 30 Then
                 isDragging = False
                 Call ResetPhysics
                 Call Render
@@ -163,8 +151,8 @@ Private Sub mFrm_Layout()
         With mFrmRaw
             RChk = ScrLeft + ScrWidth * Px2Tw - .width
             TChk = ScrTop + ScrHeight * Px2Tw - .height
-            DragCf.x = .height * THICKNESS
-            DragCf.y = .width * THICKNESS
+            DragX = .height * THICKNESS
+            DragY = .width * THICKNESS
             hh = .height * 0.5
             hw = .width * 0.5
             Call Render
@@ -173,29 +161,25 @@ Private Sub mFrm_Layout()
         InvMass = 1 / Mass
     End If
 End Sub
-Private Function getVeloc(ByRef vx As Double, ByRef vy As Double) As Double
-    Dim avx As Double: avx = Abs(vx)
-    Dim avy As Double: avy = Abs(vy)
+Private Function getVeloc(ByRef VX As Double, ByRef VY As Double) As Double
     'Linear Approximation of Pythagoras' Theorem
-    If avx > avy Then getVeloc = PA * avx + PB * avy Else getVeloc = PA * avy + PB * avx
+    If Abs(VX) > Abs(VY) Then getVeloc = PA * Abs(VX) + PB * Abs(VY) Else getVeloc = PA * Abs(VY) + PB * Abs(VX)
 End Function
 Private Sub Render()
     On Error GoTo err 'avoid automation errors
         With mFrmRaw
             If isAnimation = True Then
-                If frameCnt Mod 10 = 0 Then
-                    RaiseEvent Move(dst.x + hw, dst.y + hh, cV, cTime)
+                If frameCnt Mod 5 = 0 Then
+                    RaiseEvent Move(LX + hw, ty + hh, cV, cTime)
                     If frameCnt Mod 30 = 0 Then
                         Caps(1) = format(cV, FMT)
                         Caps(3) = format(Damage, FMT)
                         .Caption = Join(Caps, "") 'High-Speed String Concatenation
-                        .BackColor = tCl
                     End If
                 End If
             Else
                 .Caption = dCap
                 If Damage > 30 Then .Caption = .Caption & "?"
-                .BackColor = tCl
             End If
         End With
     On Error GoTo 0
@@ -204,10 +188,8 @@ Private Sub Render()
 err:
 End Sub
 Private Sub UpdateVeloc()
-    With VV
-        pV = cV
-        cV = getVeloc(.x, .y)
-    End With
+    pV = cV
+    cV = getVeloc(VX, VY)
 End Sub
 Private Function getMass() As Double
     With mFrmRaw
@@ -220,7 +202,6 @@ Private Sub Restore()
     For Each c In mFrmRaw.Controls
         c.Visible = True
     Next c
-    tCl = RGB(sR, sG, sB)
     Render
 End Sub
 Private Sub Class_Terminate()
@@ -229,17 +210,17 @@ Private Sub Class_Terminate()
         .Calculation = xlCalculationAutomatic
     End With
     isDragging = True
-    If Not (Ex Is Nothing) Then
+    If Not (ex Is Nothing) Then
         On Error GoTo err
         Dim tmp As Variant
-        For Each tmp In Ex.keys()
-            Ex.Item(tmp).Terminate
+        For Each tmp In ex.keys()
+            ex.Item(tmp).Terminate
         Next tmp
 err:
-        Set Ex = Nothing
+        Set ex = Nothing
     End If
 End Sub
-Private Sub mFrm_MouseDown(ByVal Button As Integer, ByVal Shift As Integer, ByVal x As Single, ByVal y As Single)
+Private Sub mFrm_MouseDown(ByVal Button As Integer, ByVal Shift As Integer, ByVal X As Single, ByVal Y As Single)
     If Button = 1 Then
         isDragging = True
         Call ResetPhysics
@@ -247,24 +228,22 @@ Private Sub mFrm_MouseDown(ByVal Button As Integer, ByVal Shift As Integer, ByVa
         Call Restore
     End If
 End Sub
-Private Sub mFrm_MouseMove(ByVal Button As Integer, ByVal Shift As Integer, ByVal x As Single, ByVal y As Single)
+Private Sub mFrm_MouseMove(ByVal Button As Integer, ByVal Shift As Integer, ByVal X As Single, ByVal Y As Single)
     If isDragging Then 'When the title bar is selected directly, disable physics calculations (for user consideration).
         With mFrmRaw
-            dst.x = .left
-            dst.y = .top
-            .left = .left + x - hw
-            .top = .top + y + 10 'The offset to automatically center the selection in the title bar when the user form is clicked.
+            LX = .left
+            ty = .top
+            .left = .left + X - hw
+            .top = .top + Y + 10 'The offset to automatically center the selection in the title bar when the user form is clicked.
             cTime = GetTickCount
             If pTime <> 0 Then
                 Dim dt As Double, cff As Double
                 dt = SAFEOFS + (cTime - pTime) * 0.001
                 cff = 1 / (dt + 0.005) 'Vibration Countermeasures
-                VV.x = 0.5 * VV.x + (.left - dst.x) * cff
-                VV.y = 0.5 * VV.y + (.top - dst.y) * cff
-                With VV
-                    If Abs(.x) > 10000 Then .x = Sgn(.x) * 10000
-                    If Abs(.y) > 10000 Then .y = Sgn(.y) * 10000
-                End With
+                VX = 0.5 * VX + (.left - LX) * cff
+                VY = 0.5 * VY + (.top - ty) * cff
+                If Abs(VX) > SPDLMT Then VX = Sgn(VX) * SPDLMT
+                If Abs(VY) > SPDLMT Then VY = Sgn(VY) * SPDLMT
             End If
             pTime = cTime
         End With
@@ -272,61 +251,58 @@ Private Sub mFrm_MouseMove(ByVal Button As Integer, ByVal Shift As Integer, ByVa
         'If you want to add an action to avoid the user when taking damage, put it here.
     End If
 End Sub
-Private Sub mFrm_MouseUp(ByVal Button As Integer, ByVal Shift As Integer, ByVal x As Single, ByVal y As Single)
-    If isDragging Then
-        isDragging = False
-        isAnimation = True
-        pV = 0
-        pTime = 0
-        Call AnimationLoop
-    End If
+Private Sub mFrm_MouseUp(ByVal Button As Integer, ByVal Shift As Integer, ByVal X As Single, ByVal Y As Single)
+    If isDragging Then Launch
+End Sub
+Public Sub Launch()
+    isDragging = False
+    isAnimation = True
+    pV = 0
+    pTime = 0
+    Call AnimationLoop
 End Sub
 Private Function ResetPhysics()
-    With VV
-        .x = 0: .y = 0
-    End With
+    VX = 0: VY = 0
     pV = 0: cV = 0: pTime = 0
     isAnimation = False
 End Function
 Private Function CL2RGBA(ByRef cl As Long) As RGBA
-    Dim l As LONGTYPE: l.Value = cl
-    LSet CL2RGBA = l
+    Dim L As LONGTYPE: L.Value = cl
+    LSet CL2RGBA = L
 End Function
-Public Sub Init(ByRef form As Object, Optional ByRef extenions As Variant = Empty)
+Public Sub init(ByRef form As Object, Optional ByRef extenions As Variant = Empty, Optional ByRef cEffectors As Variant = Empty, Optional ByRef mEffectors As Variant = Empty)
     If mFrmRaw Is Nothing Then
         Set mFrmRaw = form
         Set mFrm = form
         Px2Tw = 72 / GetDPI()
         With mFrmRaw
-            .DrawBuffer = 320000 'Set the DrawBuffer to prevent flickering
+            .DrawBuffer = 640000 'prevent flickering
             dCap = .Caption
-            With CL2RGBA(SysCL2RGB(.BackColor))
-                sR = .r: sG = .g: sB = .b
-                tCl = RGB(sR, sG, sB)
-                Dens = (300 - WorksheetFunction.Max(sR, sG, sB)) / 5000
+            tCl = SysCL2RGB(.BackColor)
+            With CL2RGBA(tCl)
+                Dens = (300 - (0.299 * .R + 0.587 * .G + 0.114 * .B)) / 5000
             End With
         End With
         isDragging = False
         Call ResetPhysics
         On Error GoTo err
-            Dim tmp, obj
-            If IsEmpty(extenions) Then extenions = Array(CFormPhysicsLogger, CFormPhysicsWsRenderer)
-            Set Ex = CreateObject("Scripting.Dictionary")
-            For Each tmp In extenions
-                If Ex.exists(TypeName(tmp)) = False Then
-                    Set obj = CallByName(tmp, "CreateInstance", VbGet)
-                    obj.Init Me
-                    Ex.Add TypeName(tmp), obj
+            Dim nm, t, fc As ICFormPhysicsEx, ci As ICFormPhysicsEx
+            Set ex = CreateObject("Scripting.Dictionary")
+            For Each t In extenions
+                nm = TypeName(t)
+                If ex.exists(nm) = False Then
+                    Set fc = t
+                    Set ci = fc.CreateInstance
+                    ci.init Me, Array(cEffectors, mEffectors)
+                    ex.Add nm, ci
                 End If
-            Next tmp
+            Next t
     End If
 err:
 End Sub
 Private Sub Class_Initialize()
-    ScrLeft = GetSystemMetrics(SM_XVIRTUALSCREEN)
-    ScrTop = GetSystemMetrics(SM_YVIRTUALSCREEN)
-    ScrWidth = GetSystemMetrics(SM_CXVIRTUALSCREEN)
-    ScrHeight = GetSystemMetrics(SM_CYVIRTUALSCREEN)
+    ScrLeft = GetSystemMetrics(SM_XVIRTUALSCREEN): ScrTop = GetSystemMetrics(SM_YVIRTUALSCREEN)
+    ScrWidth = GetSystemMetrics(SM_CXVIRTUALSCREEN): ScrHeight = GetSystemMetrics(SM_CYVIRTUALSCREEN)
     Caps(0) = "speed : ": Caps(2) = "   damage : "
 End Sub
 Private Function GetDPI() As Long

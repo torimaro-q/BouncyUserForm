@@ -15,26 +15,20 @@ Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
 Option Explicit
-Private ph As CFormPhysics
+Private engine As CFormPhysics
 Private Sub UserForm_Initialize()
-    Set ph = New CFormPhysics
-    ph.Init Me, Array(CFormPhysicsLogger, CFormPhysicsWsRenderer)
-    'ph.Init Me, Array(CFormPhysicsLogger, CFormPhysicsWsRenderer, CFormPhysicsGLEffector)
+    Set engine = New CFormPhysics
+    engine.init Me, Array(CFormPhysicsLogger, _
+                          CFormPhysicsWsRenderer, _
+                          CFormPhysicsGLEffector, _
+                          CFormPhysicsController), _
+                    Array(glShockWave, _
+                          glExplosion), _
+                    Array(glMoveTrail)
 End Sub
 Private Sub UserForm_Terminate()
-    ph.Terminate
+    engine.Terminate
 End Sub
-
-
-
-
-
-
-
-
-
-
-
 Private Sub btnInput(ByVal inp As String)
     With Me.TextBox1
         .Value = .Value & inp

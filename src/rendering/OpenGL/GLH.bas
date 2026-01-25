@@ -106,6 +106,9 @@ Public Enum Glenum
     GL_CLIP_PLANE0 = &H3000&
     GL_CLIP_PLANE1 = &H3001&
     GL_AMBIENT_AND_DIFFUSE = &H1602&
+    
+    
+    
 End Enum
 Public Const CS_VREDRAW = 1
 Public Const CS_HREDRAW = 2
@@ -145,47 +148,71 @@ Public Type PIXELFORMATDESCRIPTOR
     dwDamageMask As Long
 End Type
 Public Type Vector2d
-    x As Double
-    y As Double
+    X As Double
+    Y As Double
 End Type
 Public Type Vector3d
-    x As Double
-    y As Double
+    X As Double
+    Y As Double
     z As Double
 End Type
 Public Type Color4
-    r As Single
-    g As Single
-    b As Single
+    R As Single
+    G As Single
+    B As Single
     a As Single
 End Type
 Public Type B4
-    b(3) As Byte
+    B(3) As Byte
 End Type
 Public Type S1
-    S As Single
+    s As Single
 End Type
 Public Type L1
-    l As Long
+    L As Long
 End Type
 Public Function B2Single(ByRef B1, ByRef B2, ByRef B3, ByRef B4) As Single
-    Dim x As B4, y As S1
-    With x: .b(0) = B1: .b(1) = B2: .b(2) = B3: .b(3) = B4: End With
-    LSet y = x
-    B2Single = y.S
+    Dim X As B4, Y As S1
+    With X: .B(0) = B1: .B(1) = B2: .B(2) = B3: .B(3) = B4: End With
+    LSet Y = X
+    B2Single = Y.s
 End Function
 Public Function B2Long(ByRef B1, ByRef B2, ByRef B3, ByRef B4) As Long
-    Dim x As B4, y As L1
-    With x: .b(0) = B1: .b(1) = B2: .b(2) = B3: .b(3) = B4: End With
-    LSet y = x
-    B2Long = y.l
+    Dim X As B4, Y As L1
+    With X: .B(0) = B1: .B(1) = B2: .B(2) = B3: .B(3) = B4: End With
+    LSet Y = X
+    B2Long = Y.L
 End Function
-Public Function Vector2d(ByVal x As Double, ByVal y As Double) As Vector2d
-    With Vector2d: .x = x: .y = y: End With
+Public Function Vector2d(ByVal X As Double, ByVal Y As Double) As Vector2d
+    With Vector2d: .X = X: .Y = Y: End With
 End Function
-Public Function Vector3d(ByVal x As Double, ByVal y As Double, ByVal z As Double) As Vector3d
-    With Vector3d: .x = x: .y = y: .z = z: End With
+Public Function Vector3d(ByVal X As Double, ByVal Y As Double, ByVal z As Double) As Vector3d
+    With Vector3d: .X = X: .Y = Y: .z = z: End With
 End Function
-Public Function Color4(ByVal r As Single, ByVal g As Single, ByVal b As Single, ByVal a As Single) As Color4
-    With Color4: .a = a: .b = b: .g = g: .r = r: End With
+Public Function Color4(ByVal R As Single, ByVal G As Single, ByVal B As Single, ByVal a As Single) As Color4
+    With Color4: .a = a: .B = B: .G = G: .R = R: End With
+End Function
+Public Function FastSin(ByRef th As Double) As Double
+    Static mySin(2000) As Double
+    Static init As Boolean
+    If Not init Then
+        Dim i As Long
+        For i = 0 To 2000
+            mySin(i) = Sin(i * 0.01)
+        Next i
+        init = True
+    End If
+    FastSin = mySin(CLng(th * 100))
+End Function
+Public Function FastCos(ByRef th As Double) As Double
+    Static mycos(2000) As Double
+    Static init As Boolean
+    If Not init Then
+        Dim i As Long
+        For i = 0 To 2000
+            mycos(i) = Cos(i * 0.01)
+        Next i
+        init = True
+    End If
+    FastCos = mycos(CLng(th * 100))
 End Function

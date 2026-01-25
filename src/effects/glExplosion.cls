@@ -8,7 +8,8 @@ Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
 Option Explicit
-Private Const PARTICLECOUNT As Long = 9000
+Implements ICFormPhysicsEf
+Private Const PARTICLECOUNT As Long = 20000
 Private pD(PARTICLECOUNT) As Vector2d
 Private pV(PARTICLECOUNT) As Vector2d
 Private pC(PARTICLECOUNT) As Color4
@@ -17,7 +18,7 @@ Private InvLF(PARTICLECOUNT) As Double
 Private effectCX As Double
 Private effectCY As Double
 Private myGL As OpenGL, Life As Double, delay As Double, dd As Double
-Public Sub Render(ByRef x, ByRef y, ByRef dt)
+Private Sub ICFormPhysicsEf_Render(X As Double, Y As Double, dt As Long, v As Double)
     delay = delay - dt
     If delay < 0 Then
         Life = Life - dt
@@ -28,7 +29,7 @@ Public Sub Render(ByRef x, ByRef y, ByRef dt)
             .Disable GL_LIGHTING
             .Enable GL_BLEND
             .BlendFunc GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA
-            .PointSize 7#
+            .PointSize 5#
             .EnableClientState GL_VERTEX_ARRAY
             .EnableClientState GL_COLOR_ARRAY
             .ColorPointer 4, GL_FLOAT, 0, VarPtr(pC(0))
@@ -44,45 +45,45 @@ Private Sub Update(ByRef dt)
     Dim i As Long, alpha As Single, t As Single
     For i = 0 To PARTICLECOUNT
         With pV(i)
-            .x = .x * (1 - dt * 0.005)
-            .y = .y * (1 - dt * 0.005)
+            .X = .X * (1 - dt * 0.005)
+            .Y = .Y * (1 - dt * 0.005)
         End With
         With pD(i)
-            .x = .x + pV(i).x * dt
-            .y = .y + pV(i).y * dt
+            .X = .X + pV(i).X * dt
+            .Y = .Y + pV(i).Y * dt
         End With
         LF(i) = LF(i) - dt
         alpha = LF(i) * InvLF(i)
         t = 1 - alpha
         If alpha >= 0 Then
-            Dim r As Single, g As Single, b As Single
+            Dim R As Single, G As Single, B As Single
             If t < 0.2 Then
-                r = 1
-                g = 0.95
-                b = 0.8
+                R = 1
+                G = 0.95
+                B = 0.8
             ElseIf t < 0.5 Then
-                r = 1
-                g = 0.7 - (t - 0.2) * 1#
-                b = 0.2
+                R = 1
+                G = 0.7 - (t - 0.2) * 1#
+                B = 0.2
             ElseIf t < 0.8 Then
-                r = 0.8 - (t - 0.5) * 1#
-                g = 0.2
-                b = 0.1
+                R = 0.8 - (t - 0.5) * 1#
+                G = 0.2
+                B = 0.1
             Else
-                r = 0.2
-                g = 0.2
-                b = 0.2
+                R = 0.2
+                G = 0.2
+                B = 0.2
             End If
             With pC(i)
-                .r = r
-                .g = g
-                .b = b
+                .R = R
+                .G = G
+                .B = B
                 .a = alpha
             End With
         End If
     Next i
 End Sub
-Public Sub Reset(ByRef cx As Double, ByRef cy As Double, ByRef ddmg As Double)
+Private Sub ICFormPhysicsEf_Reset(cx As Double, cy As Double, ddmg As Double, Optional hw As Double = 0#, Optional hh As Double = 0#)
     Dim i As Long, rv As Double, th As Double
     dd = ddmg
     effectCX = cx
@@ -96,24 +97,25 @@ Public Sub Reset(ByRef cx As Double, ByRef cy As Double, ByRef ddmg As Double)
         If Life < LF(i) Then Life = LF(i)
         InvLF(i) = 1 / LF(i)
         With pD(i)
-            .x = cx
-            .y = cy
+            .X = cx
+            .Y = cy
         End With
         With pV(i)
-            .x = rv * myGL.FastCos(th)
-            .y = rv * myGL.FastSin(th)
+            .X = rv * FastCos(th)
+            .Y = rv * FastSin(th)
         End With
         With pC(i)
-            .r = Rnd
-            .g = Rnd
-            .b = Rnd
+            .R = Rnd
+            .G = Rnd
+            .B = Rnd
             .a = 1
         End With
     Next i
 End Sub
-Public Sub Init(ByRef targetGL As OpenGL)
+Private Property Get ICFormPhysicsEf_CreateInstance() As ICFormPhysicsEf
+    Set ICFormPhysicsEf_CreateInstance = New glExplosion
+End Property
+Private Sub ICFormPhysicsEf_Init(targetGL As OpenGL)
     Set myGL = targetGL
 End Sub
-Public Property Get CreateInstance() As glExplosion
-    Set CreateInstance = New glExplosion
-End Property
+

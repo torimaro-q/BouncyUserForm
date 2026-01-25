@@ -8,11 +8,12 @@ Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
 Option Explicit
+Implements ICFormPhysicsEx
 Private WithEvents myCore As CFormPhysics
 Attribute myCore.VB_VarHelpID = -1
 Private ws As Worksheet
 Private Type rc
-    r As Long
+    R As Long
     c As Long
     isUsed As Boolean
 End Type
@@ -31,37 +32,37 @@ Private Function Clamp(ByRef v As Long, ByRef minV As Long, ByRef maxV As Long) 
         Clamp = v
     End If
 End Function
-Private Sub myCore_Move(ByRef x As Double, ByRef y As Double, ByRef veloc As Double, time As Long)
+Private Sub myCore_Move(ByRef X As Double, ByRef Y As Double, ByRef veloc As Double, time As Long)
     If (time - pt) < 5 Then Exit Sub
     pt = time
-    tx = Clamp(CLng(x) + Rnd * 100 - 50, ScrL, ScrW)
-    ty = Clamp(CLng(y) + Rnd * 100 - 50, ScrT, ScrH)
+    tx = Clamp(CLng(X) + Rnd * 100 - 50, ScrL, ScrW)
+    ty = Clamp(CLng(Y) + Rnd * 100 - 50, ScrT, ScrH)
     UpdateSheet SheetLut(tx, ty)
 End Sub
 Private Sub UpdateSheet(ByRef cellInfo As rc)
     With cellInfo
         If .isUsed Then Exit Sub
-        If .r > 0 And .c > 0 Then
-            With ws.Cells(.r, .c)
+        If .R > 0 And .c > 0 Then
+            With ws.Cells(.R, .c)
                 .Value = symbols(CLng(Rnd() * 3))
                 .Font.ColorIndex = (1 + CLng(Rnd() * 25))
             End With
         End If
     End With
     With buf(cnt)
-        If .r > 0 And .c > 0 Then ws.Cells(.r, .c).Value = ""
+        If .R > 0 And .c > 0 Then ws.Cells(.R, .c).Value = ""
     End With
     buf(cnt) = cellInfo
     cnt = cnt + 1
     If cnt > UBound(buf) Then cnt = 0
 End Sub
-Private Sub myCore_Stopped(x As Double, y As Double, time As Long)
+Private Sub myCore_Stopped(X As Double, Y As Double, time As Long)
     Dim i As Long
     On Error Resume Next
     For i = LBound(buf) To UBound(buf)
         With buf(i)
-            If .r > 0 And .c > 0 Then
-                With ws.Cells(.r, .c)
+            If .R > 0 And .c > 0 Then
+                With ws.Cells(.R, .c)
                     .Value = ""
                     .Font.ColorIndex = 1
                 End With
@@ -74,25 +75,25 @@ Private Sub ClearCell(ByRef rc As rc)
 End Sub
 Private Sub BuildSheetLut()
     Dim tmp As Range, Area As Range
-    Dim r As Long, c As Long
-    Dim ll As Long, lt As Long, ul As Long, ut As Long
+    Dim R As Long, c As Long
+    Dim ll As Long, LT As Long, ul As Long, ut As Long
     Dim v As Variant
     Dim i As Long, j As Long
     Set Area = ws.Range("A1:DA80")
     For Each tmp In Area
         With tmp
-            r = .Row
+            R = .Row
             c = .Column
             v = .Value
             ll = CLng(.left)
-            lt = CLng(.top)
+            LT = CLng(.top)
             ul = CLng(.left + .width)
             ut = CLng(.top + .height)
             If ul <= ScrW And ut <= ScrH Then
                 For i = ll To ul
-                    For j = lt To ut
+                    For j = LT To ut
                         With SheetLut(i, j)
-                            .r = r
+                            .R = R
                             .c = c
                             .isUsed = (v <> Empty)
                         End With
@@ -102,7 +103,10 @@ Private Sub BuildSheetLut()
         End With
     Next tmp
 End Sub
-Public Sub Init(ByRef core As CFormPhysics)
+Private Property Get ICFormPhysicsEx_CreateInstance() As ICFormPhysicsEx
+    Set ICFormPhysicsEx_CreateInstance = New CFormPhysicsWsRenderer
+End Property
+Private Sub ICFormPhysicsEx_init(core As CFormPhysics, Optional params As Variant = Empty)
     Set myCore = core
     Set ws = ActiveSheet
     ActiveWindow.Zoom = 100
@@ -121,12 +125,6 @@ Public Sub Init(ByRef core As CFormPhysics)
     cnt = 1
     BuildSheetLut
 End Sub
-Public Property Get CreateInstance() As CFormPhysicsWsRenderer
-    Set CreateInstance = New CFormPhysicsWsRenderer
-End Property
-Private Sub Class_Terminate()
+Private Sub ICFormPhysicsEx_Terminate()
     Set myCore = Nothing
-End Sub
-Public Sub Terminate()
-    Call Class_Terminate
 End Sub
