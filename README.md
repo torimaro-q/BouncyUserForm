@@ -35,12 +35,13 @@ You can freely add optional extensions such as:
 
 # 💥Examples
 - **拡張なし（最小構成）/ Minimal setup (no extensions)**
+![screenshot](pic/Minimal.gif)
 
 - **拡張あり（OpenGL 以外）/ With extensions (non‑OpenGL)**
+![screenshot](pic/WithExtensions.gif)
 
 - **OpenGL 拡張あり / With OpenGL extensions**
-
-
+![screenshot](pic/WithOpenGL.gif)
 
 # 🐧 特徴 / Features
 ### 🧠物理エンジン / Physics Engine
