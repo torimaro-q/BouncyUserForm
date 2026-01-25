@@ -1,79 +1,133 @@
-# BouncyUserForm
+# **BouncyUserForm**
 - BouncyUserForm は、**Excel VBA の UserForm を物理オブジェクトとして扱い、
 重力・反発・空気抵抗・ダメージ表現を伴うアニメーションを実現するクラスモジュール**です。
-業務用のフォームに少なくとも1つのクラスを追加し、フォーム側へ数行追記するだけで、フォームをぶん投げてストレスを解消できます。
+フォームをぶん投げてストレスを解消できます。
 フォームが画面内を跳ね回り、衝突時にはコントロールが破損（非表示）します。
-※本コードでPCやデータに異常・損害が発生しても、作成者は一切責任を取りません。自己責任で遊んでください。
-
-- BouncyUserForm is a class module that treats an Excel VBA UserForm as a physical object, enabling animations with gravity, bounce, air resistance, and damage effects.
-By adding at least one class to your production UserForm and inserting just a few lines of code, you can literally throw the form around to relieve stress.
-The form will bounce around inside the screen, and controls will “break” (become hidden) upon impact.
-Please note that the creator assumes no responsibility for any issues or damage to your PC or data caused by this code. Use it at your own risk and have fun.
-
-
-![screenshot](pic/dentaku.gif)
-
+- 本コードでPCやデータに異常・損害が発生しても、作成者は一切責任を取りません。自己責任で遊んでください。
 
 ---
-**26/1/21 Add OpenGL extension**
+- BouncyUserForm is a class module that treats an Excel VBA UserForm as a physical object, enabling real‑time animation with gravity, bounce, air resistance, and damage simulation.
+You can throw the form around to relieve stress.
+It bounces inside the screen boundaries, and when it crashes, its controls may “break” (become hidden).
+- ⚠ Disclaimer  
+The author is not responsible for any issues, data loss, or damage caused by this code.
+Use it at your own risk and enjoy responsibly.
 
-The method for running OpenGL from VBA is based on this article.
-https://qiita.com/torimaro/items/87eac442f8bf86a52331
-![screenshot](pic/dentaku_with_gl.gif)
 
-## 🚀 特徴 / Features
 
-- **重力シミュレーション**
-- **反発係数による跳ね返り**
-- **空気抵抗（速度依存）**
-- **衝突時のダメージ計算**
-- **ダメージに応じた背景色変化**
-- **コントロールの破損（ランダム非表示）**
-- **UserForm をドラッグして投げると物理挙動開始**
-- **画面端を壁として扱う衝突判定**
-
+# 🧩拡張機能 / Extensions
+以下のような拡張を自由に追加できます。
+- OpenGL によるエフェクト
+- Excel シートへのリアルタイム描画
+- Excel 散布図による軌跡ログ
+- 操作用 UI（コントローラー）
+- カスタムエフェクト（ICFormPhysicsEf）
+- カスタム拡張（ICFormPhysicsEx）
 ---
-
-- Gravity and bouncing 
-- Air resistance 
-- Damage calculation 
-- Background color changes with damage 
-- Controls randomly hide on impact 
-- Throw the form by dragging it 
-- Screen edges act as walls
-
+You can freely add optional extensions such as:
+- OpenGL‑based visual effects
+- Real‑time drawing onto an Excel worksheet
+- Trajectory logging using Excel scatter charts
+- A controller UI for manual operation
+- Custom effects (via ICFormPhysicsEf)
+- Custom extensions (via ICFormPhysicsEx)
 
 
+# 💥Examples
+- **拡張なし（最小構成）/ Minimal setup (no extensions)**
 
-## 📦 使い方 / How to use
+- **拡張あり（OpenGL 以外）/ With extensions (non‑OpenGL)**
 
-### 1. クラスモジュールを追加 / Add the class module 
-#### 拡張機能なし版(No extensions)
+- **OpenGL 拡張あり / With OpenGL extensions**
+
+
+
+# 🐧 特徴 / Features
+### 🧠物理エンジン / Physics Engine
+- 重力シミュレーション
+- 反発係数による跳ね返り
+- 空気抵抗（速度依存）
+- 衝突時のダメージ計算
+- コントロールの破損（ランダム非表示）
+- UserForm をドラッグして投げると物理挙動開始
+- 画面端を壁として扱う衝突判定
+- イベント通知（Move / Crash / Break / Started / Stopped）
+---
+- Gravity simulation
+- Bounce with restitution coefficient
+- Air resistance (velocity‑dependent)
+- Damage calculation on impact
+- Random control “breakage” (hidden on crash)
+- Throw the UserForm by dragging it
+- Screen edges act as collision walls
+- Event callbacks: Move / Crash / Break / Started / Stopped
+---
+### 🎨描画レイヤー / Rendering Layer
+- OpenGL による高速描画
+- Excel シート描画
+- Excel チャートログ
+---
+- High‑speed OpenGL rendering
+- Excel worksheet rendering
+- Excel scatter‑chart trajectory logging
+---
+### 💥エフェクト / Effects
+- 爆発（glExplosion）
+- 衝撃波（glShockWave）
+- 移動残光（glMoveTrail）
+- カスタムしたエフェクトを追加可能
+---
+- Explosion (glExplosion)
+- Shockwave (glShockWave)
+- Motion trail (glMoveTrail)
+- Custom effects supported
+---
+### 🧩拡張 / Extensions
+- Excel ロガー
+- シートレンダラー
+- コントローラー UI
+- カスタムした拡張機能を追加可能
+---
+- Excel logger
+- Worksheet renderer
+- Controller UI
+- Custom extension modules supported
+
+# 🐧使い方 / Usage
+## 1. クラスモジュールを追加 / Add the class modules
+- **拡張なし（最小構成）/ Minimal setup (no extensions)**
 ```
+(必須 / required)
 + CFormPhysics.cls
++ ICFormPhysicsEx.cls
 ```
-
-#### 拡張機能あり版(with extensions)
+- **拡張あり（OpenGL 以外）/ With extensions (non‑OpenGL)**
 ```
+(必須 / required)
 + CFormPhysics.cls
++ ICFormPhysicsEx.cls
+(任意 / optional)
 + CFormPhysicsLogger.cls
 + CFormPhysicsWsRenderer.cls
++ CFormPhysicsController.frm/frx
 ```
-
-#### OpenGL拡張機能あり版(with OpenGL extensions)
+- **OpenGL 拡張あり / With OpenGL extensions**
 ```
+(必須 / required)
 + CFormPhysics.cls
++ ICFormPhysicsEx.cls
++ ICFormPhysicsEf.cls
 + CFormPhysicsGLEffector.frm/frx
 + GLH.bas
 + OpenGL.cls
+(任意 / optional)
 + glExplosion.cls
 + glShockWave.cls
 + glMoveTrail.cls
 ```
 
-- 2. UserForm に以下を追加 / Add this to your UserForm
-
-拡張機能なし版(No extensions)
+## 2. UserForm にコードを追加 / Add code to your UserForm
+- **拡張なし（最小構成）/ Minimal setup (no extensions)**
 ```vb
 Private engine As CFormPhysics
 Private Sub UserForm_Initialize()
@@ -84,8 +138,8 @@ Private Sub UserForm_Terminate()
     engine.Terminate
 End Sub
 ```
-
-拡張機能あり版(with extensions)
+- **拡張あり（OpenGL 以外）/ With extensions (non‑OpenGL)**
+- 使いたい機能を第二引数のArrayに入れる
 ```vb
 Private engine As CFormPhysics
 Private Sub UserForm_Initialize()
@@ -96,32 +150,56 @@ Private Sub UserForm_Terminate()
     engine.Terminate
 End Sub
 ```
-
-
-OpenGL拡張機能あり版(with OpenGL extensions)
+- **OpenGL 拡張あり / With OpenGL extensions**
+- CFormPhysicsGLEffectorを第二引数のArrayに入れ、
+Crash時に発生するエフェクトを第三引数、Moveに時に発生するエフェクトを第四引数として設定する
 ```vb
 Private engine As CFormPhysics
 Private Sub UserForm_Initialize()
     Set engine = New CFormPhysics
-    engine.Init Me, Array(CFormPhysicsGLEffector)
+    engine.init Me, Array(CFormPhysicsGLEffector), _
+                    Array(glShockWave, _
+                          glExplosion), _
+                    Array(glMoveTrail)
+
 End Sub
 Private Sub UserForm_Terminate()
     engine.Terminate
 End Sub
 ```
-
-
-### 3. UserForm を表示 / Run the form
-
+## 3. UserForm を表示 / Run the UserForm
 - フォームをドラッグして投げると物理シミュレーションが開始します。
-  
   ※タイトルバーではなく、ユーザーフォーム本体をドラッグしてください。
-- Run the form and throw it to start the physics.
-  
-  Note: Drag the form itself, not the title bar.
+- Drag the form body (not the title bar) and release it to start the physics simulation.
 
 
+# 📁フォルダ構成 / Folder Structure
+```
+src/
+├─ core/
+│   └─ CFormPhysics.cls
+├─ interfaces/
+│   ├─ ICFormPhysicsEx.cls
+│   └─ ICFormPhysicsEf.cls
+├─ rendering/
+│   ├─ OpenGL/
+│   │   ├─ OpenGL.cls
+│   │   └─ GLH.bas
+│   ├─ CFormPhysicsGLEffector.frm
+│   ├─ CFormPhysicsWsRenderer.cls
+│   └─ CFormPhysicsLogger.cls
+├─ effects/
+│   ├─ glExplosion.cls
+│   ├─ glShockWave.cls
+│   └─ glMoveTrail.cls
+└─ controllers/
+    └─ CFormPhysicsController.frm
+```
 
-### ライセンス / License
+# 🐧Requirements
+- Windows + Excel (32‑bit / 64‑bit), likely Excel 2011 or later
+- OpenGL (included with Windows)
+
+# 🐧ライセンス / License
 MIT License
 
