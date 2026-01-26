@@ -1,7 +1,7 @@
 VERSION 5.00
 Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} CFormPhysicsController 
    Caption         =   "Controller"
-   ClientHeight    =   3255
+   ClientHeight    =   5520
    ClientLeft      =   45
    ClientTop       =   390
    ClientWidth     =   2745
@@ -46,6 +46,30 @@ Private Sub CommandButtonT_Click()
         .Launch
     End With
 End Sub
+Private Sub LabelA_MouseMove(ByVal Button As Integer, ByVal Shift As Integer, ByVal X As Single, ByVal Y As Single)
+    Dim tx, ty
+    With LabelA
+        If Button = 1 Then
+            .left = .left + X - .width * 0.5
+            .top = .top + Y - .height * 0.5
+            Me.Repaint
+            tx = .left - 34
+            ty = .top - 35
+            With myCore
+                .VY = .VY + ty * 2
+                .VX = .VX + tx * 2
+                .Launch
+            End With
+        End If
+    End With
+End Sub
+Private Sub LabelA_MouseUp(ByVal Button As Integer, ByVal Shift As Integer, ByVal X As Single, ByVal Y As Single)
+    With LabelA
+        .left = 34
+        .top = 35
+        Me.Repaint
+    End With
+End Sub
 Private Sub Frame1_MouseDown(ByVal Button As Integer, ByVal Shift As Integer, ByVal X As Single, ByVal Y As Single)
     Dim tx, ty
     With Frame1
@@ -70,6 +94,8 @@ Private Sub ICFormPhysicsEx_Terminate()
     Set myCore = Nothing
     Unload Me
 End Sub
+
+
 Private Sub UserForm_Activate()
 On Error GoTo err
     If Initialized = True Then Exit Sub
@@ -94,6 +120,9 @@ On Error GoTo err
         .CommandButtonR.BackColor = keyColor
         .CommandButtonT.BackColor = keyColor
         .Frame1.BackColor = panelColor
+        .Frame2.BackColor = panelColor
+        .Label6.BackColor = baseColor
+        .LabelA.BackColor = keyColor
         .left = myCore.mFrmRaw.left - .width
     End With
 err:

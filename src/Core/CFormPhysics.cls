@@ -255,6 +255,7 @@ Private Sub mFrm_MouseUp(ByVal Button As Integer, ByVal Shift As Integer, ByVal 
     If isDragging Then Launch
 End Sub
 Public Sub Launch()
+    If isAnimation Then Exit Sub
     isDragging = False
     isAnimation = True
     pV = 0
