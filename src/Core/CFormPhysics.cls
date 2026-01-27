@@ -45,20 +45,20 @@ Private Const DMGCF As Double = 0.00000001
 Private Const SPDCF As Double = 0.75
 Private Const PRES2VIS As Double = 0.001
 Private DragX As Double, DragY As Double
-Private isDragging As Boolean, isAnimation As Boolean
 Private Caps(3) As String, dCap As String, frameCnt As Long
 Private RChk As Double, TChk As Double, cV As Double, pV As Double, tCl As Long
 Private WithEvents mFrm As MSForms.UserForm
 Attribute mFrm.VB_VarHelpID = -1
 Public mFrmRaw As Object, ex As Object
+Public isDragging As Boolean, isAnimation As Boolean
 Public LX As Double, ty As Double, VX As Double, VY As Double, AX As Double, AY As Double
-Public Damage As Double, pTime As Long, cTime As Long, Dens As Double, Mass As Double, InvMass As Double, hw As Double, hh As Double
+Public Damage As Double, ptime As Long, cTime As Long, Dens As Double, Mass As Double, InvMass As Double, hw As Double, hh As Double
 Public ScrLeft As Double, ScrTop As Double, ScrWidth As Double, ScrHeight As Double, Px2Tw As Double
-Public Event Crash(ByRef X As Double, ByRef Y As Double, ByRef dmg As Double, ByRef time As Long)
-Public Event Break(ByRef X As Double, ByRef Y As Double, ByRef ofsx As Double, ByRef ofsy As Double, ByRef hw As Double, ByRef hh As Long)
-Public Event Move(ByRef X As Double, ByRef Y As Double, ByRef veloc As Double, ByRef time As Long)
-Public Event Started(ByRef X As Double, ByRef Y As Double, ByRef time As Long)
-Public Event Stopped(ByRef X As Double, ByRef Y As Double, ByRef time As Long)
+Public Event Crash(ByRef x As Double, ByRef y As Double, ByRef dmg As Double, ByRef time As Long)
+Public Event Break(ByRef x As Double, ByRef y As Double, ByRef ofsx As Double, ByRef ofsy As Double, ByRef hw As Double, ByRef hh As Long)
+Public Event Move(ByRef x As Double, ByRef y As Double, ByRef veloc As Double, ByRef time As Long)
+Public Event Started(ByRef x As Double, ByRef y As Double, ByRef time As Long)
+Public Event Stopped(ByRef x As Double, ByRef y As Double, ByRef time As Long)
 Private Sub AnimationLoop()
     Dim dt As Double, isCrashed As Boolean
     With mFrmRaw
@@ -68,8 +68,8 @@ Private Sub AnimationLoop()
     RaiseEvent Started(LX + hw, ty + hh, cTime)
     Do
         cTime = GetTickCount
-        If pTime <> 0 Then
-            dt = SAFEOFS + (cTime - pTime) * 0.001
+        If ptime <> 0 Then
+            dt = SAFEOFS + (cTime - ptime) * 0.001
             AX = -DragX * InvMass * (VX + PRES2VIS * (VX * Abs(VX)))
             AY = GRAV - DragY * InvMass * (VY + PRES2VIS * (VY * Abs(VY)))
             VX = VX + AX * dt
@@ -77,7 +77,7 @@ Private Sub AnimationLoop()
             LX = LX + VX * dt
             ty = ty + VY * dt
         End If
-        pTime = cTime
+        ptime = cTime
         isCrashed = ApplyCollision
         Call UpdateVeloc
         If isDragging Then Exit Do
@@ -220,7 +220,7 @@ err:
         Set ex = Nothing
     End If
 End Sub
-Private Sub mFrm_MouseDown(ByVal Button As Integer, ByVal Shift As Integer, ByVal X As Single, ByVal Y As Single)
+Private Sub mFrm_MouseDown(ByVal Button As Integer, ByVal Shift As Integer, ByVal x As Single, ByVal y As Single)
     If Button = 1 Then
         isDragging = True
         Call ResetPhysics
@@ -228,30 +228,30 @@ Private Sub mFrm_MouseDown(ByVal Button As Integer, ByVal Shift As Integer, ByVa
         Call Restore
     End If
 End Sub
-Private Sub mFrm_MouseMove(ByVal Button As Integer, ByVal Shift As Integer, ByVal X As Single, ByVal Y As Single)
+Private Sub mFrm_MouseMove(ByVal Button As Integer, ByVal Shift As Integer, ByVal x As Single, ByVal y As Single)
     If isDragging Then 'When the title bar is selected directly, disable physics calculations (for user consideration).
         With mFrmRaw
             LX = .left
             ty = .top
-            .left = .left + X - hw
-            .top = .top + Y + 10 'The offset to automatically center the selection in the title bar when the user form is clicked.
+            .left = .left + x - hw
+            .top = .top + y + 10 'The offset to automatically center the selection in the title bar when the user form is clicked.
             cTime = GetTickCount
-            If pTime <> 0 Then
+            If ptime <> 0 Then
                 Dim dt As Double, cff As Double
-                dt = SAFEOFS + (cTime - pTime) * 0.001
+                dt = SAFEOFS + (cTime - ptime) * 0.001
                 cff = 1 / (dt + 0.005) 'Vibration Countermeasures
                 VX = 0.5 * VX + (.left - LX) * cff
                 VY = 0.5 * VY + (.top - ty) * cff
                 If Abs(VX) > SPDLMT Then VX = Sgn(VX) * SPDLMT
                 If Abs(VY) > SPDLMT Then VY = Sgn(VY) * SPDLMT
             End If
-            pTime = cTime
+            ptime = cTime
         End With
     Else
         'If you want to add an action to avoid the user when taking damage, put it here.
     End If
 End Sub
-Private Sub mFrm_MouseUp(ByVal Button As Integer, ByVal Shift As Integer, ByVal X As Single, ByVal Y As Single)
+Private Sub mFrm_MouseUp(ByVal Button As Integer, ByVal Shift As Integer, ByVal x As Single, ByVal y As Single)
     If isDragging Then Launch
 End Sub
 Public Sub Launch()
@@ -259,12 +259,12 @@ Public Sub Launch()
     isDragging = False
     isAnimation = True
     pV = 0
-    pTime = 0
+    ptime = 0
     Call AnimationLoop
 End Sub
 Private Function ResetPhysics()
     VX = 0: VY = 0
-    pV = 0: cV = 0: pTime = 0
+    pV = 0: cV = 0: ptime = 0
     isAnimation = False
 End Function
 Private Function CL2RGBA(ByRef cl As Long) As RGBA

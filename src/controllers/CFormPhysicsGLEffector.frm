@@ -26,10 +26,11 @@ Implements ICFormPhysicsEx
 Private Declare PtrSafe Function WindowFromAccessibleObject Lib "oleacc.dll" (ByVal IAccessible As Object, ByRef hwnd As LongPtr) As LongPtr
 Private Declare PtrSafe Function SetLayeredWindowAttributes Lib "user32" (ByVal hwnd As LongPtr, ByVal crKey As Long, ByVal bAlpha As Byte, ByVal dwFlags As Long) As Long
 Private Declare PtrSafe Function ShowWindow Lib "user32" (ByVal hwnd As LongPtr, ByVal nCmdShow As Long) As Long
-Private Declare PtrSafe Function SetWindowPos Lib "user32" (ByVal hwnd As LongPtr, ByVal hWndInsertAfter As LongPtr, ByVal X As Long, ByVal Y As Long, ByVal cx As Long, ByVal cy As Long, ByVal wFlags As Long) As Long
+Private Declare PtrSafe Function SetWindowPos Lib "user32" (ByVal hwnd As LongPtr, ByVal hWndInsertAfter As LongPtr, ByVal x As Long, ByVal y As Long, ByVal cx As Long, ByVal cy As Long, ByVal wFlags As Long) As Long
 Private Const SWP_NOSIZE = &H1
 Private Const SWP_NOMOVE = &H2
 Private Const HWND_BOTTOM = 1
+Private Const HWND_TOPMOST = -1
 Private Const GWL_STYLE = -16
 Private Const GWL_EXSTYLE = -20
 Private Const WS_EX_LAYERED = &H80000
@@ -43,30 +44,30 @@ Private GL As OpenGL
 Private hwnd As LongPtr, exStyle As LongPtr, style As LongPtr
 Private rndhWnd As LongPtr
 Private width As Double, height As Double
-Private WithEvents myCore As CFormPhysics, pTime As Long, pdmg As Double, Tw2Px As Double, ecnt2 As Long
+Private WithEvents myCore As CFormPhysics, ptime As Long, pdmg As Double, Tw2Px As Double, ecnt2 As Long
 Attribute myCore.VB_VarHelpID = -1
 Private CrashDict As Object, ccnt As Long, CrashFactory As Variant
 Private MoveDict As Object, mcnt As Long, MoveFactory As Variant
-Private Sub myCore_Crash(X As Double, Y As Double, dmg As Double, time As Long)
+Private Sub myCore_Crash(x As Double, y As Double, dmg As Double, time As Long)
     If (dmg - pdmg) > 0.5 Then
         Dim effName As Variant
         For Each effName In CrashDict.keys()
-            Call CrashDict.Item(effName).Item(ccnt).Reset(Tw2Px * X, Tw2Px * Y, (dmg - pdmg))
+            Call CrashDict.Item(effName).Item(ccnt).Reset(Tw2Px * x, Tw2Px * y, (dmg - pdmg))
         Next effName
         ccnt = ccnt + 1
         If ccnt > EFFECT_MAX_COUNT Then ccnt = 1
     End If
     pdmg = dmg
 End Sub
-Private Sub myCore_Move(X As Double, Y As Double, veloc As Double, time As Long)
-    Render time, X * Tw2Px, Y * Tw2Px, veloc
+Private Sub myCore_Move(x As Double, y As Double, veloc As Double, time As Long)
+    Render time, x * Tw2Px, y * Tw2Px, veloc
 End Sub
-Public Sub Render(Optional time = 0, Optional X As Double = -1, Optional Y As Double = -1, Optional v As Double = -1)
+Public Sub Render(Optional time = 0, Optional x As Double = -1, Optional y As Double = -1, Optional v As Double = -1)
     Dim dt As Long, R, i As Long
     Dim effName As Variant
     R = Rnd * 30
-    dt = time - pTime
-    pTime = time
+    dt = time - ptime
+    ptime = time
     With GL
         .Clear GL_COLOR_BUFFER_BIT Or GL_DEPTH_BUFFER_BIT
         .MatrixMode GL_PROJECTION
@@ -77,26 +78,26 @@ Public Sub Render(Optional time = 0, Optional X As Double = -1, Optional Y As Do
         .PushMatrix
             For Each effName In CrashDict.keys()
                 For i = 1 To EFFECT_MAX_COUNT
-                    Call CrashDict.Item(effName).Item(i).Render(X, Y, dt, v)
+                    Call CrashDict.Item(effName).Item(i).Render(x, y, dt, v)
                 Next i
             Next effName
         .PopMatrix
         .PushMatrix
             For Each effName In MoveDict.keys()
-                Call MoveDict.Item(effName).Render(X, Y, dt, v)
+                Call MoveDict.Item(effName).Render(x, y, dt, v)
             Next effName
         .PopMatrix
         .SwapBuffers
     End With
 End Sub
-Private Sub myCore_Started(X As Double, Y As Double, time As Long)
+Private Sub myCore_Started(x As Double, y As Double, time As Long)
     Dim effName
-    pTime = Timer
+    ptime = Timer
     For Each effName In MoveDict.keys()
-        Call MoveDict.Item(effName).Reset(X * Tw2Px, Y * Tw2Px, 0, myCore.hw * Tw2Px, myCore.hh * Tw2Px)
+        Call MoveDict.Item(effName).Reset(x * Tw2Px, y * Tw2Px, 0, myCore.hw * Tw2Px, myCore.hh * Tw2Px)
     Next effName
 End Sub
-Private Sub myCore_Stopped(X As Double, Y As Double, time As Long)
+Private Sub myCore_Stopped(x As Double, y As Double, time As Long)
     With GL
         .Clear GL_COLOR_BUFFER_BIT Or GL_DEPTH_BUFFER_BIT
         .SwapBuffers
@@ -140,7 +141,7 @@ Private Sub UserForm_Activate()
         'through GDI to make the background color transparent.Åh
         SetLayeredWindowAttributes hwnd, RGB(254, 254, 254), 0, LWA_COLORKEY
         ShowWindow hwnd, SW_SHOWMAXIMIZED
-        SetWindowPos hwnd, HWND_BOTTOM, 0, 0, 0, 0, SWP_NOMOVE Or SWP_NOSIZE
+        SetWindowPos hwnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE Or SWP_NOSIZE
         Call GLInit
     End If
 End Sub

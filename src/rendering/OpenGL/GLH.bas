@@ -105,6 +105,8 @@ Public Enum Glenum
     GL_RGBA = &H1908&
     GL_CLIP_PLANE0 = &H3000&
     GL_CLIP_PLANE1 = &H3001&
+    GL_CLIP_PLANE2 = &H3002&
+    GL_CLIP_PLANE3 = &H3003&
     GL_AMBIENT_AND_DIFFUSE = &H1602&
     
     
@@ -148,13 +150,19 @@ Public Type PIXELFORMATDESCRIPTOR
     dwDamageMask As Long
 End Type
 Public Type Vector2d
-    X As Double
-    Y As Double
+    x As Double
+    y As Double
 End Type
 Public Type Vector3d
-    X As Double
-    Y As Double
+    x As Double
+    y As Double
     z As Double
+End Type
+Public Type Vector4d
+    x As Double
+    y As Double
+    z As Double
+    w As Double
 End Type
 Public Type Color4
     R As Single
@@ -172,22 +180,25 @@ Public Type L1
     L As Long
 End Type
 Public Function B2Single(ByRef B1, ByRef B2, ByRef B3, ByRef B4) As Single
-    Dim X As B4, Y As S1
-    With X: .B(0) = B1: .B(1) = B2: .B(2) = B3: .B(3) = B4: End With
-    LSet Y = X
-    B2Single = Y.s
+    Dim x As B4, y As S1
+    With x: .B(0) = B1: .B(1) = B2: .B(2) = B3: .B(3) = B4: End With
+    LSet y = x
+    B2Single = y.s
 End Function
 Public Function B2Long(ByRef B1, ByRef B2, ByRef B3, ByRef B4) As Long
-    Dim X As B4, Y As L1
-    With X: .B(0) = B1: .B(1) = B2: .B(2) = B3: .B(3) = B4: End With
-    LSet Y = X
-    B2Long = Y.L
+    Dim x As B4, y As L1
+    With x: .B(0) = B1: .B(1) = B2: .B(2) = B3: .B(3) = B4: End With
+    LSet y = x
+    B2Long = y.L
 End Function
-Public Function Vector2d(ByVal X As Double, ByVal Y As Double) As Vector2d
-    With Vector2d: .X = X: .Y = Y: End With
+Public Function Vector2d(ByVal x As Double, ByVal y As Double) As Vector2d
+    With Vector2d: .x = x: .y = y: End With
 End Function
-Public Function Vector3d(ByVal X As Double, ByVal Y As Double, ByVal z As Double) As Vector3d
-    With Vector3d: .X = X: .Y = Y: .z = z: End With
+Public Function Vector3d(ByVal x As Double, ByVal y As Double, ByVal z As Double) As Vector3d
+    With Vector3d: .x = x: .y = y: .z = z: End With
+End Function
+Public Function Vector4d(ByVal x As Double, ByVal y As Double, ByVal z As Double, ByVal w As Double) As Vector4d
+    With Vector4d: .x = x: .y = y: .z = z: .w = w: End With
 End Function
 Public Function Color4(ByVal R As Single, ByVal G As Single, ByVal B As Single, ByVal a As Single) As Color4
     With Color4: .a = a: .B = B: .G = G: .R = R: End With

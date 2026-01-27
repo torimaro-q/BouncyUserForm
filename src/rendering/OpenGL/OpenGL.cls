@@ -25,8 +25,8 @@ Private Declare PtrSafe Function wglDeleteContext Lib "opengl32.dll" (ByVal hdc 
 Private Declare PtrSafe Sub glColor4f Lib "opengl32.dll" (ByVal red As Single, ByVal green As Single, ByVal blue As Single, ByVal alpha As Single)
 Private Declare PtrSafe Sub glColor3d Lib "opengl32.dll" (ByVal red As Double, ByVal green As Double, ByVal blue As Double)
 Private Declare PtrSafe Sub glVertex2d Lib "opengl32.dll" (ByVal a As Double, ByVal B As Double)
-Private Declare PtrSafe Sub glVertex3d Lib "opengl32.dll" (ByVal X As Double, ByVal Y As Double, ByVal z As Double)
-Private Declare PtrSafe Sub glNormal3d Lib "opengl32.dll" (ByVal X As Double, ByVal Y As Double, ByVal z As Double)
+Private Declare PtrSafe Sub glVertex3d Lib "opengl32.dll" (ByVal x As Double, ByVal y As Double, ByVal z As Double)
+Private Declare PtrSafe Sub glNormal3d Lib "opengl32.dll" (ByVal x As Double, ByVal y As Double, ByVal z As Double)
 Private Declare PtrSafe Sub glVertex3dv Lib "opengl32.dll" (ByVal dPtr As LongPtr)
 Private Declare PtrSafe Sub glNormal3dv Lib "opengl32.dll" (ByVal dPtr As LongPtr)
 Private Declare PtrSafe Sub glBegin Lib "opengl32.dll" (ByVal Glenum As Long)
@@ -36,7 +36,7 @@ Private Declare PtrSafe Sub glMatrixMode Lib "opengl32.dll" (ByVal Glenum As Lon
 Private Declare PtrSafe Sub glPushMatrix Lib "opengl32.dll" ()
 Private Declare PtrSafe Sub glPopMatrix Lib "opengl32.dll" ()
 Private Declare PtrSafe Sub glLoadIdentity Lib "opengl32.dll" ()
-Private Declare PtrSafe Sub glViewport Lib "opengl32.dll" (ByVal X As Long, ByVal Y As Long, ByVal width As Long, ByVal height As Long)
+Private Declare PtrSafe Sub glViewport Lib "opengl32.dll" (ByVal x As Long, ByVal y As Long, ByVal width As Long, ByVal height As Long)
 Private Declare PtrSafe Sub glEnable Lib "opengl32.dll" (ByVal Glenum As Long)
 Private Declare PtrSafe Sub glDisable Lib "opengl32.dll" (ByVal Glenum As Long)
 Private Declare PtrSafe Sub glPointSize Lib "opengl32.dll" (ByVal size As Single)
@@ -44,12 +44,14 @@ Private Declare PtrSafe Sub glLineWidth Lib "opengl32.dll" (ByVal width As Singl
 Private Declare PtrSafe Sub glEnableClientState Lib "opengl32.dll" (ByVal Glenum As Long)
 Private Declare PtrSafe Sub glDisableClientState Lib "opengl32.dll" (ByVal Glenum As Long)
 Private Declare PtrSafe Sub glMaterialfv Lib "opengl32.dll" (ByVal Face As Long, ByVal pname As Long, ByVal param As LongPtr)
-Private Declare PtrSafe Sub glClear Lib "opengl32.dll" (ByVal Mask As Long)
+Private Declare PtrSafe Sub glClear Lib "opengl32.dll" (ByVal mask As Long)
 Private Declare PtrSafe Sub glClearColor Lib "opengl32.dll" (ByVal red As Single, ByVal green As Single, ByVal blue As Single, ByVal alpha As Single)
 Private Declare PtrSafe Sub glColorPointer Lib "opengl32.dll" (ByVal size As Long, ByVal Glenum As Long, ByVal Stride As Long, ByVal Ptr As LongPtr)
 Private Declare PtrSafe Sub glNormalPointer Lib "opengl32.dll" (ByVal Glenum As Long, ByVal Stride As Long, ByVal Ptr As LongPtr)
 Private Declare PtrSafe Sub glVertexPointer Lib "opengl32.dll" (ByVal size As Long, ByVal Glenum As Long, ByVal Stride As Long, ByVal Ptr As LongPtr)
 Private Declare PtrSafe Sub glDrawArrays Lib "opengl32.dll" (ByVal Glenum As Long, ByVal First As Long, ByVal size As Long)
+Private Declare PtrSafe Sub glClipPlane Lib "opengl32.dll" (ByVal Glenum As Long, ByVal Ptr As LongPtr)
+
 Private pfd As PIXELFORMATDESCRIPTOR
 Public hformat As Long, hGLRC As LongPtr, hdc As LongPtr
 Private myhwnd As LongPtr
@@ -93,8 +95,8 @@ End Sub
 Public Sub SwapBuffers()
     Call SwapBuffersA(hdc)
 End Sub
-Public Sub Viewport(ByVal X As Long, ByVal Y As Long, ByVal width As Long, ByVal height As Long)
-    Call glViewport(X, Y, width, height)
+Public Sub Viewport(ByVal x As Long, ByVal y As Long, ByVal width As Long, ByVal height As Long)
+    Call glViewport(x, y, width, height)
 End Sub
 Public Sub Enable(ByVal Gle As Glenum)
     Call glEnable(Gle)
@@ -132,11 +134,11 @@ End Sub
 Public Sub Vertex2d(ByVal a As Double, ByVal B As Double)
     Call glVertex2d(a, B)
 End Sub
-Public Sub Vertex3d(ByVal X As Double, ByVal Y As Double, ByVal z As Double)
-    Call glVertex3d(X, Y, z)
+Public Sub Vertex3d(ByVal x As Double, ByVal y As Double, ByVal z As Double)
+    Call glVertex3d(x, y, z)
 End Sub
-Public Sub Normal3d(ByVal X As Double, ByVal Y As Double, ByVal z As Double)
-    Call glNormal3d(X, Y, z)
+Public Sub Normal3d(ByVal x As Double, ByVal y As Double, ByVal z As Double)
+    Call glNormal3d(x, y, z)
 End Sub
 Public Sub Vertex3dv(ByVal Vec4Ptr As LongPtr)
     Call glVertex3dv(Vec4Ptr)
@@ -147,8 +149,11 @@ End Sub
 Public Sub BlendFunc(ByVal GLe1 As Glenum, ByVal GLe2 As Glenum)
     Call glBlendFunc(GLe1, GLe2)
 End Sub
-Public Sub Clear(Optional ByVal Mask As Long = 16384)
-    Call glClear(Mask)
+Public Sub Clear(Optional ByVal mask As Long = 16384)
+    Call glClear(mask)
+End Sub
+Public Sub ClipPlane(ByVal plane As Glenum, ByVal Vector4dPtr As LongPtr)
+     Call glClipPlane(plane, Vector4dPtr)
 End Sub
 Public Sub ClearColor(ByVal red As Single, ByVal green As Single, ByVal blue As Single, ByVal alpha As Single)
     Call glClearColor(red, green, blue, alpha)
