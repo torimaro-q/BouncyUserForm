@@ -1,4 +1,4 @@
-VERSION 1.0 CLASS
+﻿VERSION 1.0 CLASS
 BEGIN
   MultiUse = -1  'True
 END
@@ -51,21 +51,21 @@ Private WithEvents mFrm As MSForms.UserForm
 Attribute mFrm.VB_VarHelpID = -1
 Public mFrmRaw As Object, ex As Object
 Public isDragging As Boolean, isAnimation As Boolean
-Public LX As Double, ty As Double, VX As Double, VY As Double, AX As Double, AY As Double
+Public lx As Double, ty As Double, VX As Double, VY As Double, AX As Double, AY As Double
 Public Damage As Double, ptime As Long, cTime As Long, Dens As Double, Mass As Double, InvMass As Double, hw As Double, hh As Double
 Public ScrLeft As Double, ScrTop As Double, ScrWidth As Double, ScrHeight As Double, Px2Tw As Double
 Public Event Crash(ByRef x As Double, ByRef y As Double, ByRef dmg As Double, ByRef time As Long)
-Public Event Break(ByRef x As Double, ByRef y As Double, ByRef ofsx As Double, ByRef ofsy As Double, ByRef hw As Double, ByRef hh As Long)
+Public Event Break(ByRef x As Double, ByRef y As Double, ByRef ofsx As Double, ByRef ofsy As Double, ByRef hw As Double, ByRef hh As Double)
 Public Event Move(ByRef x As Double, ByRef y As Double, ByRef veloc As Double, ByRef time As Long)
 Public Event Started(ByRef x As Double, ByRef y As Double, ByRef time As Long)
 Public Event Stopped(ByRef x As Double, ByRef y As Double, ByRef time As Long)
 Private Sub AnimationLoop()
     Dim dt As Double, isCrashed As Boolean
     With mFrmRaw
-        LX = .left
+        lx = .left
         ty = .top
     End With
-    RaiseEvent Started(LX + hw, ty + hh, cTime)
+    RaiseEvent Started(lx + hw, ty + hh, cTime)
     Do
         cTime = GetTickCount
         If ptime <> 0 Then
@@ -74,7 +74,7 @@ Private Sub AnimationLoop()
             AY = GRAV - DragY * InvMass * (VY + PRES2VIS * (VY * Abs(VY)))
             VX = VX + AX * dt
             VY = VY + AY * dt
-            LX = LX + VX * dt
+            lx = lx + VX * dt
             ty = ty + VY * dt
         End If
         ptime = cTime
@@ -85,11 +85,11 @@ Private Sub AnimationLoop()
         If isCrashed = True Then ApplyDamage
         If cV < 10 Then Exit Do
         On Error GoTo err 'avoid automation errors
-            mFrmRaw.Move LX, ty
+            mFrmRaw.Move lx, ty
         On Error GoTo 0
         Render
     Loop
-    RaiseEvent Stopped(LX + hw, ty + hh, cTime)
+    RaiseEvent Stopped(lx + hw, ty + hh, cTime)
     ResetPhysics
     Render
     Exit Sub
@@ -98,12 +98,12 @@ err:
 End Sub
 Private Function ApplyCollision() As Boolean
     ApplyCollision = True
-    If LX < ScrLeft Then
-        LX = ScrLeft
+    If lx < ScrLeft Then
+        lx = ScrLeft
         VX = -VX * ZETA
         VY = VY * ZETA
-    ElseIf LX > RChk Then
-        LX = RChk
+    ElseIf lx > RChk Then
+        lx = RChk
         VX = -VX * ZETA
         VY = VY * ZETA
     ElseIf ty < ScrTop Then
@@ -120,7 +120,7 @@ Private Function ApplyCollision() As Boolean
 End Function
 Private Sub ApplyDamage()
     Damage = Damage + DMGCF * 0.5 * Mass * Abs(pV * pV - cV * cV)
-    RaiseEvent Crash(LX + hw, ty + hh, Damage, cTime)
+    RaiseEvent Crash(lx + hw, ty + hh, Damage, cTime)
     If Damage > 10 Then
         Dim th As Double, cntr As MSForms.Control
         th = 1 - Damage * 0.002
@@ -128,8 +128,10 @@ Private Sub ApplyDamage()
             For Each cntr In mFrmRaw.Controls
                 If Rnd() > th Then
                     With cntr
-                        RaiseEvent Break(LX + hw, ty + hh, LX + .left, ty + .top, 0.5 * .width, 0.5 * .height)
-                        .Visible = False
+                        If .Visible Then
+                            RaiseEvent Break(lx + hw, ty + hh, lx + .left, ty + .top, 0.5 * .width, 0.5 * .height)
+                            .Visible = False
+                        End If
                     End With
                 End If
             Next cntr
@@ -141,7 +143,7 @@ Private Sub mFrm_Layout()
     If isAnimation Then
         'Forced termination conditions
         With mFrmRaw
-            If Abs(LX - .left) > 30 Or Abs(ty - .top) > 30 Then
+            If Abs(lx - .left) > 30 Or Abs(ty - .top) > 30 Then
                 isDragging = False
                 Call ResetPhysics
                 Call Render
@@ -170,7 +172,7 @@ Private Sub Render()
         With mFrmRaw
             If isAnimation = True Then
                 If frameCnt Mod 5 = 0 Then
-                    RaiseEvent Move(LX + hw, ty + hh, cV, cTime)
+                    RaiseEvent Move(lx + hw, ty + hh, cV, cTime)
                     If frameCnt Mod 30 = 0 Then
                         Caps(1) = format(cV, FMT)
                         Caps(3) = format(Damage, FMT)
@@ -231,7 +233,7 @@ End Sub
 Private Sub mFrm_MouseMove(ByVal Button As Integer, ByVal Shift As Integer, ByVal x As Single, ByVal y As Single)
     If isDragging Then 'When the title bar is selected directly, disable physics calculations (for user consideration).
         With mFrmRaw
-            LX = .left
+            lx = .left
             ty = .top
             .left = .left + x - hw
             .top = .top + y + 10 'The offset to automatically center the selection in the title bar when the user form is clicked.
@@ -240,7 +242,7 @@ Private Sub mFrm_MouseMove(ByVal Button As Integer, ByVal Shift As Integer, ByVa
                 Dim dt As Double, cff As Double
                 dt = SAFEOFS + (cTime - ptime) * 0.001
                 cff = 1 / (dt + 0.005) 'Vibration Countermeasures
-                VX = 0.5 * VX + (.left - LX) * cff
+                VX = 0.5 * VX + (.left - lx) * cff
                 VY = 0.5 * VY + (.top - ty) * cff
                 If Abs(VX) > SPDLMT Then VX = Sgn(VX) * SPDLMT
                 If Abs(VY) > SPDLMT Then VY = Sgn(VY) * SPDLMT
@@ -271,7 +273,8 @@ Private Function CL2RGBA(ByRef cl As Long) As RGBA
     Dim L As LONGTYPE: L.Value = cl
     LSet CL2RGBA = L
 End Function
-Public Sub init(ByRef form As Object, Optional ByRef extenions As Variant = Empty, Optional ByRef cEffectors As Variant = Empty, Optional ByRef mEffectors As Variant = Empty)
+Public Sub init(ByRef form As Object, Optional ByRef extenions As Variant = Empty, _
+                        Optional ByRef cEffectors As Variant = Empty, Optional ByRef mEffectors As Variant = Empty, Optional ByRef bEffectors As Variant = Empty)
     If mFrmRaw Is Nothing Then
         Set mFrmRaw = form
         Set mFrm = form
@@ -294,7 +297,7 @@ Public Sub init(ByRef form As Object, Optional ByRef extenions As Variant = Empt
                 If ex.exists(nm) = False Then
                     Set fc = t
                     Set ci = fc.CreateInstance
-                    ci.init Me, Array(cEffectors, mEffectors)
+                    ci.init Me, Array(cEffectors, mEffectors, bEffectors)
                     ex.Add nm, ci
                 End If
             Next t

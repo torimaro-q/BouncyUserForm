@@ -1,4 +1,4 @@
-VERSION 1.0 CLASS
+﻿VERSION 1.0 CLASS
 BEGIN
   MultiUse = -1  'True
 END
@@ -16,8 +16,8 @@ Private ws As Worksheet
 Private myChart As Chart
 Private chartObj As ChartObject
 Private Type POINT
-    X As Double
-    Y As Double
+    x As Double
+    y As Double
     dmg As Double
 End Type
 Private Type SeriesType
@@ -32,32 +32,32 @@ Private cnt As Long
 Private dmg As Double
 Private pdmg As Double
 Private interp() As Double, interpCount As Long
-Private Sub UpdatePoint(ByRef X As Double, ByRef Y As Double, Optional ByRef Damage As Double = 0)
+Private Sub UpdatePoint(ByRef x As Double, ByRef y As Double, Optional ByRef Damage As Double = 0)
     With buf(cnt)
-        .X = X
-        .Y = Y
+        .x = x
+        .y = y
         .dmg = Damage
     End With
     If Damage > 0 Then HandleDamageUpdate Damage
     cnt = cnt + 1
     If cnt > UBound(buf) Then cnt = 0
 End Sub
-Private Sub myCore_Move(ByRef X As Double, ByRef Y As Double, ByRef veloc As Double, ByRef time As Long)
-    UpdatePoint X, Y
+Private Sub myCore_Move(ByRef x As Double, ByRef y As Double, ByRef veloc As Double, ByRef time As Long)
+    UpdatePoint x, y
 End Sub
-Private Sub myCore_Crash(ByRef X As Double, ByRef Y As Double, ByRef dmg As Double, ByRef time As Long)
-    UpdatePoint X, Y, dmg
+Private Sub myCore_Crash(ByRef x As Double, ByRef y As Double, ByRef dmg As Double, ByRef time As Long)
+    UpdatePoint x, y, dmg
 End Sub
-Private Sub myCore_Started(ByRef X As Double, ByRef Y As Double, ByRef time As Long)
+Private Sub myCore_Started(ByRef x As Double, ByRef y As Double, ByRef time As Long)
     Reset
-    UpdatePoint X, Y
+    UpdatePoint x, y
 End Sub
-Private Sub myCore_Stopped(ByRef X As Double, ByRef Y As Double, ByRef time As Long)
-    UpdatePoint X, Y
+Private Sub myCore_Stopped(ByRef x As Double, ByRef y As Double, ByRef time As Long)
+    UpdatePoint x, y
 End Sub
 Private Sub HandleDamageUpdate(ByRef Damage As Double)
     Dim i As Long, HCnt As Long, delta As Long
-    Dim dc As Long, ofs As Long
+    Dim dc As Long, OFS As Long
     delta = cnt - pcnt
     If delta < 0 Then delta = delta + UBound(buf)
     For i = LBound(interp) To UBound(interp)
@@ -65,27 +65,27 @@ Private Sub HandleDamageUpdate(ByRef Damage As Double)
         If dc > 1 Then
             HCnt = pcnt + dc
             If HCnt > UBound(buf) Then HCnt = HCnt - UBound(buf)
-            AppendToSeries 0, buf(HCnt).X, buf(HCnt).Y
+            AppendToSeries 0, buf(HCnt).x, buf(HCnt).y
         End If
     Next i
     dmg = buf(cnt).dmg
-    ofs = 1 + Fix((dmg - pdmg) * 0.2)
-    If ofs > 4 Then ofs = 4
-    AppendToSeries 0, buf(cnt).X, buf(cnt).Y
-    AppendToSeries ofs, buf(cnt).X, buf(cnt).Y
+    OFS = 1 + Fix((dmg - pdmg) * 0.2)
+    If OFS > 4 Then OFS = 4
+    AppendToSeries 0, buf(cnt).x, buf(cnt).y
+    AppendToSeries OFS, buf(cnt).x, buf(cnt).y
     UpdateChartSeries 0
-    UpdateChartSeries ofs
+    UpdateChartSeries OFS
     pdmg = dmg
     pcnt = cnt
     myChart.ChartArea.Select 'for excel 2024
     Application.Calculate 'In excel 2024, chart updates are no longer triggered.
 End Sub
-Private Sub AppendToSeries(ByVal index As Long, ByVal X As Double, ByVal Y As Double)
+Private Sub AppendToSeries(ByVal index As Long, ByVal x As Double, ByVal y As Double)
     With mySeries(index)
         ReDim Preserve .xvalues(0 To .cnt)
         ReDim Preserve .yvalues(0 To .cnt)
-        .xvalues(.cnt) = X
-        .yvalues(.cnt) = Y
+        .xvalues(.cnt) = x
+        .yvalues(.cnt) = y
         .cnt = .cnt + 1
     End With
 End Sub

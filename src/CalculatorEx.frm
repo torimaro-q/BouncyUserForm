@@ -1,34 +1,32 @@
-VERSION 5.00
-Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} calculator 
-   Caption         =   "calculator"
+ï»¿VERSION 5.00
+Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} CalculatorEx 
+   Caption         =   "CalculatorEx"
    ClientHeight    =   4710
    ClientLeft      =   45
    ClientTop       =   390
    ClientWidth     =   4455
-   OleObjectBlob   =   "calculator.frx":0000
+   OleObjectBlob   =   "CalculatorEx.frx":0000
    ShowModal       =   0   'False
-   StartUpPosition =   1  'ƒI[ƒi[ ƒtƒH[ƒ€‚Ì’†‰›
+   StartUpPosition =   1  'ã‚ªãƒ¼ãƒŠãƒ¼ ãƒ•ã‚©ãƒ¼ãƒ ã®ä¸­å¤®
 End
-Attribute VB_Name = "calculator"
+Attribute VB_Name = "CalculatorEx"
 Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
+
 Option Explicit
 Private engine As CFormPhysics
 Private Sub UserForm_Initialize()
     Set engine = New CFormPhysics
     engine.init Me, Array(CFormPhysicsLogger, _
                           CFormPhysicsWsRenderer, _
-                          CFormPhysicsGLEffector, _
-                          CFormPhysicsController), _
-                    Array(glShockWave, _
-                          glExplosion), _
-                    Array(glMoveTrail)
+                          CFormPhysicsController)
 End Sub
 Private Sub UserForm_Terminate()
     engine.Terminate
 End Sub
+'############################################################################################################################
 Private Sub btnInput(ByVal inp As String)
     With Me.TextBox1
         .Value = .Value & inp
@@ -86,4 +84,13 @@ Private Sub CommandButton13_Click()
 End Sub
 Private Sub CommandButton14_Click()
     btnInput "/"
+End Sub
+Private Sub UserForm_Activate()
+    If Rnd > 0.9 Then
+        Dim tmp As Variant
+        Me.BackColor = RGB(15, 125, 65)
+        For Each tmp In Me.Controls
+            tmp.BackColor = RGB(240, 255, 190)
+        Next tmp
+    End If
 End Sub

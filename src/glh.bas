@@ -1,4 +1,4 @@
-Attribute VB_Name = "glh"
+﻿Attribute VB_Name = "glh"
 Option Explicit
 Public Enum Glenum
     GLU_FALSE = &H0&
@@ -108,9 +108,6 @@ Public Enum Glenum
     GL_CLIP_PLANE2 = &H3002&
     GL_CLIP_PLANE3 = &H3003&
     GL_AMBIENT_AND_DIFFUSE = &H1602&
-    
-    
-    
 End Enum
 Public Const CS_VREDRAW = 1
 Public Const CS_HREDRAW = 2
@@ -204,11 +201,11 @@ Public Function Color4(ByVal R As Single, ByVal G As Single, ByVal B As Single, 
     With Color4: .a = a: .B = B: .G = G: .R = R: End With
 End Function
 Public Function FastSin(ByRef th As Double) As Double
-    Static mySin(2000) As Double
+    Static mySin(-1000 To 2000) As Double
     Static init As Boolean
     If Not init Then
         Dim i As Long
-        For i = 0 To 2000
+        For i = -1000 To 2000
             mySin(i) = Sin(i * 0.01)
         Next i
         init = True
@@ -216,11 +213,11 @@ Public Function FastSin(ByRef th As Double) As Double
     FastSin = mySin(CLng(th * 100))
 End Function
 Public Function FastCos(ByRef th As Double) As Double
-    Static mycos(2000) As Double
+    Static mycos(-1000 To 2000) As Double
     Static init As Boolean
     If Not init Then
         Dim i As Long
-        For i = 0 To 2000
+        For i = -1000 To 2000
             mycos(i) = Cos(i * 0.01)
         Next i
         init = True

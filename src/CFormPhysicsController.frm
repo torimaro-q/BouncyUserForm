@@ -1,4 +1,4 @@
-VERSION 5.00
+ÔªøVERSION 5.00
 Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} CFormPhysicsController 
    Caption         =   "Controller"
    ClientHeight    =   2895
@@ -7,7 +7,7 @@ Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} CFormPhysicsController
    ClientWidth     =   5340
    OleObjectBlob   =   "CFormPhysicsController.frx":0000
    ShowModal       =   0   'False
-   StartUpPosition =   1  'ÉIÅ[ÉiÅ[ ÉtÉHÅ[ÉÄÇÃíÜâõ
+   StartUpPosition =   1  '„Ç™„Éº„Éä„Éº „Éï„Ç©„Éº„É†„ÅÆ‰∏≠Â§Æ
 End
 Attribute VB_Name = "CFormPhysicsController"
 Attribute VB_GlobalNameSpace = False

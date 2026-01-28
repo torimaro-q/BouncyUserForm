@@ -1,4 +1,4 @@
-VERSION 1.0 CLASS
+﻿VERSION 1.0 CLASS
 BEGIN
   MultiUse = -1  'True
 END
@@ -51,7 +51,6 @@ Private Sub ICFormPhysicsEf_Render(x As Double, y As Double, dt As Long, v As Do
         .y = y + ofsy - OFS
     End With
     With myGL
-        .PushMatrix
         .Disable GL_LIGHTING
         .EnableClientState GL_VERTEX_ARRAY
             .EnableClientState GL_COLOR_ARRAY
@@ -67,7 +66,6 @@ Private Sub ICFormPhysicsEf_Render(x As Double, y As Double, dt As Long, v As Do
                 .Disable GL_BLEND
             .DisableClientState GL_COLOR_ARRAY
         .DisableClientState GL_VERTEX_ARRAY
-        .PopMatrix
     End With
 End Sub
 Private Sub Update(ByVal x As Double, ByVal y As Double, ByVal dt As Long, ByVal v As Double)

@@ -30,7 +30,6 @@ You can freely add optional extensions such as:
 - Custom effects (via ICFormPhysicsEf)
 - Custom extensions (via ICFormPhysicsEx)
 
-
 # 💥Examples
 - **拡張なし（最小構成）/ Minimal setup (no extensions)**
 ![screenshot](pic/Minimal.gif)
@@ -74,11 +73,13 @@ You can freely add optional extensions such as:
 - 爆発（glExplosion）
 - 衝撃波（glShockWave）
 - 移動残光（glMoveTrail）
+- コントロール破損(glControlShatter)
 - カスタムしたエフェクトを追加可能
 ---
 - Explosion (glExplosion)
 - Shockwave (glShockWave)
 - Motion trail (glMoveTrail)
+- Control Shatter(glControlShatter)
 - Custom effects supported
 ---
 ### 🧩拡張 / Extensions
@@ -123,6 +124,7 @@ You can freely add optional extensions such as:
 + glExplosion.cls
 + glShockWave.cls
 + glMoveTrail.cls
++ glControlShatter.cls
 ```
 
 ## 2. UserForm にコードを追加 / Add code to your UserForm
@@ -138,7 +140,7 @@ Private Sub UserForm_Terminate()
 End Sub
 ```
 - **拡張あり（OpenGL 以外）/ With extensions (non‑OpenGL)**
-- 使いたい機能を第二引数のArrayに入れる
+- 使いたい機能を第2引数のArrayに入れる
 ```vb
 Private engine As CFormPhysics
 Private Sub UserForm_Initialize()
@@ -150,16 +152,24 @@ Private Sub UserForm_Terminate()
 End Sub
 ```
 - **OpenGL 拡張あり / With OpenGL extensions**
-- CFormPhysicsGLEffectorを第二引数のArrayに入れ、
-Crash時に発生するエフェクトを第三引数、Moveに時に発生するエフェクトを第四引数として設定する
+    - 引数2 : CFormPhysicsGLEffector
+    - 引数3 : Crash時に発生するエフェクト
+    - 引数4 : Moveに時に発生するエフェクト
+    - 引数5 : コントロール破損エフェクト
+    ---
+    - Argument 2: CFormPhysicsGLEffector
+    - Argument 3: Effect triggered during a crash
+    - Argument 4: Effect triggered during movement
+    - Argument 5: Control‑shatter effect
 ```vb
 Private engine As CFormPhysics
 Private Sub UserForm_Initialize()
     Set engine = New CFormPhysics
-    engine.init Me, Array(CFormPhysicsGLEffector), _
+    engine.init Me, Array(CFormPhysicsController), _
                     Array(glShockWave, _
                           glExplosion), _
-                    Array(glMoveTrail)
+                    Array(glMoveTrail), _
+                    Array(glControlShatter)
 
 End Sub
 Private Sub UserForm_Terminate()
@@ -171,29 +181,6 @@ End Sub
   ※タイトルバーではなく、ユーザーフォーム本体をドラッグしてください。
 - Drag the form body (not the title bar) and release it to start the physics simulation.
 
-
-# 📁フォルダ構成 / Folder Structure
-```
-src/
-├─ core/
-│   └─ CFormPhysics.cls
-├─ interfaces/
-│   ├─ ICFormPhysicsEx.cls
-│   └─ ICFormPhysicsEf.cls
-├─ rendering/
-│   ├─ OpenGL/
-│   │   ├─ OpenGL.cls
-│   │   └─ GLH.bas
-│   ├─ CFormPhysicsGLEffector.frm
-│   ├─ CFormPhysicsWsRenderer.cls
-│   └─ CFormPhysicsLogger.cls
-├─ effects/
-│   ├─ glExplosion.cls
-│   ├─ glShockWave.cls
-│   └─ glMoveTrail.cls
-└─ controllers/
-    └─ CFormPhysicsController.frm
-```
 
 # 🐧Requirements
 - Windows + Excel (32‑bit / 64‑bit), likely Excel 2011 or later

@@ -1,4 +1,4 @@
-VERSION 1.0 CLASS
+﻿VERSION 1.0 CLASS
 BEGIN
   MultiUse = -1  'True
 END
@@ -9,7 +9,7 @@ Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
 Option Explicit
 Implements ICFormPhysicsEf
-Private Const PARTICLECOUNT As Long = 5000
+Private Const PARTICLECOUNT As Long = 3000
 Private pD(PARTICLECOUNT) As Vector2d
 Private pV(PARTICLECOUNT) As Vector2d
 Private pC(PARTICLECOUNT) As Color4
@@ -18,7 +18,7 @@ Private InvLF(PARTICLECOUNT) As Double
 Private effectCX As Double
 Private effectCY As Double
 Private myGL As OpenGL, Life As Double, dd As Double
-Private Sub ICFormPhysicsEf_Render(X As Double, Y As Double, dt As Long, v As Double)
+Private Sub ICFormPhysicsEf_Render(x As Double, y As Double, dt As Long, v As Double)
     Life = Life - dt
     If Life < 0 Then Exit Sub
     Call Update(dt, v)
@@ -42,12 +42,12 @@ Private Sub Update(ByRef dt, ByRef v)
     Dim i As Long, alpha As Single, t As Single
     For i = 0 To PARTICLECOUNT
         With pV(i)
-            .X = .X * (1 - dt * 0.0002)
-            .Y = .Y * (1 - dt * 0.0002)
+            .x = .x * (1 - dt * 0.0002)
+            .y = .y * (1 - dt * 0.0002)
         End With
         With pD(i)
-            .X = .X + pV(i).X * dt
-            .Y = .Y + pV(i).Y * dt
+            .x = .x + pV(i).x * dt
+            .y = .y + pV(i).y * dt
         End With
         LF(i) = LF(i) - dt
         alpha = LF(i) * InvLF(i)
@@ -72,12 +72,12 @@ Private Sub ICFormPhysicsEf_Reset(cx As Double, cy As Double, ddmg As Double, Op
         LF(i) = Life
         InvLF(i) = 1 / Life
         With pD(i)
-            .X = cx
-            .Y = cy
+            .x = cx
+            .y = cy
         End With
         With pV(i)
-            .X = rv * FastCos(th)
-            .Y = rv * FastSin(th)
+            .x = rv * FastCos(th)
+            .y = rv * FastSin(th)
         End With
         With pC(i)
             .R = 0.9 + Rnd * 0.1

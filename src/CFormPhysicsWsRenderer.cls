@@ -1,4 +1,4 @@
-VERSION 1.0 CLASS
+ÔªøVERSION 1.0 CLASS
 BEGIN
   MultiUse = -1  'True
 END
@@ -32,11 +32,11 @@ Private Function Clamp(ByRef v As Long, ByRef minV As Long, ByRef maxV As Long) 
         Clamp = v
     End If
 End Function
-Private Sub myCore_Move(ByRef X As Double, ByRef Y As Double, ByRef veloc As Double, time As Long)
+Private Sub myCore_Move(ByRef x As Double, ByRef y As Double, ByRef veloc As Double, time As Long)
     If (time - pt) < 5 Then Exit Sub
     pt = time
-    tx = Clamp(CLng(X) + Rnd * 100 - 50, ScrL, ScrW)
-    ty = Clamp(CLng(Y) + Rnd * 100 - 50, ScrT, ScrH)
+    tx = Clamp(CLng(x) + Rnd * 100 - 50, ScrL, ScrW)
+    ty = Clamp(CLng(y) + Rnd * 100 - 50, ScrT, ScrH)
     UpdateSheet SheetLut(tx, ty)
 End Sub
 Private Sub UpdateSheet(ByRef cellInfo As rc)
@@ -56,7 +56,7 @@ Private Sub UpdateSheet(ByRef cellInfo As rc)
     cnt = cnt + 1
     If cnt > UBound(buf) Then cnt = 0
 End Sub
-Private Sub myCore_Stopped(X As Double, Y As Double, time As Long)
+Private Sub myCore_Stopped(x As Double, y As Double, time As Long)
     Dim i As Long
     On Error Resume Next
     For i = LBound(buf) To UBound(buf)
@@ -116,10 +116,10 @@ Private Sub ICFormPhysicsEx_init(core As CFormPhysics, Optional params As Varian
         ScrW = .ScrWidth * .Px2Tw
         ScrH = .ScrHeight * .Px2Tw
     End With
-    symbols(0) = "'Åú"
-    symbols(1) = "'Åü"
-    symbols(2) = "'Å°"
-    symbols(3) = "'Å£"
+    symbols(0) = "'‚óè"
+    symbols(1) = "'‚óÜ"
+    symbols(2) = "'‚ñ†"
+    symbols(3) = "'‚ñ≤"
     ReDim SheetLut(ScrL To ScrL + ScrW, ScrT To ScrT + ScrH)
     ReDim buf(80)
     cnt = 1
