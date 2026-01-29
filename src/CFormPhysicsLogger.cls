@@ -1,4 +1,4 @@
-﻿VERSION 1.0 CLASS
+VERSION 1.0 CLASS
 BEGIN
   MultiUse = -1  'True
 END
@@ -139,7 +139,7 @@ Private Sub CreateChart()
                 nw.name = labels(i)
                 If i = 0 Then
                     nw.ChartType = xlXYScatterLinesNoMarkers
-                    nw.format.Line.Weight = 0.01
+                    nw.format.Line.Weight = 0.3
                 Else
                     nw.ChartType = xlXYScatter
                     nw.MarkerSize = 2 + (i - 1) * 3
