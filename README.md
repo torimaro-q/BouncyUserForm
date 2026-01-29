@@ -34,12 +34,6 @@ You can freely add optional extensions such as:
 - **拡張なし（最小構成）/ Minimal setup (no extensions)**
 ![screenshot](pic/Minimal.gif)
 
-- **拡張あり（OpenGL 以外）/ With extensions (non‑OpenGL)**
-![screenshot](pic/WithExtensions.gif)
-
-- **OpenGL 拡張あり / With OpenGL extensions**
-![screenshot](pic/WithOpenGL.gif)
-
 # 🐧 特徴 / Features
 ### 🧠物理エンジン / Physics Engine
 - 重力シミュレーション
@@ -60,38 +54,21 @@ You can freely add optional extensions such as:
 - Screen edges act as collision walls
 - Event callbacks: Move / Crash / Break / Started / Stopped
 ---
-### 🎨描画レイヤー / Rendering Layer
-- OpenGL による高速描画
-- Excel シート描画
-- Excel チャートログ
----
-- High‑speed OpenGL rendering
-- Excel worksheet rendering
-- Excel scatter‑chart trajectory logging
----
-### 💥エフェクト / Effects
-- 爆発（glExplosion）
-- 衝撃波（glShockWave）
-- 移動残光（glMoveTrail）
-- コントロール破損(glControlShatter)
-- カスタムしたエフェクトを追加可能
----
-- Explosion (glExplosion)
-- Shockwave (glShockWave)
-- Motion trail (glMoveTrail)
-- Control Shatter(glControlShatter)
-- Custom effects supported
----
+
 ### 🧩拡張 / Extensions
-- Excel ロガー
-- シートレンダラー
-- コントローラー UI
-- カスタムした拡張機能を追加可能
----
-- Excel logger
-- Worksheet renderer
-- Controller UI
-- Custom extension modules supported
+|||
+|---|---|
+| Excel ロガー / Excel logger | ![screenshot](pic/ex/CFormPhysicsLogger.gif) |
+|シートレンダラー / Worksheet renderer|![screenshot](pic/ex/CFormPhysicsWsRenderer.gif)|
+|コントローラー UI / Controller UI|![screenshot](pic/ex/CFormPhysicsController.gif)|
+
+### 💥OpenGL + エフェクト / OpenGL + Effects
+|||
+|---|---|
+|爆発（glExplosion）|![screenshot](pic/ef/glExplosion.gif)|
+|衝撃波（glShockWave）|![screenshot](pic/ef/glShockWave.gif)|
+|移動残光（glMoveTrail）|![screenshot](pic/ef/glMoveTrail.gif)|
+|コントロール破損(glControlShatter)|![screenshot](pic/ef/glControlShatter.gif)|
 
 # 🐧使い方 / Usage
 ## 1. クラスモジュールを追加 / Add the class modules
@@ -154,7 +131,7 @@ End Sub
 - **OpenGL 拡張あり / With OpenGL extensions**
     - 引数2 : CFormPhysicsGLEffector
     - 引数3 : Crash時に発生するエフェクト
-    - 引数4 : Moveに時に発生するエフェクト
+    - 引数4 : Move時に発生するエフェクト
     - 引数5 : コントロール破損エフェクト
     ---
     - Argument 2: CFormPhysicsGLEffector
@@ -180,7 +157,6 @@ End Sub
 - フォームをドラッグして投げると物理シミュレーションが開始します。
   ※タイトルバーではなく、ユーザーフォーム本体をドラッグしてください。
 - Drag the form body (not the title bar) and release it to start the physics simulation.
-
 
 # 🐧Requirements
 - Windows + Excel (32‑bit / 64‑bit), likely Excel 2011 or later
