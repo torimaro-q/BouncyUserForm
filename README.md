@@ -61,7 +61,7 @@ You can freely add optional extensions such as:
 |シートレンダラー / Worksheet renderer|![screenshot](pic/ex/CFormPhysicsWsRenderer.gif)|
 |コントローラー UI / Controller UI|![screenshot](pic/ex/CFormPhysicsController.gif)|
 
-### 💥OpenGL + エフェクト / OpenGL + Effects
+### 💥エフェクト(OpenGL) / Effects(OpenGL)
 |||
 |---|---|
 |爆発（glExplosion）|![screenshot](pic/ef/glExplosion.gif)|
