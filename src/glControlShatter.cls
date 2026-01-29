@@ -1,4 +1,4 @@
-﻿VERSION 1.0 CLASS
+VERSION 1.0 CLASS
 BEGIN
   MultiUse = -1  'True
 END
@@ -15,6 +15,7 @@ Private pV(PARTICLECOUNT - 1) As Vector2d
 Private pC(PARTICLECOUNT * 3 - 1) As Color4
 Private pTri(PARTICLECOUNT - 1, 2) As Vector2d
 Private verts(PARTICLECOUNT * 3 - 1) As Vector2d
+Private lineIdx(PARTICLECOUNT * 6 - 1) As Long
 Private pAngle(PARTICLECOUNT - 1) As Double
 Private pAngVel(PARTICLECOUNT - 1) As Double
 Private myGL As OpenGL
@@ -27,14 +28,17 @@ Private Sub ICFormPhysicsEf_Render(x As Double, y As Double, dt As Long, v As Do
     With myGL
         .Disable GL_LIGHTING
         .Enable GL_BLEND
-        .BlendFunc GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA
-        .EnableClientState GL_VERTEX_ARRAY
-        .EnableClientState GL_COLOR_ARRAY
-        .ColorPointer 4, GL_FLOAT, 0, VarPtr(pC(0))
-        .VertexPointer 2, GL_DOUBLE, 0, VarPtr(verts(0))
-        .DrawArrays GL_TRIANGLES, 0, PARTICLECOUNT * 3
-        .DisableClientState GL_VERTEX_ARRAY
-        .DisableClientState GL_COLOR_ARRAY
+            .BlendFunc GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA
+            .EnableClientState GL_VERTEX_ARRAY
+            .VertexPointer 2, GL_DOUBLE, 0, VarPtr(verts(0))
+            .Color4f 1, 1, 1, 1
+            .LineWidth 1
+            .DrawElements GL_LINES, PARTICLECOUNT * 6, GL_UNSIGNED_INT, VarPtr(lineIdx(0))
+            .EnableClientState GL_COLOR_ARRAY
+            .ColorPointer 4, GL_FLOAT, 0, VarPtr(pC(0))
+            .DrawArrays GL_TRIANGLES, 0, PARTICLECOUNT * 3
+            .DisableClientState GL_COLOR_ARRAY
+            .DisableClientState GL_VERTEX_ARRAY
         .Disable GL_BLEND
     End With
 End Sub
@@ -84,7 +88,7 @@ Private Sub ICFormPhysicsEf_Reset(cx As Double, cy As Double, ddmg As Double, Op
             .y = cy
         End With
         th = Rnd * 6.28
-        rv = 2 * (Rnd) ^ 3
+        rv = 0.1 + (Rnd) ^ 2
         With pV(i)
             .x = rv * FastCos(th)
             .y = rv * FastSin(th)
@@ -123,4 +127,17 @@ Private Property Get ICFormPhysicsEf_CreateInstance() As ICFormPhysicsEf
 End Property
 Private Sub ICFormPhysicsEf_Init(targetGL As OpenGL)
     Set myGL = targetGL
+    Dim t As Long
+    Dim i As Long
+    Dim v As Long
+    For t = 0 To PARTICLECOUNT - 1
+        i = t * 6
+        v = t * 3
+        lineIdx(i + 0) = v + 0
+        lineIdx(i + 1) = v + 1
+        lineIdx(i + 2) = v + 1
+        lineIdx(i + 3) = v + 2
+        lineIdx(i + 4) = v + 2
+        lineIdx(i + 5) = v + 0
+    Next t
 End Sub

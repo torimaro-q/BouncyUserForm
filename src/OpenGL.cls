@@ -1,4 +1,4 @@
-﻿VERSION 1.0 CLASS
+VERSION 1.0 CLASS
 BEGIN
   MultiUse = -1  'True
 END
@@ -50,6 +50,7 @@ Private Declare PtrSafe Sub glColorPointer Lib "opengl32.dll" (ByVal size As Lon
 Private Declare PtrSafe Sub glNormalPointer Lib "opengl32.dll" (ByVal Glenum As Long, ByVal Stride As Long, ByVal Ptr As LongPtr)
 Private Declare PtrSafe Sub glVertexPointer Lib "opengl32.dll" (ByVal size As Long, ByVal Glenum As Long, ByVal Stride As Long, ByVal Ptr As LongPtr)
 Private Declare PtrSafe Sub glDrawArrays Lib "opengl32.dll" (ByVal Glenum As Long, ByVal First As Long, ByVal size As Long)
+Private Declare PtrSafe Sub glDrawElements Lib "opengl32.dll" (ByVal Glenum As Long, ByVal Count As Long, ByVal GLenumT As Long, ByVal Ptr As LongPtr)
 Private Declare PtrSafe Sub glClipPlane Lib "opengl32.dll" (ByVal Glenum As Long, ByVal Ptr As LongPtr)
 
 Private pfd As PIXELFORMATDESCRIPTOR
@@ -78,6 +79,9 @@ Public Sub NormalPointer(ByVal Gle As Glenum, ByVal Stride As Long, ByVal Ptr As
 End Sub
 Public Sub DrawArrays(ByVal Mode As Glenum, ByVal First As Long, ByVal size As Long)
     Call glDrawArrays(Mode, First, size)
+End Sub
+Public Sub DrawElements(ByVal Mode As Glenum, ByVal Count As Long, ByVal Type1 As Glenum, ByVal Ptr As LongPtr)
+    Call glDrawElements(Mode, Count, Type1, Ptr)
 End Sub
 Public Sub MultMatrixd(ByVal Ptr As LongPtr)
     Call glMultMatrixd(Ptr)
