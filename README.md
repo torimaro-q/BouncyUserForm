@@ -12,26 +12,7 @@ The form bounces around the screen, and when it collides with something, its con
 - The creator assumes no responsibility for any issues or damage to your PC or data caused by this code.
 Use it at your own risk.
 
-
-# 🧩拡張機能 / Extensions
-以下のような拡張を自由に追加できます。
-- OpenGL によるエフェクト
-- Excel シートへのリアルタイム描画
-- Excel 散布図による軌跡ログ
-- 操作用 UI（コントローラー）
-- カスタムエフェクト（ICFormPhysicsEf）
-- カスタム拡張（ICFormPhysicsEx）
----
-You can freely add optional extensions such as:
-- OpenGL‑based visual effects
-- Real‑time drawing onto an Excel worksheet
-- Trajectory logging using Excel scatter charts
-- A controller UI for manual operation
-- Custom effects (via ICFormPhysicsEf)
-- Custom extensions (via ICFormPhysicsEx)
-
-# 💥Examples
-- **拡張なし（最小構成）/ Minimal setup (no extensions)**
+# 💥Example
 ![screenshot](pic/Minimal.gif)
 
 # 🐧 特徴 / Features
@@ -54,6 +35,24 @@ You can freely add optional extensions such as:
 - Screen edges act as collision walls
 - Event callbacks: Move / Crash / Break / Started / Stopped
 ---
+
+# 🧩拡張機能 / Extensions
+以下のような拡張やエフェクトを自由に追加できます。
+- OpenGL によるエフェクト
+- Excel シートへのリアルタイム描画
+- Excel 散布図による軌跡ログ
+- 操作用 UI（コントローラー）
+- カスタムエフェクト（ICFormPhysicsEf）
+- カスタム拡張（ICFormPhysicsEx）
+---
+You can freely add optional extensions such as:
+- OpenGL‑based visual effects
+- Real‑time drawing onto an Excel worksheet
+- Trajectory logging using Excel scatter charts
+- A controller UI for manual operation
+- Custom effects (via ICFormPhysicsEf)
+- Custom extensions (via ICFormPhysicsEx)
+
 
 ### 🧩拡張 / Extensions
 |||
