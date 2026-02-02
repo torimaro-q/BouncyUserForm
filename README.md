@@ -68,6 +68,8 @@ You can freely add optional extensions such as:
 |衝撃波（glShockWave）|![screenshot](pic/ef/glShockWave.gif)|
 |移動残光（glMoveTrail）|![screenshot](pic/ef/glMoveTrail.gif)|
 |コントロール破損(glControlShatter)|![screenshot](pic/ef/glControlShatter.gif)|
+|ダメージ表示（glHitNumber）|![screenshot](pic/ef/glHitNumber.gif)|
+|ステータス表示（glStatusVisualizer）|![screenshot](pic/ef/glStatusVisualizer.gif)|
 
 # 🐧使い方 / Usage
 ## 1. クラスモジュールを追加 / Add the class modules
@@ -101,6 +103,8 @@ You can freely add optional extensions such as:
 + glShockWave.cls
 + glMoveTrail.cls
 + glControlShatter.cls
++ glHitNumber.cls
++ glStatusVisualizer.cls
 ```
 
 ## 2. UserForm にコードを追加 / Add code to your UserForm
