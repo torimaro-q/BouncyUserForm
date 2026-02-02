@@ -1,4 +1,4 @@
-﻿VERSION 5.00
+VERSION 5.00
 Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} CFormPhysicsController 
    Caption         =   "Controller"
    ClientHeight    =   2895
@@ -14,6 +14,7 @@ Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
+
 Option Explicit
 Implements ICFormPhysicsEx
 Private WithEvents myCore As CFormPhysics
@@ -33,6 +34,14 @@ Private Sub LabelA_MouseMove(ByVal Button As Integer, ByVal Shift As Integer, By
         End If
     End With
 End Sub
+Private Sub DButton(ByVal dx As Double, ByVal dy As Double)
+    With myCore
+        .VX = .VX + dx
+        .VY = .VY + dy
+        ptime = 0
+        .Launch
+    End With
+End Sub
 Private Sub ApplyAnalogVelocity(ByRef time)
     Dim tx As Double, ty As Double
     With LabelA
@@ -49,34 +58,16 @@ Private Sub myCore_Move(x As Double, y As Double, veloc As Double, time As Long)
     ptime = time
 End Sub
 Private Sub CommandButtonB_Click()
-    With myCore
-        .VY = .VY + 2000
-        ptime = 0
-        .Launch
-    End With
+    DButton 0, 3000
 End Sub
 Private Sub CommandButtonL_Click()
-    With myCore
-        .VY = .VY - 100
-        .VX = .VX - 1500
-        ptime = 0
-        .Launch
-    End With
+    DButton -2500, -100
 End Sub
 Private Sub CommandButtonR_Click()
-    With myCore
-        .VY = .VY - 100
-        .VX = .VX + 1500
-        ptime = 0
-        .Launch
-    End With
+    DButton 2500, -100
 End Sub
 Private Sub CommandButtonT_Click()
-    With myCore
-        .VY = .VY - 200
-        ptime = 0
-        .Launch
-    End With
+    DButton 0, -1000
 End Sub
 Private Sub LabelA_MouseUp(ByVal Button As Integer, ByVal Shift As Integer, ByVal x As Single, ByVal y As Single)
     With LabelA
@@ -91,11 +82,7 @@ Private Sub Frame1_MouseDown(ByVal Button As Integer, ByVal Shift As Integer, By
         tx = x - .width * 0.5
         ty = y - .height * 0.5
     End With
-    With myCore
-        .VY = .VY + ty * 2
-        .VX = .VX + tx * 2
-        .Launch
-    End With
+    DButton tx * 20, ty * 20
 End Sub
 Private Property Get ICFormPhysicsEx_CreateInstance() As ICFormPhysicsEx
     Set ICFormPhysicsEx_CreateInstance = New CFormPhysicsController

@@ -44,7 +44,7 @@ Private Sub ICFormPhysicsEf_Render(x As Double, y As Double, dt As Long, v As Do
 End Sub
 Private Sub Update(ByRef dt As Long)
     Dim i As Long, v As Long
-    Dim ca As Double, sa As Double
+    Dim ca As Double, SA As Double
     Dim lx As Double, ly As Double
     Dim rx As Double, ry As Double
     For i = 0 To PARTICLECOUNT - 1
@@ -62,12 +62,12 @@ Private Sub Update(ByRef dt As Long)
                 pAngle(i) = pAngle(i) + 6.28
             End If
             ca = FastCos(pAngle(i))
-            sa = FastSin(pAngle(i))
+            SA = FastSin(pAngle(i))
             For v = 0 To 2
                 lx = pTri(i, v).x
                 ly = pTri(i, v).y
-                rx = lx * ca - ly * sa
-                ry = lx * sa + ly * ca
+                rx = lx * ca - ly * SA
+                ry = lx * SA + ly * ca
                 verts(3 * i + v).x = .x + rx
                 verts(3 * i + v).y = .y + ry
             Next v
@@ -113,9 +113,9 @@ Private Sub ICFormPhysicsEf_Reset(cx As Double, cy As Double, ddmg As Double, Op
         pAngVel(i) = (Rnd - 0.5) * 0.01
         base = i * 3
         With pC(base)
-            .R = 0.7
-            .G = 0.7
-            .B = 1
+            .r = 0.7
+            .g = 0.7
+            .b = 1
             .a = 1
         End With
         pC(base + 1) = pC(base)

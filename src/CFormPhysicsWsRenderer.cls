@@ -1,4 +1,4 @@
-ÔªøVERSION 1.0 CLASS
+VERSION 1.0 CLASS
 BEGIN
   MultiUse = -1  'True
 END
@@ -13,7 +13,7 @@ Private WithEvents myCore As CFormPhysics
 Attribute myCore.VB_VarHelpID = -1
 Private ws As Worksheet
 Private Type rc
-    R As Long
+    r As Long
     c As Long
     isUsed As Boolean
 End Type
@@ -42,15 +42,15 @@ End Sub
 Private Sub UpdateSheet(ByRef cellInfo As rc)
     With cellInfo
         If .isUsed Then Exit Sub
-        If .R > 0 And .c > 0 Then
-            With ws.Cells(.R, .c)
+        If .r > 0 And .c > 0 Then
+            With ws.Cells(.r, .c)
                 .Value = symbols(CLng(Rnd() * 3))
                 .Font.ColorIndex = (1 + CLng(Rnd() * 25))
             End With
         End If
     End With
     With buf(cnt)
-        If .R > 0 And .c > 0 Then ws.Cells(.R, .c).Value = ""
+        If .r > 0 And .c > 0 Then ws.Cells(.r, .c).Value = ""
     End With
     buf(cnt) = cellInfo
     cnt = cnt + 1
@@ -61,8 +61,8 @@ Private Sub myCore_Stopped(x As Double, y As Double, time As Long)
     On Error Resume Next
     For i = LBound(buf) To UBound(buf)
         With buf(i)
-            If .R > 0 And .c > 0 Then
-                With ws.Cells(.R, .c)
+            If .r > 0 And .c > 0 Then
+                With ws.Cells(.r, .c)
                     .Value = ""
                     .Font.ColorIndex = 1
                 End With
@@ -75,14 +75,14 @@ Private Sub ClearCell(ByRef rc As rc)
 End Sub
 Private Sub BuildSheetLut()
     Dim tmp As Range, Area As Range
-    Dim R As Long, c As Long
+    Dim r As Long, c As Long
     Dim ll As Long, LT As Long, ul As Long, ut As Long
     Dim v As Variant
     Dim i As Long, j As Long
     Set Area = ws.Range("A1:DA80")
     For Each tmp In Area
         With tmp
-            R = .Row
+            r = .Row
             c = .Column
             v = .Value
             ll = CLng(.left)
@@ -93,7 +93,7 @@ Private Sub BuildSheetLut()
                 For i = ll To ul
                     For j = LT To ut
                         With SheetLut(i, j)
-                            .R = R
+                            .r = r
                             .c = c
                             .isUsed = (v <> Empty)
                         End With
@@ -116,10 +116,10 @@ Private Sub ICFormPhysicsEx_init(core As CFormPhysics, Optional params As Varian
         ScrW = .ScrWidth * .Px2Tw
         ScrH = .ScrHeight * .Px2Tw
     End With
-    symbols(0) = "'‚óè"
-    symbols(1) = "'‚óÜ"
-    symbols(2) = "'‚ñ†"
-    symbols(3) = "'‚ñ≤"
+    symbols(0) = "'Åú"
+    symbols(1) = "'Åü"
+    symbols(2) = "'Å°"
+    symbols(3) = "'Å£"
     ReDim SheetLut(ScrL To ScrL + ScrW, ScrT To ScrT + ScrH)
     ReDim buf(80)
     cnt = 1

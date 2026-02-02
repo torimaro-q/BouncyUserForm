@@ -1,4 +1,4 @@
-﻿VERSION 1.0 CLASS
+VERSION 1.0 CLASS
 BEGIN
   MultiUse = -1  'True
 END
@@ -9,22 +9,16 @@ Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
 Option Explicit 'To determine the presence of an extension class
 Private Type RGBA
-    R As Byte
-    G As Byte
-    B As Byte
+    r As Byte
+    g As Byte
+    b As Byte
     a As Byte
 End Type
 Private Type LONGTYPE
     Value As Long
 End Type
-Private Const SM_XVIRTUALSCREEN = 76
-Private Const SM_YVIRTUALSCREEN = 77
-Private Const SM_CXVIRTUALSCREEN = 78
-Private Const SM_CYVIRTUALSCREEN = 79
-Private Const LOGPIXELSX As Long = 88
-Private Const GWL_EXSTYLE = -20
-Private Const WS_EX_LAYERED = &H80000
-Private Const LWA_COLORKEY = &H1
+Private Const SM_XVIRTUALSCREEN = 76, SM_YVIRTUALSCREEN = 77, SM_CXVIRTUALSCREEN = 78, SM_CYVIRTUALSCREEN = 79
+Private Const LOGPIXELSX As Long = 88, GWL_EXSTYLE = -20, WS_EX_LAYERED = &H80000, LWA_COLORKEY = &H1
 Private Const CLMASK As Long = &H80000000
 Private Declare PtrSafe Function GetSysColor Lib "user32" (ByVal nIndex As Long) As Long
 Private Declare PtrSafe Function GetSystemMetrics Lib "user32" (ByVal nIndex As Long) As Long
@@ -33,17 +27,12 @@ Private Declare PtrSafe Function GetDeviceCaps Lib "gdi32" (ByVal hdc As LongPtr
 Private Declare PtrSafe Function ReleaseDC Lib "user32" (ByVal hwnd As LongPtr, ByVal hdc As LongPtr) As Long
 Private Declare PtrSafe Function GetTickCount Lib "kernel32" () As Long
 '##############################################################################################
-Private Const SPDLMT As Double = 10000
-Private Const SAFEOFS As Double = 0.00001
-Private Const PA As Double = 0.9604
-Private Const PB As Double = 0.3978
 Private Const FMT As String = "0.000"
-Private Const THICKNESS As Double = 1
-Private Const ZETA As Double = 0.8
-Private Const GRAV As Double = 300
+Private Const SPDLMT As Double = 10000, SAFEOFS As Double = 0.00001, SPDCF As Double = 0.75
+Private Const PA As Double = 0.9604, PB As Double = 0.3978
+Private Const THICKNESS As Double = 1, PRES2VIS As Double = 0.001
+Private Const ZETA As Double = 0.8, GRAV As Double = 300
 Private Const DMGCF As Double = 0.00000001
-Private Const SPDCF As Double = 0.75
-Private Const PRES2VIS As Double = 0.001
 Private DragX As Double, DragY As Double
 Private Caps(3) As String, dCap As String, frameCnt As Long
 Private RChk As Double, TChk As Double, cV As Double, pV As Double, tCl As Long
@@ -284,7 +273,7 @@ Public Sub init(ByRef form As Object, Optional ByRef extenions As Variant = Empt
             dCap = .Caption
             tCl = SysCL2RGB(.BackColor)
             With CL2RGBA(tCl)
-                Dens = (300 - (0.299 * .R + 0.587 * .G + 0.114 * .B)) / 5000
+                Dens = (300 - (0.299 * .r + 0.587 * .g + 0.114 * .b)) / 5000
             End With
         End With
         isDragging = False

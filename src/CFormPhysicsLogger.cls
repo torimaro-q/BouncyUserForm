@@ -80,8 +80,8 @@ Private Sub HandleDamageUpdate(ByRef Damage As Double)
     myChart.ChartArea.Select 'for excel 2024
     Application.Calculate 'In excel 2024, chart updates are no longer triggered.
 End Sub
-Private Sub AppendToSeries(ByVal index As Long, ByVal x As Double, ByVal y As Double)
-    With mySeries(index)
+Private Sub AppendToSeries(ByVal Index As Long, ByVal x As Double, ByVal y As Double)
+    With mySeries(Index)
         ReDim Preserve .xvalues(0 To .cnt)
         ReDim Preserve .yvalues(0 To .cnt)
         .xvalues(.cnt) = x
@@ -111,7 +111,7 @@ Private Sub ClearCharts()
     Dim tcht As ChartObject
     If ws Is Nothing Then Exit Sub
     For Each tcht In ws.ChartObjects
-        If tcht.name Like "*FormPhysic*" Then
+        If tcht.Name Like "*FormPhysic*" Then
             tcht.Delete
         End If
     Next tcht
@@ -129,17 +129,17 @@ Private Sub CreateChart()
         Set chartObj = ws.ChartObjects.Add(left:=5, top:=5, width:=(.ScrWidth * .Px2Tw) * 0.3, height:=(.ScrHeight * .Px2Tw) * 0.3)
     End With
     With chartObj
-        .name = "CFormPhysicLogScatter"
+        .Name = "CFormPhysicLogScatter"
         Set myChart = .Chart
         With myChart
             .ChartType = xlXYScatter
             .HasLegend = True
             For i = LBound(mySeries) To UBound(mySeries)
                 Set nw = .SeriesCollection.NewSeries
-                nw.name = labels(i)
+                nw.Name = labels(i)
                 If i = 0 Then
                     nw.ChartType = xlXYScatterLinesNoMarkers
-                    nw.format.Line.Weight = 0.3
+                    nw.format.Line.weight = 0.3
                 Else
                     nw.ChartType = xlXYScatter
                     nw.MarkerSize = 2 + (i - 1) * 3
@@ -178,22 +178,22 @@ Public Sub ApplyBrilliantTemplate(ByVal ch As Chart)
     With ch.Axes(xlValue).MajorGridlines.format.Line
         .Visible = msoTrue
         .ForeColor.RGB = RGB(60, 60, 60)
-        .Weight = 0.25
+        .weight = 0.25
     End With
     With ch.Axes(xlCategory).MajorGridlines.format.Line
         .Visible = msoTrue
         .ForeColor.RGB = RGB(60, 60, 60)
-        .Weight = 0.25
+        .weight = 0.25
     End With
     With ch.Axes(xlCategory).format.Line
         .ForeColor.RGB = RGB(200, 200, 200)
-        .Weight = 0.75
+        .weight = 0.75
     End With
     With ch.Axes(xlValue).format.Line
         .ForeColor.RGB = RGB(200, 200, 200)
-        .Weight = 0.75
+        .weight = 0.75
     End With
-    For i = 1 To ch.SeriesCollection.Count
+    For i = 1 To ch.SeriesCollection.count
         With ch.SeriesCollection(i)
             With .format.Glow
                 .Color.RGB = colors(i - 1)
@@ -214,15 +214,15 @@ Public Sub ApplyBrilliantTemplate(ByVal ch As Chart)
         .ChartTitle.Text = "CFormPhysics Trajectory Log"
         .ChartTitle.Font.Color = RGB(240, 240, 240)
         .ChartTitle.Font.size = 14
-        .ChartTitle.Font.name = "Segoe UI Semibold"
+        .ChartTitle.Font.Name = "Segoe UI Semibold"
     End With
     With ch.Axes(xlCategory).format.Line
         .ForeColor.RGB = RGB(200, 200, 200)
-        .Weight = 0.75
+        .weight = 0.75
     End With
     With ch.Axes(xlValue).format.Line
         .ForeColor.RGB = RGB(200, 200, 200)
-        .Weight = 0.75
+        .weight = 0.75
     End With
     With ch.Axes(xlCategory).TickLabels
         .Font.Color = RGB(220, 220, 220)

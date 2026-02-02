@@ -1,24 +1,29 @@
 VERSION 5.00
-Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} CalculatorMinimal 
-   Caption         =   "CalculatorMinimal"
+Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} CalculatorGL 
+   Caption         =   "CalculatorGL"
    ClientHeight    =   4710
    ClientLeft      =   45
    ClientTop       =   390
    ClientWidth     =   4455
-   OleObjectBlob   =   "CalculatorMinimal.frx":0000
+   OleObjectBlob   =   "CalculatorGL.frx":0000
    ShowModal       =   0   'False
    StartUpPosition =   1  'オーナー フォームの中央
 End
-Attribute VB_Name = "CalculatorMinimal"
+Attribute VB_Name = "CalculatorGL"
 Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
+
 Option Explicit
 Private engine As CFormPhysics
 Private Sub UserForm_Initialize()
     Set engine = New CFormPhysics
-    engine.init Me
+    engine.init Me, Array(CFormPhysicsGLEffector, _
+                          CFormPhysicsController), _
+                    Array(glShockWave, glExplosion, glHitNumber), _
+                    Array(glMoveTrail, glStatusVisualizer), _
+                    Array(glControlShatter)
 End Sub
 Private Sub UserForm_Terminate()
     engine.Terminate

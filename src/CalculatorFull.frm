@@ -1,4 +1,4 @@
-﻿VERSION 5.00
+VERSION 5.00
 Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} CalculatorFull 
    Caption         =   "CalculatorFull"
    ClientHeight    =   4710
@@ -15,6 +15,7 @@ Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
 
+
 Option Explicit
 Private engine As CFormPhysics
 Private Sub UserForm_Initialize()
@@ -23,9 +24,8 @@ Private Sub UserForm_Initialize()
                           CFormPhysicsWsRenderer, _
                           CFormPhysicsGLEffector, _
                           CFormPhysicsController), _
-                    Array(glShockWave, _
-                          glExplosion), _
-                    Array(glMoveTrail), _
+                    Array(glShockWave, glExplosion, glHitNumber), _
+                    Array(glMoveTrail, glStatusVisualizer), _
                     Array(glControlShatter)
 End Sub
 Private Sub UserForm_Terminate()

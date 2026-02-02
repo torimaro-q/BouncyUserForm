@@ -24,7 +24,7 @@ Private Declare PtrSafe Function wglMakeCurrent Lib "opengl32.dll" (ByVal hdc As
 Private Declare PtrSafe Function wglDeleteContext Lib "opengl32.dll" (ByVal hdc As LongPtr) As Long
 Private Declare PtrSafe Sub glColor4f Lib "opengl32.dll" (ByVal red As Single, ByVal green As Single, ByVal blue As Single, ByVal alpha As Single)
 Private Declare PtrSafe Sub glColor3d Lib "opengl32.dll" (ByVal red As Double, ByVal green As Double, ByVal blue As Double)
-Private Declare PtrSafe Sub glVertex2d Lib "opengl32.dll" (ByVal a As Double, ByVal B As Double)
+Private Declare PtrSafe Sub glVertex2d Lib "opengl32.dll" (ByVal a As Double, ByVal b As Double)
 Private Declare PtrSafe Sub glVertex3d Lib "opengl32.dll" (ByVal x As Double, ByVal y As Double, ByVal z As Double)
 Private Declare PtrSafe Sub glNormal3d Lib "opengl32.dll" (ByVal x As Double, ByVal y As Double, ByVal z As Double)
 Private Declare PtrSafe Sub glVertex3dv Lib "opengl32.dll" (ByVal dPtr As LongPtr)
@@ -49,13 +49,77 @@ Private Declare PtrSafe Sub glClearColor Lib "opengl32.dll" (ByVal red As Single
 Private Declare PtrSafe Sub glColorPointer Lib "opengl32.dll" (ByVal size As Long, ByVal Glenum As Long, ByVal Stride As Long, ByVal Ptr As LongPtr)
 Private Declare PtrSafe Sub glNormalPointer Lib "opengl32.dll" (ByVal Glenum As Long, ByVal Stride As Long, ByVal Ptr As LongPtr)
 Private Declare PtrSafe Sub glVertexPointer Lib "opengl32.dll" (ByVal size As Long, ByVal Glenum As Long, ByVal Stride As Long, ByVal Ptr As LongPtr)
-Private Declare PtrSafe Sub glDrawArrays Lib "opengl32.dll" (ByVal Glenum As Long, ByVal First As Long, ByVal size As Long)
-Private Declare PtrSafe Sub glDrawElements Lib "opengl32.dll" (ByVal Glenum As Long, ByVal Count As Long, ByVal GLenumT As Long, ByVal Ptr As LongPtr)
+Private Declare PtrSafe Sub glDrawArrays Lib "opengl32.dll" (ByVal Glenum As Long, ByVal first As Long, ByVal size As Long)
+Private Declare PtrSafe Sub glDrawElements Lib "opengl32.dll" (ByVal Glenum As Long, ByVal count As Long, ByVal GLenumT As Long, ByVal Ptr As LongPtr)
 Private Declare PtrSafe Sub glClipPlane Lib "opengl32.dll" (ByVal Glenum As Long, ByVal Ptr As LongPtr)
 
+Private Declare PtrSafe Function CreateFont Lib "gdi32" Alias "CreateFontA" (ByVal nHeight As Long, ByVal nWidth As Long, ByVal nEscapement As Long, ByVal nOrientation As Long, ByVal fnWeight As Long, ByVal IfdwItalic As Long, ByVal fdwUnderline As Long, ByVal fdwStrikeOut As Long, ByVal fdwCharSet As Long, ByVal fdwOutputPrecision As Long, ByVal fdwClipPrecision As Long, ByVal fdwQuality As Long, ByVal fdwPitchAndFamily As Long, ByVal lpszFace As String) As LongPtr
+Private Declare PtrSafe Function wglUseFontBitmaps Lib "opengl32.dll" Alias "wglUseFontBitmapsA" (ByVal hdc As LongPtr, ByVal dfirst As Long, ByVal dcount As Long, ByVal dlistbase As Long) As Long
+Private Declare PtrSafe Function wglUseFontBitmapsW Lib "opengl32.dll" (ByVal hdc As LongPtr, ByVal dfirst As Long, ByVal dcount As Long, ByVal dlistbase As Long) As Long
+
+Private Declare PtrSafe Sub glRasterPos3d Lib "opengl32.dll" (ByVal x As Double, ByVal y As Double, ByVal z As Double)
+Private Declare PtrSafe Sub glRasterPos2d Lib "opengl32.dll" (ByVal x As Double, ByVal y As Double)
+Private Declare PtrSafe Sub glTranslated Lib "opengl32.dll" (ByVal x As Double, ByVal y As Double, ByVal z As Double)
+Private Declare PtrSafe Sub glScaled Lib "opengl32.dll" (ByVal x As Double, ByVal y As Double, ByVal z As Double)
+
+Private Declare PtrSafe Function glIsList Lib "opengl32.dll" (ByVal Index As Long) As Byte
+Private Declare PtrSafe Sub glNewList Lib "opengl32.dll" (ByVal Index As Long, ByVal Glenum As Long)
+Private Declare PtrSafe Sub glEndList Lib "opengl32.dll" ()
+Private Declare PtrSafe Sub glCallList Lib "opengl32.dll" (ByVal Index As Long)
+Private Declare PtrSafe Sub glDeleteLists Lib "opengl32.dll" (ByVal Index As Long, ByVal size As Long)
+Private Declare PtrSafe Sub glDeleteList Lib "opengl32.dll" (ByVal Index As Long)
+Private Declare PtrSafe Sub glListBase Lib "opengl32.dll" (ByVal base As Long)
+Private Declare PtrSafe Sub glCallLists Lib "opengl32.dll" (ByVal size As Long, ByVal vType As Long, ByVal Ptr As LongPtr)
 Private pfd As PIXELFORMATDESCRIPTOR
 Public hformat As Long, hGLRC As LongPtr, hdc As LongPtr
 Private myhwnd As LongPtr
+Public Sub CreateFontList(Optional ByVal FontSize As Long = 30, Optional ByVal FontName As String = "Arial", Optional ByVal weight As Long = 200, Optional listbase As Long = 1000)
+    Dim hFont As LongPtr, hOldFont As LongPtr
+    If glIsList(listbase) = 1 Then glDeleteLists listbase, 255
+    hFont = CreateFont(FontSize, 0, 0, 0, weight, 0, 0, 0, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, ANTIALIASED_QUALITY, DEFAULT_PITCH Or FF_SCRIPT, FontName)
+    If hFont = 0 Then Exit Sub
+    hOldFont = SelectObject(hdc, hFont)
+    wglUseFontBitmaps hdc, 0, 255, listbase
+    Call SelectObject(hdc, hOldFont)
+    Call DeleteObject(hFont)
+    DoEvents
+End Sub
+Public Sub DisposeFontList()
+    If glIsList(1000) = 1 Then glDeleteLists 1000, 10000
+End Sub
+Public Sub NewList(ByVal Index As Long, CompileMode As Glenum)
+    Call glNewList(Index, CompileMode)
+End Sub
+Public Sub EndList()
+    Call glEndList
+End Sub
+Public Sub CallList(ByVal Index As Long)
+    Call glCallList(Index)
+End Sub
+Public Sub CallLists(ByVal Index As Long, ByVal vType As Glenum, ByVal Ptr As LongPtr)
+    Call glCallLists(Index, vType, Ptr)
+End Sub
+Public Sub DeleteLists(ByVal Index As Long, size As Long)
+    Call glDeleteLists(Index, size)
+End Sub
+Public Sub listbase(ByVal base As Long)
+    Call glListBase(base)
+End Sub
+Public Function IsList(ByVal Index As Long) As Boolean
+    IsList = glIsList(Index)
+End Function
+Public Sub RasterPos3d(ByVal x As Double, ByVal y As Double, ByVal z As Double)
+    Call glRasterPos3d(x, y, z)
+End Sub
+Public Sub RasterPos2d(ByVal x As Double, ByVal y As Double)
+    Call glRasterPos2d(x, y)
+End Sub
+Public Sub Scaled(ByVal x As Double, ByVal y As Double, ByVal z As Double)
+    Call glScaled(x, y, z)
+End Sub
+Public Sub Translated(ByVal x As Double, ByVal y As Double, ByVal z As Double)
+    Call glTranslated(x, y, z)
+End Sub
 Public Sub PointSize(ByVal size As Single)
     Call glPointSize(size)
 End Sub
@@ -77,17 +141,21 @@ End Sub
 Public Sub NormalPointer(ByVal Gle As Glenum, ByVal Stride As Long, ByVal Ptr As LongPtr)
     Call glNormalPointer(Gle, Stride, Ptr)
 End Sub
-Public Sub DrawArrays(ByVal Mode As Glenum, ByVal First As Long, ByVal size As Long)
-    Call glDrawArrays(Mode, First, size)
+Public Sub DrawArrays(ByVal Mode As Glenum, ByVal first As Long, ByVal size As Long)
+    Call glDrawArrays(Mode, first, size)
 End Sub
-Public Sub DrawElements(ByVal Mode As Glenum, ByVal Count As Long, ByVal Type1 As Glenum, ByVal Ptr As LongPtr)
-    Call glDrawElements(Mode, Count, Type1, Ptr)
+Public Sub DrawElements(ByVal Mode As Glenum, ByVal count As Long, ByVal Type1 As Glenum, ByVal Ptr As LongPtr)
+    Call glDrawElements(Mode, count, Type1, Ptr)
 End Sub
 Public Sub MultMatrixd(ByVal Ptr As LongPtr)
     Call glMultMatrixd(Ptr)
 End Sub
 Public Sub PaintStart()
     Call wglMakeCurrent(hdc, hGLRC)
+    DoEvents
+    Call CreateFontList(40, "Impact", 600, 1000)
+    Call CreateFontList(80, "Impact", 600, 2000)
+    Call CreateFontList(160, "Impact", 600, 3000)
 End Sub
 Public Sub PaintEnd()
     Call SwapBuffersA(hdc)
@@ -135,8 +203,8 @@ End Sub
 Public Sub Color3d(ByVal red As Double, ByVal green As Double, ByVal blue As Double)
     Call glColor3d(red, green, blue)
 End Sub
-Public Sub Vertex2d(ByVal a As Double, ByVal B As Double)
-    Call glVertex2d(a, B)
+Public Sub Vertex2d(ByVal a As Double, ByVal b As Double)
+    Call glVertex2d(a, b)
 End Sub
 Public Sub Vertex3d(ByVal x As Double, ByVal y As Double, ByVal z As Double)
     Call glVertex3d(x, y, z)
@@ -187,6 +255,7 @@ Private Sub Inithwnd()
     hGLRC = wglCreateContext(hdc)
 End Sub
 Private Sub Releasehwnd()
+    Call DisposeFontList
     Call wglMakeCurrent(0, 0)
     Call wglDeleteContext(hGLRC)
     Call ReleaseDC(myhwnd, hdc)

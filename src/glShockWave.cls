@@ -1,4 +1,4 @@
-﻿VERSION 1.0 CLASS
+VERSION 1.0 CLASS
 BEGIN
   MultiUse = -1  'True
 END
@@ -60,6 +60,7 @@ Private Sub Update(ByRef dt, ByRef v)
     Next i
 End Sub
 Private Sub ICFormPhysicsEf_Reset(cx As Double, cy As Double, ddmg As Double, Optional hw As Double = 0#, Optional hh As Double = 0#)
+    If ddmg < 1 Then Exit Sub
     Dim i As Long, rv As Double, th As Double, dth As Double
     effectCX = cx
     effectCY = cy
@@ -80,9 +81,9 @@ Private Sub ICFormPhysicsEf_Reset(cx As Double, cy As Double, ddmg As Double, Op
             .y = rv * FastSin(th)
         End With
         With pC(i)
-            .R = 0.9 + Rnd * 0.1
-            .G = 0.8 + Rnd * 0.1
-            .B = 0.7 + Rnd * 0.1
+            .r = 0.9 + Rnd * 0.1
+            .g = 0.8 + Rnd * 0.1
+            .b = 0.7 + Rnd * 0.1
             .a = 1
         End With
     Next i

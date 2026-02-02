@@ -1,4 +1,4 @@
-﻿VERSION 1.0 CLASS
+VERSION 1.0 CLASS
 BEGIN
   MultiUse = -1  'True
 END
@@ -56,34 +56,35 @@ Private Sub Update(ByRef dt)
         alpha = LF(i) * InvLF(i)
         t = 1 - alpha
         If alpha >= 0 Then
-            Dim R As Single, G As Single, B As Single
+            Dim r As Single, g As Single, b As Single
             If t < 0.2 Then
-                R = 1
-                G = 0.95
-                B = 0.8
+                r = 1
+                g = 0.95
+                b = 0.8
             ElseIf t < 0.5 Then
-                R = 1
-                G = 0.7 - (t - 0.2) * 1#
-                B = 0.2
+                r = 1
+                g = 0.7 - (t - 0.2) * 1#
+                b = 0.2
             ElseIf t < 0.8 Then
-                R = 0.8 - (t - 0.5) * 1#
-                G = 0.2
-                B = 0.1
+                r = 0.8 - (t - 0.5) * 1#
+                g = 0.2
+                b = 0.1
             Else
-                R = 0.2
-                G = 0.2
-                B = 0.2
+                r = 0.2
+                g = 0.2
+                b = 0.2
             End If
             With pC(i)
-                .R = R
-                .G = G
-                .B = B
+                .r = r
+                .g = g
+                .b = b
                 .a = alpha
             End With
         End If
     Next i
 End Sub
 Private Sub ICFormPhysicsEf_Reset(cx As Double, cy As Double, ddmg As Double, Optional hw As Double = 0#, Optional hh As Double = 0#)
+    If ddmg < 1 Then Exit Sub
     Dim i As Long, rv As Double, th As Double
     dd = ddmg
     effectCX = cx
@@ -105,9 +106,9 @@ Private Sub ICFormPhysicsEf_Reset(cx As Double, cy As Double, ddmg As Double, Op
             .y = rv * FastSin(th)
         End With
         With pC(i)
-            .R = Rnd
-            .G = Rnd
-            .B = Rnd
+            .r = Rnd
+            .g = Rnd
+            .b = Rnd
             .a = 1
         End With
     Next i

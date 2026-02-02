@@ -1,4 +1,4 @@
-﻿Attribute VB_Name = "glh"
+Attribute VB_Name = "glh"
 Option Explicit
 Public Enum Glenum
     GLU_FALSE = &H0&
@@ -162,13 +162,13 @@ Public Type Vector4d
     w As Double
 End Type
 Public Type Color4
-    R As Single
-    G As Single
-    B As Single
+    r As Single
+    g As Single
+    b As Single
     a As Single
 End Type
 Public Type B4
-    B(3) As Byte
+    b(3) As Byte
 End Type
 Public Type S1
     s As Single
@@ -176,15 +176,25 @@ End Type
 Public Type L1
     L As Long
 End Type
+Public Const WGL_FONT_POLYGONS As Long = 1
+Public Const FW_NORMAL As Long = 400
+Public Const FW_BOLD As Long = 700
+Public Const DEFAULT_CHARSET As Long = 1
+Public Const OUT_DEFAULT_PRECIS As Long = 0
+Public Const CLIP_DEFAULT_PRECIS As Long = 0
+Public Const DEFAULT_QUALITY As Long = 0
+Public Const DEFAULT_PITCH As Long = 0
+Public Const FF_SCRIPT As Long = 64
+Public Const ANTIALIASED_QUALITY As Long = 4
 Public Function B2Single(ByRef B1, ByRef B2, ByRef B3, ByRef B4) As Single
     Dim x As B4, y As S1
-    With x: .B(0) = B1: .B(1) = B2: .B(2) = B3: .B(3) = B4: End With
+    With x: .b(0) = B1: .b(1) = B2: .b(2) = B3: .b(3) = B4: End With
     LSet y = x
     B2Single = y.s
 End Function
 Public Function B2Long(ByRef B1, ByRef B2, ByRef B3, ByRef B4) As Long
     Dim x As B4, y As L1
-    With x: .B(0) = B1: .B(1) = B2: .B(2) = B3: .B(3) = B4: End With
+    With x: .b(0) = B1: .b(1) = B2: .b(2) = B3: .b(3) = B4: End With
     LSet y = x
     B2Long = y.L
 End Function
@@ -197,8 +207,8 @@ End Function
 Public Function Vector4d(ByVal x As Double, ByVal y As Double, ByVal z As Double, ByVal w As Double) As Vector4d
     With Vector4d: .x = x: .y = y: .z = z: .w = w: End With
 End Function
-Public Function Color4(ByVal R As Single, ByVal G As Single, ByVal B As Single, ByVal a As Single) As Color4
-    With Color4: .a = a: .B = B: .G = G: .R = R: End With
+Public Function Color4(ByVal r As Single, ByVal g As Single, ByVal b As Single, ByVal a As Single) As Color4
+    With Color4: .a = a: .b = b: .g = g: .r = r: End With
 End Function
 Public Function FastSin(ByRef th As Double) As Double
     Static mySin(-1000 To 2000) As Double

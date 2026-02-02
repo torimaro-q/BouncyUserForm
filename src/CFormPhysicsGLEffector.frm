@@ -1,4 +1,4 @@
-﻿VERSION 5.00
+VERSION 5.00
 Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} CFormPhysicsGLEffector 
    Caption         =   "CFormPhysicsEffecter"
    ClientHeight    =   9570.001
@@ -14,6 +14,7 @@ Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
+
 Option Explicit
 Implements ICFormPhysicsEx
 #If Win64 Then
@@ -27,28 +28,20 @@ Private Declare PtrSafe Function WindowFromAccessibleObject Lib "oleacc.dll" (By
 Private Declare PtrSafe Function SetLayeredWindowAttributes Lib "user32" (ByVal hwnd As LongPtr, ByVal crKey As Long, ByVal bAlpha As Byte, ByVal dwFlags As Long) As Long
 Private Declare PtrSafe Function ShowWindow Lib "user32" (ByVal hwnd As LongPtr, ByVal nCmdShow As Long) As Long
 Private Declare PtrSafe Function SetWindowPos Lib "user32" (ByVal hwnd As LongPtr, ByVal hWndInsertAfter As LongPtr, ByVal x As Long, ByVal y As Long, ByVal cx As Long, ByVal cy As Long, ByVal wFlags As Long) As Long
-Private Const SWP_NOSIZE = &H1
-Private Const SWP_NOMOVE = &H2
-Private Const HWND_BOTTOM = 1
-Private Const HWND_TOPMOST = -1
-Private Const GWL_STYLE = -16
-Private Const GWL_EXSTYLE = -20
-Private Const WS_EX_LAYERED = &H80000
-Private Const WS_THICKFRAME = &H40000
-Private Const WS_CAPTION = &HC00000
-Private Const WS_EX_DLGMODALFRAME = &H1&
+Private Const SWP_NOSIZE As Long = &H1, SWP_NOMOVE As Long = &H2, SW_SHOWMAXIMIZED = 3
+Private Const HWND_BOTTOM As Long = 1, HWND_TOPMOST As Long = -1
+Private Const GWL_STYLE As Long = -16, GWL_EXSTYLE As Long = -20
+Private Const WS_EX_LAYERED = &H80000, WS_THICKFRAME = &H40000, WS_CAPTION = &HC00000, WS_EX_DLGMODALFRAME = &H1&
 Private Const LWA_COLORKEY = &H1
-Private Const SW_SHOWMAXIMIZED = 3
-Private Const EFFECT_MAX_COUNT = 3
+Private Const EF_MAX_CNT = 3
+Private Const DICT As String = "Scripting.Dictionary"
 Private GL As OpenGL
-Private hwnd As LongPtr, exStyle As LongPtr, style As LongPtr
-Private rndhWnd As LongPtr
-Private width As Double, height As Double
-Private WithEvents myCore As CFormPhysics, ptime As Long, pdmg As Double, Tw2Px As Double, ecnt2 As Long
+Private hwnd As LongPtr, exStyle As LongPtr, style As LongPtr, rhWnd As LongPtr
+Private width As Double, height As Double, hh As Double, hw As Double, ptime As Long, pdmg As Double, Tw2Px As Double
+Private WithEvents myCore As CFormPhysics
 Attribute myCore.VB_VarHelpID = -1
-Private CrashDict As Object, ccnt As Long, CrashFactory As Variant
-Private MoveDict As Object, mcnt As Long, MoveFactory As Variant
-Private BreakDict As Object, bcnt As Long, BreakFactory As Variant
+Private ChFct As Variant, ccnt As Long, BkFct As Variant, bcnt As Long, MvFct As Variant
+Public ChDict As Object, BkDict As Object, MvDict As Object
 Public Sub Render(Optional time = 0, Optional x As Double = -1, Optional y As Double = -1, Optional v As Double = -1)
     Dim dt As Long, i As Long
     Dim effName As Variant
@@ -61,12 +54,12 @@ Public Sub Render(Optional time = 0, Optional x As Double = -1, Optional y As Do
         .Ortho2D 0, width, height, 0
         .MatrixMode GL_MODELVIEW
         .LoadIdentity
-        If CrashDict.Count > 0 Then
+        If ChDict.count > 0 Then
             .PushMatrix
-                With CrashDict
+                With ChDict
                     For Each effName In .keys()
                         With .Item(effName)
-                            For i = 1 To EFFECT_MAX_COUNT
+                            For i = 1 To EF_MAX_CNT
                                 Call .Item(i).Render(x, y, dt, v)
                             Next i
                         End With
@@ -74,12 +67,12 @@ Public Sub Render(Optional time = 0, Optional x As Double = -1, Optional y As Do
                 End With
             .PopMatrix
         End If
-        If BreakDict.Count > 0 Then
+        If BkDict.count > 0 Then
             .PushMatrix
-                With BreakDict
+                With BkDict
                     For Each effName In .keys()
                         With .Item(effName)
-                            For i = 1 To EFFECT_MAX_COUNT
+                            For i = 1 To EF_MAX_CNT
                                 Call .Item(i).Render(x, y, dt, v)
                             Next i
                         End With
@@ -87,9 +80,9 @@ Public Sub Render(Optional time = 0, Optional x As Double = -1, Optional y As Do
                 End With
             .PopMatrix
         End If
-        If MoveDict.Count > 0 Then
+        If MvDict.count > 0 Then
             .PushMatrix
-                With MoveDict
+                With MvDict
                     For Each effName In .keys()
                         Call .Item(effName).Render(x, y, dt, v)
                     Next effName
@@ -103,34 +96,45 @@ Private Sub myCore_Move(x As Double, y As Double, veloc As Double, time As Long)
     Render time, x * Tw2Px, y * Tw2Px, veloc
 End Sub
 Private Sub myCore_Crash(x As Double, y As Double, dmg As Double, time As Long)
-    If (dmg - pdmg) > 0.5 Then
+    Dim ddmg As Double, tx As Double, ty As Double
+    ddmg = dmg - pdmg
+    tx = Tw2Px * x
+    ty = Tw2Px * y
+    If ddmg > 0.05 Then
         Dim effName As Variant
-        With CrashDict
+        With ChDict
             For Each effName In .keys()
-                Call .Item(effName).Item(ccnt).Reset(Tw2Px * x, Tw2Px * y, (dmg - pdmg))
+                Call .Item(effName).Item(ccnt).Reset(tx, ty, ddmg, hw, hh)
             Next effName
         End With
         ccnt = ccnt + 1
-        If ccnt > EFFECT_MAX_COUNT Then ccnt = 1
+        If ccnt > EF_MAX_CNT Then ccnt = 1
     End If
+    With MvDict
+        For Each effName In .keys()
+            Call .Item(effName).Reset(tx, ty, ddmg, hw, hh)
+        Next effName
+    End With
     pdmg = dmg
 End Sub
 Private Sub myCore_Break(x As Double, y As Double, ofsx As Double, ofsy As Double, hw As Double, hh As Double)
     Dim effName As Variant
-    With BreakDict
+    With BkDict
         For Each effName In .keys()
             Call .Item(effName).Item(ccnt).Reset(Tw2Px * ofsx, Tw2Px * ofsy, 1#, hw, hh)
         Next effName
     End With
     bcnt = bcnt + 1
-    If bcnt > EFFECT_MAX_COUNT Then bcnt = 1
+    If bcnt > EF_MAX_CNT Then bcnt = 1
 End Sub
 Private Sub myCore_Started(x As Double, y As Double, time As Long)
-    Dim effName
+    Dim effName As Variant
     ptime = Timer
-    For Each effName In MoveDict.keys()
-        Call MoveDict.Item(effName).Reset(x * Tw2Px, y * Tw2Px, 0, myCore.hw * Tw2Px, myCore.hh * Tw2Px)
-    Next effName
+    With MvDict
+        For Each effName In .keys()
+            Call .Item(effName).Reset(x * Tw2Px, y * Tw2Px, 0, hw, hh)
+        Next effName
+    End With
 End Sub
 Private Sub myCore_Stopped(x As Double, y As Double, time As Long)
     With GL
@@ -138,11 +142,12 @@ Private Sub myCore_Stopped(x As Double, y As Double, time As Long)
         .SwapBuffers
     End With
 End Sub
+
 Private Sub UserForm_Activate()
     If GL Is Nothing Then
         Me.RenderFrame.BackColor = RGB(254, 254, 254)
         WindowFromAccessibleObject Me, hwnd
-        WindowFromAccessibleObject Me.RenderFrame, rndhWnd
+        WindowFromAccessibleObject Me.RenderFrame, rhWnd
         If True Then 'debug_flg
             #If Win64 Then
                 style = GetWindowLongPtr(hwnd, GWL_STYLE)
@@ -178,7 +183,7 @@ Public Sub GLInit()
     If width <= 0 Then width = 1920: height = 1080
     Set GL = New OpenGL
     With GL
-        .hwnd = rndhWnd
+        .hwnd = rhWnd
         .PaintStart
         .ClearColor 254 / 255, 254 / 255, 254 / 255, 1
         .Enable GL_DEPTH_TEST
@@ -186,64 +191,66 @@ Public Sub GLInit()
         .Disable GL_LIGHTING
     End With
     DoEvents
-    Set CrashDict = CreateObject("Scripting.Dictionary")
-    Set MoveDict = CreateObject("Scripting.Dictionary")
-    Set BreakDict = CreateObject("Scripting.Dictionary")
+    Set ChDict = CreateObject(DICT)
+    Set MvDict = CreateObject(DICT)
+    Set BkDict = CreateObject(DICT)
     On Error GoTo err:
         Dim efs As Variant, ek As Variant, ef As ICFormPhysicsEf, ci As ICFormPhysicsEf, t, i As Long
-        
-        If IsEmpty(CrashFactory) = False Then
-            For Each t In CrashFactory
+        If IsEmpty(ChFct) = False Then
+            For Each t In ChFct
                 ek = TypeName(t)
                 Set ef = t
-                If Not CrashDict.exists(ek) Then
+                If Not ChDict.exists(ek) Then
                     Dim coll As Collection: Set coll = New Collection
-                    For i = 1 To EFFECT_MAX_COUNT
+                    For i = 1 To EF_MAX_CNT
                         Set ci = ef.CreateInstance
                         Call ci.init(GL)
                         coll.Add ci
                     Next i
-                    CrashDict.Add ek, coll
+                    ChDict.Add ek, coll
                 End If
             Next t
         End If
-        
-        If IsEmpty(MoveFactory) = False Then
-            For Each t In MoveFactory
+        If IsEmpty(MvFct) = False Then
+            For Each t In MvFct
                 ek = TypeName(t)
                 Set ef = t
-                If Not MoveDict.exists(ek) Then
+                If Not MvDict.exists(ek) Then
                     Set ci = ef.CreateInstance
                     Call ci.init(GL)
-                    MoveDict.Add ek, ci
+                    MvDict.Add ek, ci
                 End If
             Next t
         End If
-        
-        If IsEmpty(BreakFactory) = False Then
-            For Each t In BreakFactory
+        If IsEmpty(BkFct) = False Then
+            For Each t In BkFct
                 ek = TypeName(t)
                 Set ef = t
-                If Not BreakDict.exists(ek) Then
+                If Not BkDict.exists(ek) Then
                     Dim coll2 As Collection: Set coll2 = New Collection
-                    For i = 1 To EFFECT_MAX_COUNT
+                    For i = 1 To EF_MAX_CNT
                         Set ci = ef.CreateInstance
                         Call ci.init(GL)
                         coll2.Add ci
                     Next i
-                    BreakDict.Add ek, coll2
+                    BkDict.Add ek, coll2
                 End If
             Next t
         End If
-        
 err:
+    With myCore
+        hw = .hw * Tw2Px
+        hh = .hh * Tw2Px
+    End With
     Call Render
 End Sub
 Private Sub ICFormPhysicsEx_init(core As CFormPhysics, Optional params As Variant = Empty)
     Set myCore = core
-    width = core.ScrWidth
-    height = core.ScrHeight
-    Tw2Px = 1 / core.Px2Tw
+    With core
+        width = .ScrWidth
+        height = .ScrHeight
+        Tw2Px = 1 / .Px2Tw
+    End With
     ccnt = 1
     bcnt = 1
     On Error GoTo err
@@ -252,9 +259,9 @@ Private Sub ICFormPhysicsEx_init(core As CFormPhysics, Optional params As Varian
             Debug.Print "NoEffects"
         Else
             Dim acnt As Long: acnt = UBound(params)
-            If IsEmpty(params(0)) = False Then CrashFactory = params(0)
-            If acnt > 0 Then If IsEmpty(params(1)) = False Then MoveFactory = params(1)
-            If acnt > 1 Then If IsEmpty(params(2)) = False Then BreakFactory = params(2)
+            If IsEmpty(params(0)) = False Then ChFct = params(0)
+            If acnt > 0 Then If IsEmpty(params(1)) = False Then MvFct = params(1)
+            If acnt > 1 Then If IsEmpty(params(2)) = False Then BkFct = params(2)
         End If
         Me.Show vbModeless
         Exit Sub
@@ -267,8 +274,9 @@ Private Property Get ICFormPhysicsEx_CreateInstance() As ICFormPhysicsEx
 End Property
 Private Sub ICFormPhysicsEx_Terminate()
 On Error GoTo err
-    Set MoveDict = Nothing
-    Set CrashDict = Nothing
+    Set MvDict = Nothing
+    Set ChDict = Nothing
+    Set BkDict = Nothing
     Set myCore = Nothing
     GL.PaintEnd
 err:
@@ -276,9 +284,11 @@ err:
     Unload Me
 End Sub
 Private Sub UserForm_Layout()
-    Me.Label1.width = Me.width
-    Me.RenderFrame.width = Me.width
-    Me.RenderFrame.height = Me.height - Me.RenderFrame.top
+    With Me.RenderFrame
+        Me.Label1.width = Me.width
+        .width = Me.width
+        .height = Me.height - Me.top
+    End With
 End Sub
 Private Sub Label1_DblClick(ByVal Cancel As MSForms.ReturnBoolean)
     Call ICFormPhysicsEx_Terminate
