@@ -173,3 +173,7 @@ MIT License
 
 # 🐧デモファイル / Demo file
 [Sample](src/examples/DEMO.xlsm)
+
+# 🔍 Search keywords
+Excel physics engine, VBA animation, Excel game engine,
+UserForm animation, OpenGL in VBA, Excel OpenGL, VBA graphics
