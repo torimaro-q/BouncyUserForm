@@ -15,7 +15,7 @@ Private Const HPCF As Double = 5
 Private Const LBOFSX As Double = 180
 Private Const LBOFSY As Double = 30
 Private myGL As OpenGL
-Private Sub ICFormPhysicsEf_Render(x As Double, y As Double, dt As Long, v As Double)
+Private Sub ICFormPhysicsEf_Render(X As Double, Y As Double, dt As Long, v As Double)
     With myGL
         .PushMatrix
             .Disable GL_LIGHTING
@@ -56,7 +56,7 @@ Private Sub ICFormPhysicsEf_Render(x As Double, y As Double, dt As Long, v As Do
         .PopMatrix
     End With
 End Sub
-Private Sub Update(ByVal x As Double, ByVal y As Double, ByVal dt As Long, ByVal v As Double)
+Private Sub Update(ByVal X As Double, ByVal Y As Double, ByVal dt As Long, ByVal v As Double)
 End Sub
 Private Sub ICFormPhysicsEf_Reset(cx As Double, cy As Double, ddmg As Double, Optional hw As Double = 0#, Optional hh As Double = 0#)
     dmg = dmg + ddmg

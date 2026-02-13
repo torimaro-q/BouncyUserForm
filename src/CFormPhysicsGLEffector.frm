@@ -7,7 +7,7 @@ Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} CFormPhysicsGLEffector
    ClientWidth     =   11910
    OleObjectBlob   =   "CFormPhysicsGLEffector.frx":0000
    ShowModal       =   0   'False
-   StartUpPosition =   1  '„Ç™„Éº„Éä„Éº „Éï„Ç©„Éº„É†„ÅÆ‰∏≠Â§Æ
+   StartUpPosition =   1  'ÉIÅ[ÉiÅ[ ÉtÉHÅ[ÉÄÇÃíÜâõ
 End
 Attribute VB_Name = "CFormPhysicsGLEffector"
 Attribute VB_GlobalNameSpace = False
@@ -18,16 +18,16 @@ Attribute VB_Exposed = False
 Option Explicit
 Implements ICFormPhysicsEx
 #If Win64 Then
-    Private Declare PtrSafe Function GetWindowLongPtr Lib "user32" Alias "GetWindowLongPtrA" (ByVal hwnd As LongPtr, ByVal nIndex As Long) As LongPtr
-    Private Declare PtrSafe Function SetWindowLongPtr Lib "user32" Alias "SetWindowLongPtrA" (ByVal hwnd As LongPtr, ByVal nIndex As Long, ByVal dwNewLong As LongPtr) As LongPtr
+    Private Declare PtrSafe Function GetWindowLongPtr Lib "user32" Alias "GetWindowLongPtrA" (ByVal hWnd As LongPtr, ByVal nIndex As Long) As LongPtr
+    Private Declare PtrSafe Function SetWindowLongPtr Lib "user32" Alias "SetWindowLongPtrA" (ByVal hWnd As LongPtr, ByVal nIndex As Long, ByVal dwNewLong As LongPtr) As LongPtr
 #Else
     Private Declare Function GetWindowLong Lib "user32" Alias "GetWindowLongA" (ByVal hwnd As Long, ByVal nIndex As Long) As Long
     Private Declare Function SetWindowLong Lib "user32" Alias "SetWindowLongA" (ByVal hwnd As Long, ByVal nIndex As Long, ByVal dwNewLong As Long) As Long
 #End If
-Private Declare PtrSafe Function WindowFromAccessibleObject Lib "oleacc.dll" (ByVal IAccessible As Object, ByRef hwnd As LongPtr) As LongPtr
-Private Declare PtrSafe Function SetLayeredWindowAttributes Lib "user32" (ByVal hwnd As LongPtr, ByVal crKey As Long, ByVal bAlpha As Byte, ByVal dwFlags As Long) As Long
-Private Declare PtrSafe Function ShowWindow Lib "user32" (ByVal hwnd As LongPtr, ByVal nCmdShow As Long) As Long
-Private Declare PtrSafe Function SetWindowPos Lib "user32" (ByVal hwnd As LongPtr, ByVal hWndInsertAfter As LongPtr, ByVal x As Long, ByVal y As Long, ByVal cx As Long, ByVal cy As Long, ByVal wFlags As Long) As Long
+Private Declare PtrSafe Function WindowFromAccessibleObject Lib "oleacc.dll" (ByVal IAccessible As Object, ByRef hWnd As LongPtr) As LongPtr
+Private Declare PtrSafe Function SetLayeredWindowAttributes Lib "user32" (ByVal hWnd As LongPtr, ByVal crKey As Long, ByVal bAlpha As Byte, ByVal dwFlags As Long) As Long
+Private Declare PtrSafe Function ShowWindow Lib "user32" (ByVal hWnd As LongPtr, ByVal nCmdShow As Long) As Long
+Private Declare PtrSafe Function SetWindowPos Lib "user32" (ByVal hWnd As LongPtr, ByVal hWndInsertAfter As LongPtr, ByVal X As Long, ByVal Y As Long, ByVal cx As Long, ByVal cy As Long, ByVal wFlags As Long) As Long
 Private Const SWP_NOSIZE As Long = &H1, SWP_NOMOVE As Long = &H2, SW_SHOWMAXIMIZED = 3
 Private Const HWND_BOTTOM As Long = 1, HWND_TOPMOST As Long = -1
 Private Const GWL_STYLE As Long = -16, GWL_EXSTYLE As Long = -20
@@ -36,13 +36,13 @@ Private Const LWA_COLORKEY = &H1
 Private Const EF_MAX_CNT = 3
 Private Const DICT As String = "Scripting.Dictionary"
 Private GL As OpenGL
-Private hwnd As LongPtr, exStyle As LongPtr, style As LongPtr, rhWnd As LongPtr
+Private hWnd As LongPtr, exStyle As LongPtr, style As LongPtr, rhWnd As LongPtr
 Private width As Double, height As Double, hh As Double, hw As Double, ptime As Long, pdmg As Double, Tw2Px As Double
 Private WithEvents myCore As CFormPhysics
 Attribute myCore.VB_VarHelpID = -1
 Private ChFct As Variant, ccnt As Long, BkFct As Variant, bcnt As Long, MvFct As Variant
 Public ChDict As Object, BkDict As Object, MvDict As Object
-Public Sub Render(Optional time = 0, Optional x As Double = -1, Optional y As Double = -1, Optional v As Double = -1)
+Public Sub Render(Optional time = 0, Optional X As Double = -1, Optional Y As Double = -1, Optional v As Double = -1)
     Dim dt As Long, i As Long
     Dim effName As Variant
     dt = time - ptime
@@ -60,7 +60,7 @@ Public Sub Render(Optional time = 0, Optional x As Double = -1, Optional y As Do
                     For Each effName In .keys()
                         With .Item(effName)
                             For i = 1 To EF_MAX_CNT
-                                Call .Item(i).Render(x, y, dt, v)
+                                Call .Item(i).Render(X, Y, dt, v)
                             Next i
                         End With
                     Next effName
@@ -73,7 +73,7 @@ Public Sub Render(Optional time = 0, Optional x As Double = -1, Optional y As Do
                     For Each effName In .keys()
                         With .Item(effName)
                             For i = 1 To EF_MAX_CNT
-                                Call .Item(i).Render(x, y, dt, v)
+                                Call .Item(i).Render(X, Y, dt, v)
                             Next i
                         End With
                     Next effName
@@ -84,7 +84,7 @@ Public Sub Render(Optional time = 0, Optional x As Double = -1, Optional y As Do
             .PushMatrix
                 With MvDict
                     For Each effName In .keys()
-                        Call .Item(effName).Render(x, y, dt, v)
+                        Call .Item(effName).Render(X, Y, dt, v)
                     Next effName
                 End With
             .PopMatrix
@@ -92,14 +92,14 @@ Public Sub Render(Optional time = 0, Optional x As Double = -1, Optional y As Do
         .SwapBuffers
     End With
 End Sub
-Private Sub myCore_Move(x As Double, y As Double, veloc As Double, time As Long)
-    Render time, x * Tw2Px, y * Tw2Px, veloc
+Private Sub myCore_Move(X As Double, Y As Double, veloc As Double, time As Long)
+    Render time, X * Tw2Px, Y * Tw2Px, veloc
 End Sub
-Private Sub myCore_Crash(x As Double, y As Double, dmg As Double, time As Long)
+Private Sub myCore_Crash(X As Double, Y As Double, dmg As Double, time As Long)
     Dim ddmg As Double, tx As Double, ty As Double
     ddmg = dmg - pdmg
-    tx = Tw2Px * x
-    ty = Tw2Px * y
+    tx = Tw2Px * X
+    ty = Tw2Px * Y
     If ddmg > 0.05 Then
         Dim effName As Variant
         With ChDict
@@ -117,7 +117,7 @@ Private Sub myCore_Crash(x As Double, y As Double, dmg As Double, time As Long)
     End With
     pdmg = dmg
 End Sub
-Private Sub myCore_Break(x As Double, y As Double, ofsx As Double, ofsy As Double, hw As Double, hh As Double)
+Private Sub myCore_Break(X As Double, Y As Double, ofsx As Double, ofsy As Double, hw As Double, hh As Double)
     Dim effName As Variant
     With BkDict
         For Each effName In .keys()
@@ -127,16 +127,16 @@ Private Sub myCore_Break(x As Double, y As Double, ofsx As Double, ofsy As Doubl
     bcnt = bcnt + 1
     If bcnt > EF_MAX_CNT Then bcnt = 1
 End Sub
-Private Sub myCore_Started(x As Double, y As Double, time As Long)
+Private Sub myCore_Started(X As Double, Y As Double, time As Long)
     Dim effName As Variant
     ptime = Timer
     With MvDict
         For Each effName In .keys()
-            Call .Item(effName).Reset(x * Tw2Px, y * Tw2Px, 0, hw, hh)
+            Call .Item(effName).Reset(X * Tw2Px, Y * Tw2Px, 0, hw, hh)
         Next effName
     End With
 End Sub
-Private Sub myCore_Stopped(x As Double, y As Double, time As Long)
+Private Sub myCore_Stopped(X As Double, Y As Double, time As Long)
     With GL
         .Clear GL_COLOR_BUFFER_BIT Or GL_DEPTH_BUFFER_BIT
         .SwapBuffers
@@ -146,35 +146,35 @@ End Sub
 Private Sub UserForm_Activate()
     If GL Is Nothing Then
         Me.RenderFrame.BackColor = RGB(254, 254, 254)
-        WindowFromAccessibleObject Me, hwnd
+        WindowFromAccessibleObject Me, hWnd
         WindowFromAccessibleObject Me.RenderFrame, rhWnd
         If True Then 'debug_flg
             #If Win64 Then
-                style = GetWindowLongPtr(hwnd, GWL_STYLE)
+                style = GetWindowLongPtr(hWnd, GWL_STYLE)
             #Else
-                style = GetWindowLong(hwnd, GWL_STYLE)
+                style = GetWindowLong(hWnd, GWL_STYLE)
             #End If
             style = (style Or WS_THICKFRAME Or &H30000) And Not WS_CAPTION
             #If Win64 Then
-                SetWindowLongPtr hwnd, GWL_STYLE, style
+                SetWindowLongPtr hWnd, GWL_STYLE, style
             #Else
-                SetWindowLong hwnd, GWL_STYLE, style
+                SetWindowLong hWnd, GWL_STYLE, style
             #End If
             #If Win64 Then
-                exStyle = GetWindowLongPtr(hwnd, GWL_EXSTYLE)
+                exStyle = GetWindowLongPtr(hWnd, GWL_EXSTYLE)
             #Else
-                exStyle = GetWindowLong(hwnd, GWL_EXSTYLE)
+                exStyle = GetWindowLong(hWnd, GWL_EXSTYLE)
             #End If
             #If Win64 Then
-                SetWindowLongPtr hwnd, GWL_EXSTYLE, exStyle Or WS_EX_LAYERED
+                SetWindowLongPtr hWnd, GWL_EXSTYLE, exStyle Or WS_EX_LAYERED
             #Else
-                SetWindowLong hwnd, GWL_EXSTYLE, exStyle Or WS_EX_LAYERED
+                SetWindowLong hWnd, GWL_EXSTYLE, exStyle Or WS_EX_LAYERED
             #End If
             'Force-enable SetLayeredWindowAttributes by rendering OpenGL
-            'through GDI to make the background color transparent.‚Äù
-            SetLayeredWindowAttributes hwnd, RGB(254, 254, 254), 0, LWA_COLORKEY
-            ShowWindow hwnd, SW_SHOWMAXIMIZED
-            SetWindowPos hwnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE Or SWP_NOSIZE
+            'through GDI to make the background color transparent.Åh
+            SetLayeredWindowAttributes hWnd, RGB(254, 254, 254), 0, LWA_COLORKEY
+            ShowWindow hWnd, SW_SHOWMAXIMIZED
+            SetWindowPos hWnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE Or SWP_NOSIZE
         End If
         Call GLInit
     End If
@@ -183,7 +183,7 @@ Public Sub GLInit()
     If width <= 0 Then width = 1920: height = 1080
     Set GL = New OpenGL
     With GL
-        .hwnd = rhWnd
+        .hWnd = rhWnd
         .PaintStart
         .ClearColor 254 / 255, 254 / 255, 254 / 255, 1
         .Enable GL_DEPTH_TEST

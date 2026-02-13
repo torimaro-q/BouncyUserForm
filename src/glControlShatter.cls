@@ -19,11 +19,11 @@ Private lineIdx(PARTICLECOUNT * 6 - 1) As Long
 Private pAngle(PARTICLECOUNT - 1) As Double
 Private pAngVel(PARTICLECOUNT - 1) As Double
 Private myGL As OpenGL
-Private Life As Double
+Private life As Double
 Private delay As Double
-Private Sub ICFormPhysicsEf_Render(x As Double, y As Double, dt As Long, v As Double)
-    Life = Life - dt
-    If Life < 0 Then Exit Sub
+Private Sub ICFormPhysicsEf_Render(X As Double, Y As Double, dt As Long, v As Double)
+    life = life - dt
+    If life < 0 Then Exit Sub
     Call Update(dt)
     With myGL
         .Disable GL_LIGHTING
@@ -49,12 +49,12 @@ Private Sub Update(ByRef dt As Long)
     Dim rx As Double, ry As Double
     For i = 0 To PARTICLECOUNT - 1
         With pV(i)
-            .x = .x * (1 - dt * 0.001)
-            .y = .y * (1 - dt * 0.001)
+            .X = .X * (1 - dt * 0.001)
+            .Y = .Y * (1 - dt * 0.001)
         End With
         With pD(i)
-            .x = .x + pV(i).x * dt
-            .y = .y + pV(i).y * dt
+            .X = .X + pV(i).X * dt
+            .Y = .Y + pV(i).Y * dt
             pAngle(i) = pAngle(i) + pAngVel(i) * dt
             If pAngle(i) > 6.28 Then
                 pAngle(i) = pAngle(i) - 6.28
@@ -64,12 +64,12 @@ Private Sub Update(ByRef dt As Long)
             ca = FastCos(pAngle(i))
             SA = FastSin(pAngle(i))
             For v = 0 To 2
-                lx = pTri(i, v).x
-                ly = pTri(i, v).y
+                lx = pTri(i, v).X
+                ly = pTri(i, v).Y
                 rx = lx * ca - ly * SA
                 ry = lx * SA + ly * ca
-                verts(3 * i + v).x = .x + rx
-                verts(3 * i + v).y = .y + ry
+                verts(3 * i + v).X = .X + rx
+                verts(3 * i + v).Y = .Y + ry
             Next v
         End With
     Next i
@@ -81,42 +81,42 @@ Private Sub ICFormPhysicsEf_Reset(cx As Double, cy As Double, ddmg As Double, Op
     Dim s As Double, base As Long
     Dim size As Double
     size = 2 + hh * hw * 0.01
-    Life = 300 + hh * hw
+    life = 300 + hh * hw
     For i = 0 To PARTICLECOUNT - 1
         With pD(i)
-            .x = cx
-            .y = cy
+            .X = cx
+            .Y = cy
         End With
         th = Rnd * 6.28
         rv = 0.1 + (Rnd) ^ 2
         With pV(i)
-            .x = rv * FastCos(th)
-            .y = rv * FastSin(th)
+            .X = rv * FastCos(th)
+            .Y = rv * FastSin(th)
         End With
         s = size + Rnd * size
         a0 = Rnd * 6.28
         a1 = a0 + 1 + Rnd
         a2 = a1 + 1 + Rnd
         With pTri(i, 0)
-            .x = s * FastCos(a0)
-            .y = s * FastSin(a0)
+            .X = s * FastCos(a0)
+            .Y = s * FastSin(a0)
         End With
         With pTri(i, 1)
-            .x = s * FastCos(a1)
-            .y = s * FastSin(a1)
+            .X = s * FastCos(a1)
+            .Y = s * FastSin(a1)
         End With
         With pTri(i, 2)
-            .x = s * FastCos(a2)
-            .y = s * FastSin(a2)
+            .X = s * FastCos(a2)
+            .Y = s * FastSin(a2)
         End With
         pAngle(i) = Rnd * 6.28
         pAngVel(i) = (Rnd - 0.5) * 0.01
         base = i * 3
         With pC(base)
-            .r = 0.7
-            .g = 0.7
-            .b = 1
-            .a = 1
+            .R = 0.7
+            .G = 0.7
+            .B = 1
+            .A = 1
         End With
         pC(base + 1) = pC(base)
         pC(base + 2) = pC(base)

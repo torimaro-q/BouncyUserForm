@@ -7,20 +7,21 @@ Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} CalculatorEx
    ClientWidth     =   4455
    OleObjectBlob   =   "CalculatorEx.frx":0000
    ShowModal       =   0   'False
-   StartUpPosition =   1  '繧ｪ繝ｼ繝翫�ｼ 繝輔か繝ｼ繝縺ｮ荳ｭ螟ｮ
+   StartUpPosition =   1  'オーナー フォームの中央
 End
 Attribute VB_Name = "CalculatorEx"
 Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
-
 Option Explicit
 Private engine As CFormPhysics
 Private Sub UserForm_Initialize()
+    If Rnd > 0.9 Then ApplyExColor
     Set engine = New CFormPhysics
     engine.init Me, Array(CFormPhysicsLogger, _
                           CFormPhysicsWsRenderer, _
+                          CFormPhysicsFmRenderer, _
                           CFormPhysicsController)
 End Sub
 Private Sub UserForm_Terminate()
@@ -85,12 +86,10 @@ End Sub
 Private Sub CommandButton14_Click()
     btnInput "/"
 End Sub
-Private Sub UserForm_Activate()
-    If Rnd > 0.9 Then
-        Dim tmp As Variant
-        Me.BackColor = RGB(15, 125, 65)
-        For Each tmp In Me.Controls
-            tmp.BackColor = RGB(240, 255, 190)
-        Next tmp
-    End If
+Private Sub ApplyExColor()
+    Dim tmp As Variant
+    Me.BackColor = RGB(15, 125, 65)
+    For Each tmp In Me.Controls
+        tmp.BackColor = RGB(240, 255, 190)
+    Next tmp
 End Sub

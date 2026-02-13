@@ -13,14 +13,14 @@ Private Const PARTICLECOUNT As Long = 3000
 Private pD(PARTICLECOUNT) As Vector2d
 Private pV(PARTICLECOUNT) As Vector2d
 Private pC(PARTICLECOUNT) As Color4
-Private LF(PARTICLECOUNT) As Double
+Private lf(PARTICLECOUNT) As Double
 Private InvLF(PARTICLECOUNT) As Double
 Private effectCX As Double
 Private effectCY As Double
-Private myGL As OpenGL, Life As Double, dd As Double
-Private Sub ICFormPhysicsEf_Render(x As Double, y As Double, dt As Long, v As Double)
-    Life = Life - dt
-    If Life < 0 Then Exit Sub
+Private myGL As OpenGL, life As Double, dd As Double
+Private Sub ICFormPhysicsEf_Render(X As Double, Y As Double, dt As Long, v As Double)
+    life = life - dt
+    If life < 0 Then Exit Sub
     Call Update(dt, v)
     Dim i As Long
     With myGL
@@ -42,19 +42,19 @@ Private Sub Update(ByRef dt, ByRef v)
     Dim i As Long, alpha As Single, t As Single
     For i = 0 To PARTICLECOUNT
         With pV(i)
-            .x = .x * (1 - dt * 0.0002)
-            .y = .y * (1 - dt * 0.0002)
+            .X = .X * (1 - dt * 0.0002)
+            .Y = .Y * (1 - dt * 0.0002)
         End With
         With pD(i)
-            .x = .x + pV(i).x * dt
-            .y = .y + pV(i).y * dt
+            .X = .X + pV(i).X * dt
+            .Y = .Y + pV(i).Y * dt
         End With
-        LF(i) = LF(i) - dt
-        alpha = LF(i) * InvLF(i)
+        lf(i) = lf(i) - dt
+        alpha = lf(i) * InvLF(i)
         t = 1 - alpha
         If alpha >= 0 Then
         With pC(i)
-            .a = alpha
+            .A = alpha
         End With
         End If
     Next i
@@ -64,27 +64,27 @@ Private Sub ICFormPhysicsEf_Reset(cx As Double, cy As Double, ddmg As Double, Op
     Dim i As Long, rv As Double, th As Double, dth As Double
     effectCX = cx
     effectCY = cy
-    Life = 400
+    life = 400
     th = 0
     dth = 6.28 / PARTICLECOUNT
     For i = 0 To PARTICLECOUNT
         th = th + dth
         rv = ddmg + ddmg * Rnd * 0.3
-        LF(i) = Life
-        InvLF(i) = 1 / Life
+        lf(i) = life
+        InvLF(i) = 1 / life
         With pD(i)
-            .x = cx
-            .y = cy
+            .X = cx
+            .Y = cy
         End With
         With pV(i)
-            .x = rv * FastCos(th)
-            .y = rv * FastSin(th)
+            .X = rv * FastCos(th)
+            .Y = rv * FastSin(th)
         End With
         With pC(i)
-            .r = 0.9 + Rnd * 0.1
-            .g = 0.8 + Rnd * 0.1
-            .b = 0.7 + Rnd * 0.1
-            .a = 1
+            .R = 0.9 + Rnd * 0.1
+            .G = 0.8 + Rnd * 0.1
+            .B = 0.7 + Rnd * 0.1
+            .A = 1
         End With
     Next i
 End Sub

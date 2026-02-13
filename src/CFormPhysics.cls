@@ -9,10 +9,10 @@ Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
 Option Explicit 'To determine the presence of an extension class
 Private Type RGBA
-    r As Byte
-    g As Byte
-    b As Byte
-    a As Byte
+    R As Byte
+    G As Byte
+    B As Byte
+    A As Byte
 End Type
 Private Type LONGTYPE
     Value As Long
@@ -22,9 +22,9 @@ Private Const LOGPIXELSX As Long = 88, GWL_EXSTYLE = -20, WS_EX_LAYERED = &H8000
 Private Const CLMASK As Long = &H80000000
 Private Declare PtrSafe Function GetSysColor Lib "user32" (ByVal nIndex As Long) As Long
 Private Declare PtrSafe Function GetSystemMetrics Lib "user32" (ByVal nIndex As Long) As Long
-Private Declare PtrSafe Function GetDC Lib "user32" (ByVal hwnd As LongPtr) As LongPtr
+Private Declare PtrSafe Function GetDC Lib "user32" (ByVal hWnd As LongPtr) As LongPtr
 Private Declare PtrSafe Function GetDeviceCaps Lib "gdi32" (ByVal hdc As LongPtr, ByVal nIndex As Long) As Long
-Private Declare PtrSafe Function ReleaseDC Lib "user32" (ByVal hwnd As LongPtr, ByVal hdc As LongPtr) As Long
+Private Declare PtrSafe Function ReleaseDC Lib "user32" (ByVal hWnd As LongPtr, ByVal hdc As LongPtr) As Long
 Private Declare PtrSafe Function GetTickCount Lib "kernel32" () As Long
 '##############################################################################################
 Private Const FMT As String = "0.000"
@@ -35,19 +35,19 @@ Private Const ZETA As Double = 0.8, GRAV As Double = 300
 Private Const DMGCF As Double = 0.00000001
 Private DragX As Double, DragY As Double
 Private Caps(3) As String, dCap As String, frameCnt As Long
-Private RChk As Double, TChk As Double, cV As Double, pV As Double, tCl As Long
+Private RChk As Double, TChk As Double, cV As Double, pV As Double
 Private WithEvents mFrm As MSForms.UserForm
 Attribute mFrm.VB_VarHelpID = -1
-Public mFrmRaw As Object, ex As Object
+Public mFrmRaw As Object, ex As Object, tCL As Long
 Public isDragging As Boolean, isAnimation As Boolean
 Public lx As Double, ty As Double, VX As Double, VY As Double, AX As Double, AY As Double
 Public Damage As Double, ptime As Long, cTime As Long, Dens As Double, Mass As Double, InvMass As Double, hw As Double, hh As Double
 Public ScrLeft As Double, ScrTop As Double, ScrWidth As Double, ScrHeight As Double, Px2Tw As Double
-Public Event Crash(ByRef x As Double, ByRef y As Double, ByRef dmg As Double, ByRef time As Long)
-Public Event Break(ByRef x As Double, ByRef y As Double, ByRef ofsx As Double, ByRef ofsy As Double, ByRef hw As Double, ByRef hh As Double)
-Public Event Move(ByRef x As Double, ByRef y As Double, ByRef veloc As Double, ByRef time As Long)
-Public Event Started(ByRef x As Double, ByRef y As Double, ByRef time As Long)
-Public Event Stopped(ByRef x As Double, ByRef y As Double, ByRef time As Long)
+Public Event Crash(ByRef X As Double, ByRef Y As Double, ByRef dmg As Double, ByRef time As Long)
+Public Event Break(ByRef X As Double, ByRef Y As Double, ByRef ofsx As Double, ByRef ofsy As Double, ByRef hw As Double, ByRef hh As Double)
+Public Event Move(ByRef X As Double, ByRef Y As Double, ByRef veloc As Double, ByRef time As Long)
+Public Event Started(ByRef X As Double, ByRef Y As Double, ByRef time As Long)
+Public Event Stopped(ByRef X As Double, ByRef Y As Double, ByRef time As Long)
 Private Sub AnimationLoop()
     Dim dt As Double, isCrashed As Boolean
     With mFrmRaw
@@ -211,7 +211,7 @@ err:
         Set ex = Nothing
     End If
 End Sub
-Private Sub mFrm_MouseDown(ByVal Button As Integer, ByVal Shift As Integer, ByVal x As Single, ByVal y As Single)
+Private Sub mFrm_MouseDown(ByVal Button As Integer, ByVal Shift As Integer, ByVal X As Single, ByVal Y As Single)
     If Button = 1 Then
         isDragging = True
         Call ResetPhysics
@@ -219,13 +219,13 @@ Private Sub mFrm_MouseDown(ByVal Button As Integer, ByVal Shift As Integer, ByVa
         Call Restore
     End If
 End Sub
-Private Sub mFrm_MouseMove(ByVal Button As Integer, ByVal Shift As Integer, ByVal x As Single, ByVal y As Single)
+Private Sub mFrm_MouseMove(ByVal Button As Integer, ByVal Shift As Integer, ByVal X As Single, ByVal Y As Single)
     If isDragging Then 'When the title bar is selected directly, disable physics calculations (for user consideration).
         With mFrmRaw
             lx = .left
             ty = .top
-            .left = .left + x - hw
-            .top = .top + y + 10 'The offset to automatically center the selection in the title bar when the user form is clicked.
+            .left = .left + X - hw
+            .top = .top + Y + 10 'The offset to automatically center the selection in the title bar when the user form is clicked.
             cTime = GetTickCount
             If ptime <> 0 Then
                 Dim dt As Double, cff As Double
@@ -242,7 +242,7 @@ Private Sub mFrm_MouseMove(ByVal Button As Integer, ByVal Shift As Integer, ByVa
         'If you want to add an action to avoid the user when taking damage, put it here.
     End If
 End Sub
-Private Sub mFrm_MouseUp(ByVal Button As Integer, ByVal Shift As Integer, ByVal x As Single, ByVal y As Single)
+Private Sub mFrm_MouseUp(ByVal Button As Integer, ByVal Shift As Integer, ByVal X As Single, ByVal Y As Single)
     If isDragging Then Launch
 End Sub
 Public Sub Launch()
@@ -271,9 +271,9 @@ Public Sub init(ByRef form As Object, Optional ByRef extenions As Variant = Empt
         With mFrmRaw
             .DrawBuffer = 640000 'prevent flickering
             dCap = .Caption
-            tCl = SysCL2RGB(.BackColor)
-            With CL2RGBA(tCl)
-                Dens = (300 - (0.299 * .r + 0.587 * .g + 0.114 * .b)) / 5000
+            tCL = SysCL2RGB(.BackColor)
+            With CL2RGBA(tCL)
+                Dens = (300 - (0.299 * .R + 0.587 * .G + 0.114 * .B)) / 5000
             End With
         End With
         isDragging = False

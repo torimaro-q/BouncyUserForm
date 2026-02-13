@@ -18,41 +18,41 @@ Private Const OFS As Double = 50
 Private Const IVMAX As Double = 1 / VMAX
 Private pos(ELM_COUNT - 1) As Vector2d
 Private col(ELM_COUNT - 1) As Color4
-Private mask(3) As Vector2d
+Private Mask(3) As Vector2d
 Private maskcl(3) As Color4
 Private Const TInv As Double = 1 / ELM_COUNT
 Private Const Pinv As Double = 6.28 / ELM_COUNT
 Private myGL As OpenGL
 Private ofsx As Double, ofsy As Double, idx As Long
-Private sdt As Long, px As Double, py As Double, cp4(3) As Vector4d, dmg As Double, dR As Double, dB As Double
-Private Sub ICFormPhysicsEf_Render(x As Double, y As Double, dt As Long, v As Double)
+Private sdt As Long, PX As Double, py As Double, cp4(3) As Vector4d, dmg As Double, dR As Double, dB As Double
+Private Sub ICFormPhysicsEf_Render(X As Double, Y As Double, dt As Long, v As Double)
     sdt = sdt + dt
     If sdt > 100 Then
-        Call Update(x, y, dt, v)
-        px = x: py = y: sdt = 0
+        Call Update(X, Y, dt, v)
+        PX = X: py = Y: sdt = 0
     End If
-    If Abs(x - px) > 50 Or Abs(y - py) > 50 Then
-        Call Update(x, y, dt, v)
-        px = x: py = y: sdt = 0
+    If Abs(X - PX) > 50 Or Abs(Y - py) > 50 Then
+        Call Update(X, Y, dt, v)
+        PX = X: py = Y: sdt = 0
     End If
-    With mask(0)
-        .x = x - ofsx: .y = y - ofsy - OFS
+    With Mask(0)
+        .X = X - ofsx: .Y = Y - ofsy - OFS
     End With
-    With mask(1)
-        .x = x + ofsx: .y = y - ofsy - OFS
+    With Mask(1)
+        .X = X + ofsx: .Y = Y - ofsy - OFS
     End With
-    With mask(2)
-        .x = x + ofsx: .y = y + ofsy - OFS
+    With Mask(2)
+        .X = X + ofsx: .Y = Y + ofsy - OFS
     End With
-    With mask(3)
-        .x = x - ofsx: .y = y + ofsy - OFS
+    With Mask(3)
+        .X = X - ofsx: .Y = Y + ofsy - OFS
     End With
     With myGL
         .PushMatrix
         .Disable GL_LIGHTING
         .EnableClientState GL_VERTEX_ARRAY
             .EnableClientState GL_COLOR_ARRAY
-            .VertexPointer 2, GL_DOUBLE, 0, VarPtr(mask(0))
+            .VertexPointer 2, GL_DOUBLE, 0, VarPtr(Mask(0))
             .ColorPointer 4, GL_FLOAT, 0, VarPtr(maskcl(0))
             .DrawArrays GL_QUADS, 0, 4
                 .Enable GL_BLEND
@@ -67,30 +67,30 @@ Private Sub ICFormPhysicsEf_Render(x As Double, y As Double, dt As Long, v As Do
         .PopMatrix
     End With
 End Sub
-Private Sub Update(ByVal x As Double, ByVal y As Double, ByVal dt As Long, ByVal v As Double)
+Private Sub Update(ByVal X As Double, ByVal Y As Double, ByVal dt As Long, ByVal v As Double)
     If idx <= 0 Then: idx = ELM_COUNT
     idx = (idx - 4)
     Dim i As Long, j As Long, k As Long, t As Double
     With pos(idx)
-        .x = x - ofsx: .y = y - ofsy - OFS
+        .X = X - ofsx: .Y = Y - ofsy - OFS
     End With
     With pos(idx + 1)
-        .x = x + ofsx: .y = y - ofsy - OFS
+        .X = X + ofsx: .Y = Y - ofsy - OFS
     End With
     With pos(idx + 2)
-        .x = x + ofsx: .y = y + ofsy - OFS
+        .X = X + ofsx: .Y = Y + ofsy - OFS
     End With
     With pos(idx + 3)
-        .x = x - ofsx: .y = y + ofsy - OFS
+        .X = X - ofsx: .Y = Y + ofsy - OFS
     End With
     For i = 0 To UBound(col) Step 4
         k = (idx + i) Mod ELM_COUNT
         For j = 0 To 3
             With col(k + j)
-                .r = dR
-                .g = 0
-                .b = dB
-                .a = Exp(-i * 0.1)
+                .R = dR
+                .G = 0
+                .B = dB
+                .A = Exp(-i * 0.1)
             End With
         Next j
     Next i
@@ -113,10 +113,10 @@ Private Sub ICFormPhysicsEf_Init(targetGL As OpenGL)
     Dim i As Long
     For i = 0 To 3
         With maskcl(i)
-            .r = 254 / 255
-            .g = 254 / 255
-            .b = 254 / 255
-            .a = 1
+            .R = 254 / 255
+            .G = 254 / 255
+            .B = 254 / 255
+            .A = 1
         End With
     Next i
     idx = ELM_COUNT

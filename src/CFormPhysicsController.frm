@@ -7,7 +7,7 @@ Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} CFormPhysicsController
    ClientWidth     =   5340
    OleObjectBlob   =   "CFormPhysicsController.frx":0000
    ShowModal       =   0   'False
-   StartUpPosition =   1  '繧ｪ繝ｼ繝翫�ｼ 繝輔か繝ｼ繝縺ｮ荳ｭ螟ｮ
+   StartUpPosition =   1  'オーナー フォームの中央
 End
 Attribute VB_Name = "CFormPhysicsController"
 Attribute VB_GlobalNameSpace = False
@@ -21,11 +21,11 @@ Private WithEvents myCore As CFormPhysics
 Attribute myCore.VB_VarHelpID = -1
 Private strArr(50) As String
 Private Initialized As Boolean, ptime As Long
-Private Sub LabelA_MouseMove(ByVal Button As Integer, ByVal Shift As Integer, ByVal x As Single, ByVal y As Single)
+Private Sub LabelA_MouseMove(ByVal Button As Integer, ByVal Shift As Integer, ByVal X As Single, ByVal Y As Single)
     With LabelA
         If Button = 1 Then
-            .left = .left + x - .width * 0.5
-            .top = .top + y - .height * 0.5
+            .left = .left + X - .width * 0.5
+            .top = .top + Y - .height * 0.5
             Me.Repaint
             If myCore.isAnimation Then Exit Sub
             ptime = 0
@@ -53,7 +53,7 @@ Private Sub ApplyAnalogVelocity(ByRef time)
             End With
     End With
 End Sub
-Private Sub myCore_Move(x As Double, y As Double, veloc As Double, time As Long)
+Private Sub myCore_Move(X As Double, Y As Double, veloc As Double, time As Long)
     If ptime > 0 Then Call ApplyAnalogVelocity(time - ptime)
     ptime = time
 End Sub
@@ -69,18 +69,18 @@ End Sub
 Private Sub CommandButtonT_Click()
     DButton 0, -1000
 End Sub
-Private Sub LabelA_MouseUp(ByVal Button As Integer, ByVal Shift As Integer, ByVal x As Single, ByVal y As Single)
+Private Sub LabelA_MouseUp(ByVal Button As Integer, ByVal Shift As Integer, ByVal X As Single, ByVal Y As Single)
     With LabelA
         .left = 34
         .top = 35
         Me.Repaint
     End With
 End Sub
-Private Sub Frame1_MouseDown(ByVal Button As Integer, ByVal Shift As Integer, ByVal x As Single, ByVal y As Single)
+Private Sub Frame1_MouseDown(ByVal Button As Integer, ByVal Shift As Integer, ByVal X As Single, ByVal Y As Single)
     Dim tx, ty
     With Frame1
-        tx = x - .width * 0.5
-        ty = y - .height * 0.5
+        tx = X - .width * 0.5
+        ty = Y - .height * 0.5
     End With
     DButton tx * 20, ty * 20
 End Sub

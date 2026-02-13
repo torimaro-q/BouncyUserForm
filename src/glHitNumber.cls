@@ -12,14 +12,14 @@ Implements ICFormPhysicsEf
 Private effectCX As Double
 Private effectCY As Double
 Private chr() As Byte, ccnt As Long
-Private myGL As OpenGL, Life As Double, InvLF As Double, delay As Double, dd As Double, hp As Double, myListBase As Long
-Private r As Single, g As Single, b As Single, alpha As Double, t As Double
-Private Sub ICFormPhysicsEf_Render(x As Double, y As Double, dt As Long, v As Double)
+Private myGL As OpenGL, life As Double, InvLF As Double, delay As Double, dd As Double, hp As Double, myListBase As Long
+Private R As Single, G As Single, B As Single, alpha As Double, t As Double
+Private Sub ICFormPhysicsEf_Render(X As Double, Y As Double, dt As Long, v As Double)
     delay = delay - dt
     If delay >= 0 Then Exit Sub
-    Life = Life - dt
-    If Life < 0 Then Exit Sub
-    t = 1 - (Life * InvLF)
+    life = life - dt
+    If life < 0 Then Exit Sub
+    t = 1 - (life * InvLF)
     effectCY = effectCY - dt * 0.05
     With myGL
         .PushMatrix
@@ -33,7 +33,7 @@ Private Sub ICFormPhysicsEf_Render(x As Double, y As Double, dt As Long, v As Do
                 alpha = 1
             End If
             .listbase myListBase
-            .Color4f r, g, b, alpha
+            .Color4f R, G, B, alpha
             .RasterPos2d effectCX, effectCY
             .CallLists ccnt, GL_UNSIGNED_BYTE, VarPtr(chr(0))
             .listbase 0
@@ -46,25 +46,25 @@ Private Sub ICFormPhysicsEf_Reset(cx As Double, cy As Double, ddmg As Double, Op
     dd = ddmg
     effectCX = cx
     effectCY = cy
-    Life = 500
-    InvLF = 1 / Life
+    life = 500
+    InvLF = 1 / life
     delay = 5
     Select Case dd
         Case Is > 5
             myListBase = 3000
-            r = 1
-            g = 0
-            b = 0
+            R = 1
+            G = 0
+            B = 0
         Case Is > 1
             myListBase = 2000
-            r = 1
-            g = 0.5
-            b = 0
+            R = 1
+            G = 0.5
+            B = 0
         Case Else
             myListBase = 1000
-            r = 0.5
-            g = 0.5
-            b = 1
+            R = 0.5
+            G = 0.5
+            B = 1
     End Select
     chr = StrConv(format(dd, "0.0"), vbFromUnicode)
     ccnt = UBound(chr) + 1
