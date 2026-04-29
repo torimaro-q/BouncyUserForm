@@ -48,6 +48,7 @@ Public Event Break(ByRef X As Double, ByRef Y As Double, ByRef ofsx As Double, B
 Public Event Move(ByRef X As Double, ByRef Y As Double, ByRef veloc As Double, ByRef time As Long)
 Public Event Started(ByRef X As Double, ByRef Y As Double, ByRef time As Long)
 Public Event Stopped(ByRef X As Double, ByRef Y As Double, ByRef time As Long)
+Public Event Initialized()
 Private Sub AnimationLoop()
     Dim dt As Double, isCrashed As Boolean
     With mFrmRaw
@@ -107,7 +108,7 @@ Private Function ApplyCollision() As Boolean
         ApplyCollision = False
     End If
 End Function
-Private Sub ApplyDamage()
+Public Sub ApplyDamage()
     Damage = Damage + DMGCF * 0.5 * Mass * Abs(pV * pV - cV * cV)
     RaiseEvent Crash(lx + hw, ty + hh, Damage, cTime)
     If Damage > 10 Then
@@ -178,7 +179,7 @@ Private Sub Render()
     If frameCnt >= 50 Then frameCnt = 0: DoEvents
 err:
 End Sub
-Private Sub UpdateVeloc()
+Public Sub UpdateVeloc()
     pV = cV
     cV = getVeloc(VX, VY)
 End Sub
@@ -290,6 +291,7 @@ Public Sub init(ByRef form As Object, Optional ByRef extenions As Variant = Empt
                     ex.Add nm, ci
                 End If
             Next t
+            RaiseEvent Initialized
     End If
 err:
 End Sub

@@ -46,6 +46,7 @@ Use it at your own risk.
 - Excel 散布図による軌跡ログ
 - 操作用 UI（コントローラー）
 - ボロノイ分割をベースにした亀裂表現
+- 拡張機能を破壊する機能
 - カスタムエフェクト（ICFormPhysicsEf）
 - カスタム拡張（ICFormPhysicsEx）
 ---
@@ -55,6 +56,7 @@ You can freely add optional extensions such as:
 - Trajectory logging using Excel scatter charts
 - A controller UI for manual operation
 - Voronoi-based crack representation
+- A feature that disables extensions
 - Custom effects (via ICFormPhysicsEf)
 - Custom extensions (via ICFormPhysicsEx)
 
@@ -95,6 +97,7 @@ You can freely add optional extensions such as:
 + CFormPhysicsWsRenderer.cls
 + CFormPhysicsFmRenderer.cls
 + CFormPhysicsController.frm/frx
++ CFormPhysicsExtBreakable
 ```
 - **OpenGL 拡張あり / With OpenGL extensions**
 ```
