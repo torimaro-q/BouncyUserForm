@@ -246,6 +246,7 @@ Private Sub ICFormPhysicsEx_init(core As CFormPhysics, Optional params As Varian
     CreateChart
 End Sub
 Private Sub ICFormPhysicsEx_Terminate()
+    ClearCharts
     Set myCore = Nothing
 End Sub
 

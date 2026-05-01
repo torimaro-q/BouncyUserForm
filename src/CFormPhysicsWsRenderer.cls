@@ -57,6 +57,9 @@ Private Sub UpdateSheet(ByRef cellInfo As rc)
     If cnt > UBound(buf) Then cnt = 0
 End Sub
 Private Sub myCore_Stopped(X As Double, Y As Double, time As Long)
+    Call ClearCells
+End Sub
+Private Sub ClearCells()
     Dim i As Long
     On Error Resume Next
     For i = LBound(buf) To UBound(buf)
@@ -70,8 +73,6 @@ Private Sub myCore_Stopped(X As Double, Y As Double, time As Long)
         End With
     Next i
     cnt = 0
-End Sub
-Private Sub ClearCell(ByRef rc As rc)
 End Sub
 Private Sub BuildSheetLut()
     Dim tmp As Range, Area As Range
@@ -126,5 +127,6 @@ Private Sub ICFormPhysicsEx_init(core As CFormPhysics, Optional params As Varian
     BuildSheetLut
 End Sub
 Private Sub ICFormPhysicsEx_Terminate()
+    Call ClearCells
     Set myCore = Nothing
 End Sub

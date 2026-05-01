@@ -14,90 +14,86 @@ Private WithEvents myCore As CFormPhysics
 Attribute myCore.VB_VarHelpID = -1
 Private Type PhEx
     state As Long
-    cx As Double
-    cy As Double
+    lx As Double
+    rx As Double
+    ty As Double
+    by As Double
     time As Long
-    Obj As ICFormPhysicsEx
+    obj As ICFormPhysicsEx
     shp As Shape
 End Type
 Private Const H_OFS As Double = 200, E_SIZE As Double = 45
-Private exKeys As Variant, exCnt As Long, myName As String, exts() As PhEx, i As Long, d As Double, ptime As Long
+Private exKeys As Variant, exCnt As Long, myName As String, exts() As PhEx, i As Long, d As Double, ptime As Long, flg As Boolean
 Private Sub myCore_Move(ByRef X As Double, ByRef Y As Double, ByRef veloc As Double, time As Long)
+    flg = False
     For i = 0 To exCnt
         With exts(i)
             If .state = 0 Then
-                If Abs(X - .cx) < E_SIZE Then
-                    If Abs(Y - .cy) < E_SIZE Then
-                        Application.ScreenUpdating = False
-                        .Obj.Terminate
-                        .state = 1
-                        .time = time
-                        With myCore
-                            .VX = .VX * -0.9
-                            .VY = .VY * -0.9
-                            .UpdateVeloc
-                            .ApplyDamage
-                        End With
-                        .shp.Fill.ForeColor.RGB = &HFF
-                        Application.ScreenUpdating = True
+                If X > .lx Then
+                    If X < .rx Then
+                        If Y > .ty Then
+                            If Y < .by Then
+                                .state = 1
+                                .time = time
+                                With myCore
+                                    .VX = .VX * -0.9
+                                    .VY = .VY * -0.9
+                                    .UpdateVeloc
+                                    .ApplyDamage
+                                End With
+                                .shp.Fill.ForeColor.RGB = &HFF
+                                flg = True
+                            End If
+                        End If
                     End If
                 End If
             ElseIf .state = 1 Then
-                If Abs(ptime - time) > 100 Then
-                    Application.ScreenUpdating = False
-                    d = Abs(.time - time)
-                    If d > 300 Then
-                        .state = 2
-                        .shp.Delete
-                    Else
-                        With .shp
-                            .Fill.Transparency = d * 0.0033
-                            .top = .top + 1
-                        End With
-                    End If
-                    Application.ScreenUpdating = True
-                    ptime = time
+                d = Abs(.time - time)
+                If d > 300 Then
+                    .state = 2
+                    .shp.Delete
+                    .obj.Terminate
+                Else
+                    With .shp
+                        .Fill.Transparency = d * 0.0033
+                        .top = .top + 1
+                    End With
                 End If
+                ptime = time
+                flg = True
             End If
         End With
     Next i
+    If flg Then DoEvents
 End Sub
-Private Property Get ICFormPhysicsEx_CreateInstance() As ICFormPhysicsEx
-    Set ICFormPhysicsEx_CreateInstance = New CFormPhysicsExtBreakable
-End Property
-Private Sub ICFormPhysicsEx_init(core As CFormPhysics, Optional params As Variant = Empty)
-    Set myCore = core
-    Set ws = ActiveSheet
-    ActiveWindow.Zoom = 100
-    myName = TypeName(Me)
-End Sub
-Private Sub ICFormPhysicsEx_Terminate()
-    Set myCore = Nothing
-End Sub
-Private Sub myCore_Initialized()
-    exKeys = myCore.ex.keys()
-    exCnt = UBound(exKeys)
-    ReDim exts(exCnt) As PhEx
-    Dim n As Variant
-    With myCore
-        Dim baseL As Double: baseL = .Px2Tw * (0.9 * .ScrWidth - 2 * E_SIZE)
-        Dim baseH As Double: baseH = .Px2Tw * (0.9 * .ScrHeight - 2 * E_SIZE - H_OFS)
-    End With
+Private Sub ClearShapes()
     With ws
+        Dim n As Variant
         For Each n In .Shapes
             If n.Name Like "*ex_shp_*" Then n.Delete
         Next n
+    End With
+End Sub
+Private Sub CreateShapes()
+    With ws
+        Dim n As Variant
+        With myCore
+            Dim baseL As Double: baseL = .Px2Tw * (0.9 * .ScrWidth - 2 * E_SIZE)
+            Dim baseH As Double: baseH = .Px2Tw * (0.9 * .ScrHeight - 2 * E_SIZE - H_OFS)
+        End With
         With .Shapes
             For i = 0 To exCnt
                 n = exKeys(i)
                 With exts(i)
                     .state = 0
-                    If myName = n Then .state = 2
+                    If myName = n Then .state = 10
                     If .state = 0 Then
-                        Set .Obj = myCore.ex.Item(n)
+                        Set .obj = myCore.ex.Item(n)
                         Set .shp = ws.Shapes.AddShape(msoShapeHexagon, E_SIZE + baseL * Rnd(), baseH * Rnd(), E_SIZE * 2, E_SIZE * 2)
-                        .cx = .shp.left + .shp.width * 0.5
-                        .cy = .shp.top + .shp.height * 0.5 + (H_OFS * myCore.Px2Tw)
+                        .lx = -E_SIZE + .shp.left + .shp.width * 0.5
+                        .ty = -E_SIZE + .shp.top + .shp.height * 0.5 + (H_OFS * myCore.Px2Tw)
+                        .rx = E_SIZE + .shp.left + .shp.width * 0.5
+                        .by = E_SIZE + .shp.top + .shp.height * 0.5 + (H_OFS * myCore.Px2Tw)
                         With .shp
                             .Name = "ex_shp_" & n
                             .TextFrame2.TextRange.Text = Replace(n, "CFormPhysics", "")
@@ -108,6 +104,13 @@ Private Sub myCore_Initialized()
             Next i
         End With
     End With
+End Sub
+Private Sub myCore_Initialized()
+    exKeys = myCore.ex.keys()
+    exCnt = UBound(exKeys)
+    ReDim exts(exCnt) As PhEx
+    Call ClearShapes
+    Call CreateShapes
 End Sub
 Private Sub ApplyCoolTheme(ByRef target As Shape)
     With target.Fill
@@ -147,4 +150,16 @@ Private Sub ApplyCoolTheme(ByRef target As Shape)
         End With
     End With
 End Sub
-
+Private Property Get ICFormPhysicsEx_CreateInstance() As ICFormPhysicsEx
+    Set ICFormPhysicsEx_CreateInstance = New CFormPhysicsExtBreakable
+End Property
+Private Sub ICFormPhysicsEx_init(core As CFormPhysics, Optional params As Variant = Empty)
+    Set myCore = core
+    Set ws = ActiveSheet
+    ActiveWindow.Zoom = 100
+    myName = TypeName(Me)
+End Sub
+Private Sub ICFormPhysicsEx_Terminate()
+    Call ClearShapes
+    Set myCore = Nothing
+End Sub
