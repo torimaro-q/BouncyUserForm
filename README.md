@@ -179,7 +179,7 @@ End Sub
 MIT License
 
 # 🐧デモファイル / Demo file
-[Sample](src/examples/DEMO.xlsm)
+[Sample](sample.xlsm)
 
 # 🔍 Search keywords
 Excel physics engine, VBA animation, Excel game engine,
