@@ -289,7 +289,6 @@ Public Sub init(ByRef form As Object, Optional ByRef extenions As Variant = Empt
                     ex.Add nm, ci
                 End If
             Next t
-            DoEvents
             RaiseEvent Initialized
     End If
 err:
