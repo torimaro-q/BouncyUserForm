@@ -153,13 +153,13 @@ End Type
 Public Type Vector3d
     X As Double
     Y As Double
-    z As Double
+    Z As Double
 End Type
 Public Type Vector4d
     X As Double
     Y As Double
-    z As Double
-    w As Double
+    Z As Double
+    W As Double
 End Type
 Public Type Color4
     R As Single
@@ -171,7 +171,7 @@ Public Type B4
     B(3) As Byte
 End Type
 Public Type S1
-    s As Single
+    S As Single
 End Type
 Public Type L1
     L As Long
@@ -190,7 +190,7 @@ Public Function B2Single(ByRef B1, ByRef B2, ByRef B3, ByRef B4) As Single
     Dim X As B4, Y As S1
     With X: .B(0) = B1: .B(1) = B2: .B(2) = B3: .B(3) = B4: End With
     LSet Y = X
-    B2Single = Y.s
+    B2Single = Y.S
 End Function
 Public Function B2Long(ByRef B1, ByRef B2, ByRef B3, ByRef B4) As Long
     Dim X As B4, Y As L1
@@ -201,11 +201,11 @@ End Function
 Public Function Vector2d(ByVal X As Double, ByVal Y As Double) As Vector2d
     With Vector2d: .X = X: .Y = Y: End With
 End Function
-Public Function Vector3d(ByVal X As Double, ByVal Y As Double, ByVal z As Double) As Vector3d
-    With Vector3d: .X = X: .Y = Y: .z = z: End With
+Public Function Vector3d(ByVal X As Double, ByVal Y As Double, ByVal Z As Double) As Vector3d
+    With Vector3d: .X = X: .Y = Y: .Z = Z: End With
 End Function
-Public Function Vector4d(ByVal X As Double, ByVal Y As Double, ByVal z As Double, ByVal w As Double) As Vector4d
-    With Vector4d: .X = X: .Y = Y: .z = z: .w = w: End With
+Public Function Vector4d(ByVal X As Double, ByVal Y As Double, ByVal Z As Double, ByVal W As Double) As Vector4d
+    With Vector4d: .X = X: .Y = Y: .Z = Z: .W = W: End With
 End Function
 Public Function Color4(ByVal R As Single, ByVal G As Single, ByVal B As Single, ByVal A As Single) As Color4
     With Color4: .A = A: .B = B: .G = G: .R = R: End With

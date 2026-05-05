@@ -23,46 +23,50 @@ Private Type PhEx
     shp As Shape
 End Type
 Private Const H_OFS As Double = 200, E_SIZE As Double = 45
-Private exKeys As Variant, exCnt As Long, myName As String, exts() As PhEx, i As Long, d As Double, ptime As Long, flg As Boolean
+Private exKeys As Variant, exCnt As Long, myName As String, exts() As PhEx, i As Long, ptime As Long, flg As Boolean, d As Double
 Private Sub myCore_Move(ByRef X As Double, ByRef Y As Double, ByRef veloc As Double, time As Long)
+    If flg Then DoEvents
     flg = False
     For i = 0 To exCnt
         With exts(i)
-            If .state = 0 Then
-                If X > .lx Then
-                    If X < .rx Then
-                        If Y > .ty Then
-                            If Y < .by Then
-                                .state = 1
-                                .time = time
-                                With myCore
-                                    .VX = .VX * -0.9
-                                    .VY = .VY * -0.9
-                                    .UpdateVeloc
-                                    .ApplyDamage
-                                End With
-                                .shp.Fill.ForeColor.RGB = &HFF
-                                flg = True
-                            End If
-                        End If
-                    End If
-                End If
+            If .state = 2 Then
+                .state = 3
+                .obj.Terminate
+                flg = True
             ElseIf .state = 1 Then
-                d = Abs(.time - time)
+                d = time - .time
                 If d > 300 Then
                     .state = 2
-                    .shp.Delete
-                    .obj.Terminate
+                    .shp.Visible = msoFalse
                 Else
                     With .shp
                         .Fill.Transparency = d * 0.0033
                         .top = .top + 1
                     End With
                 End If
-                ptime = time
+                flg = True
+            ElseIf .state <= 0 Then
+                If X < .lx Then GoTo continue
+                If X > .rx Then GoTo continue
+                If Y < .ty Then GoTo continue
+                If Y > .by Then GoTo continue
+                .state = .state + 1
+                If .state = 1 Then
+                    .shp.Fill.ForeColor.RGB = &HDD
+                Else
+                    .shp.Fill.ForeColor.RGB = &H1099DD
+                End If
+                .time = time
+                With myCore
+                    .VX = .VX * -3
+                    .VY = .VY * -3
+                    .UpdateVeloc
+                    .ApplyDamage
+                End With
                 flg = True
             End If
         End With
+continue:
     Next i
     If flg Then DoEvents
 End Sub
@@ -85,9 +89,9 @@ Private Sub CreateShapes()
             For i = 0 To exCnt
                 n = exKeys(i)
                 With exts(i)
-                    .state = 0
+                    .state = -1
                     If myName = n Then .state = 10
-                    If .state = 0 Then
+                    If .state <= 0 Then
                         Set .obj = myCore.ex.Item(n)
                         Set .shp = ws.Shapes.AddShape(msoShapeHexagon, E_SIZE + baseL * Rnd(), baseH * Rnd(), E_SIZE * 2, E_SIZE * 2)
                         .lx = -E_SIZE + .shp.left + .shp.width * 0.5
@@ -111,6 +115,7 @@ Private Sub myCore_Initialized()
     ReDim exts(exCnt) As PhEx
     Call ClearShapes
     Call CreateShapes
+    flg = False
 End Sub
 Private Sub ApplyCoolTheme(ByRef target As Shape)
     With target.Fill
@@ -143,9 +148,11 @@ Private Sub ApplyCoolTheme(ByRef target As Shape)
         .WordWrap = msoFalse
         .VerticalAnchor = msoAnchorMiddle
         With .TextRange
-            .Font.Bold = msoTrue
-            .Font.size = 12
-            .Font.Fill.ForeColor.RGB = RGB(255, 255, 255)
+            With .Font
+                .Bold = msoTrue
+                .size = 12
+                .Fill.ForeColor.RGB = RGB(255, 255, 255)
+            End With
             .ParagraphFormat.Alignment = msoAlignCenter
         End With
     End With

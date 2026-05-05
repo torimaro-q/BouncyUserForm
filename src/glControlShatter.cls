@@ -78,7 +78,7 @@ Private Sub ICFormPhysicsEf_Reset(cx As Double, cy As Double, ddmg As Double, Op
     Dim i As Long
     Dim th As Double, rv As Double
     Dim a0 As Double, a1 As Double, a2 As Double
-    Dim s As Double, base As Long
+    Dim S As Double, base As Long
     Dim size As Double
     size = 2 + hh * hw * 0.01
     life = 300 + hh * hw
@@ -93,21 +93,21 @@ Private Sub ICFormPhysicsEf_Reset(cx As Double, cy As Double, ddmg As Double, Op
             .X = rv * FastCos(th)
             .Y = rv * FastSin(th)
         End With
-        s = size + Rnd * size
+        S = size + Rnd * size
         a0 = Rnd * 6.28
         a1 = a0 + 1 + Rnd
         a2 = a1 + 1 + Rnd
         With pTri(i, 0)
-            .X = s * FastCos(a0)
-            .Y = s * FastSin(a0)
+            .X = S * FastCos(a0)
+            .Y = S * FastSin(a0)
         End With
         With pTri(i, 1)
-            .X = s * FastCos(a1)
-            .Y = s * FastSin(a1)
+            .X = S * FastCos(a1)
+            .Y = S * FastSin(a1)
         End With
         With pTri(i, 2)
-            .X = s * FastCos(a2)
-            .Y = s * FastSin(a2)
+            .X = S * FastCos(a2)
+            .Y = S * FastSin(a2)
         End With
         pAngle(i) = Rnd * 6.28
         pAngVel(i) = (Rnd - 0.5) * 0.01

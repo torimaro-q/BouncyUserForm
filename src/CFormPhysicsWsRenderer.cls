@@ -14,7 +14,7 @@ Attribute myCore.VB_VarHelpID = -1
 Private ws As Worksheet
 Private Type rc
     R As Long
-    c As Long
+    C As Long
     isUsed As Boolean
 End Type
 Private cnt As Long
@@ -41,42 +41,48 @@ Private Sub myCore_Move(ByRef X As Double, ByRef Y As Double, ByRef veloc As Dou
 End Sub
 Private Sub UpdateSheet(ByRef cellInfo As rc)
     With cellInfo
-        If .isUsed Then Exit Sub
-        If .R > 0 And .c > 0 Then
-            With ws.Cells(.R, .c)
-                .Value = symbols(CLng(Rnd() * 3))
-                .Font.ColorIndex = (1 + CLng(Rnd() * 25))
-            End With
-        End If
-    End With
-    With buf(cnt)
-        If .R > 0 And .c > 0 Then ws.Cells(.R, .c).Value = ""
+        If .isUsed Then GoTo continue
+        If .R < 1 Then GoTo continue
+        If .C < 1 Then GoTo continue
+        With ws.Cells(.R, .C)
+            .Value = symbols(CLng(Rnd() * 3))
+            .Font.ColorIndex = (1 + CLng(Rnd() * 25))
+        End With
     End With
     buf(cnt) = cellInfo
     cnt = cnt + 1
     If cnt > UBound(buf) Then cnt = 0
+    With buf(cnt)
+        If .R < 1 Then GoTo continue
+        If .C < 1 Then GoTo continue
+        ws.Cells(.R, .C).Value = ""
+    End With
+continue:
 End Sub
 Private Sub myCore_Stopped(X As Double, Y As Double, time As Long)
     Call ClearCells
 End Sub
 Private Sub ClearCells()
+Application.ScreenUpdating = False
     Dim i As Long
     On Error Resume Next
     For i = LBound(buf) To UBound(buf)
         With buf(i)
-            If .R > 0 And .c > 0 Then
-                With ws.Cells(.R, .c)
-                    .Value = ""
-                    .Font.ColorIndex = 1
-                End With
-            End If
+            If .R < 1 Then GoTo continue
+            If .C < 1 Then GoTo continue
+            With ws.Cells(.R, .C)
+                .Value = ""
+                .Font.ColorIndex = 1
+            End With
         End With
+continue:
     Next i
     cnt = 0
+Application.ScreenUpdating = True
 End Sub
 Private Sub BuildSheetLut()
     Dim tmp As Range, Area As Range
-    Dim R As Long, c As Long
+    Dim R As Long, C As Long
     Dim ll As Long, LT As Long, ul As Long, ut As Long
     Dim v As Variant
     Dim i As Long, j As Long
@@ -84,7 +90,7 @@ Private Sub BuildSheetLut()
     For Each tmp In Area
         With tmp
             R = .Row
-            c = .Column
+            C = .Column
             v = .Value
             ll = CLng(.left)
             LT = CLng(.top)
@@ -95,7 +101,7 @@ Private Sub BuildSheetLut()
                     For j = LT To ut
                         With SheetLut(i, j)
                             .R = R
-                            .c = c
+                            .C = C
                             .isUsed = (v <> Empty)
                         End With
                     Next j

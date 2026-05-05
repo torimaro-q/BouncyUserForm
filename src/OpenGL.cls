@@ -25,8 +25,8 @@ Private Declare PtrSafe Function wglDeleteContext Lib "opengl32.dll" (ByVal hdc 
 Private Declare PtrSafe Sub glColor4f Lib "opengl32.dll" (ByVal red As Single, ByVal green As Single, ByVal blue As Single, ByVal alpha As Single)
 Private Declare PtrSafe Sub glColor3d Lib "opengl32.dll" (ByVal red As Double, ByVal green As Double, ByVal blue As Double)
 Private Declare PtrSafe Sub glVertex2d Lib "opengl32.dll" (ByVal A As Double, ByVal B As Double)
-Private Declare PtrSafe Sub glVertex3d Lib "opengl32.dll" (ByVal X As Double, ByVal Y As Double, ByVal z As Double)
-Private Declare PtrSafe Sub glNormal3d Lib "opengl32.dll" (ByVal X As Double, ByVal Y As Double, ByVal z As Double)
+Private Declare PtrSafe Sub glVertex3d Lib "opengl32.dll" (ByVal X As Double, ByVal Y As Double, ByVal Z As Double)
+Private Declare PtrSafe Sub glNormal3d Lib "opengl32.dll" (ByVal X As Double, ByVal Y As Double, ByVal Z As Double)
 Private Declare PtrSafe Sub glVertex3dv Lib "opengl32.dll" (ByVal dPtr As LongPtr)
 Private Declare PtrSafe Sub glNormal3dv Lib "opengl32.dll" (ByVal dPtr As LongPtr)
 Private Declare PtrSafe Sub glBegin Lib "opengl32.dll" (ByVal Glenum As Long)
@@ -57,10 +57,10 @@ Private Declare PtrSafe Function CreateFont Lib "gdi32" Alias "CreateFontA" (ByV
 Private Declare PtrSafe Function wglUseFontBitmaps Lib "opengl32.dll" Alias "wglUseFontBitmapsA" (ByVal hdc As LongPtr, ByVal dfirst As Long, ByVal dcount As Long, ByVal dlistbase As Long) As Long
 Private Declare PtrSafe Function wglUseFontBitmapsW Lib "opengl32.dll" (ByVal hdc As LongPtr, ByVal dfirst As Long, ByVal dcount As Long, ByVal dlistbase As Long) As Long
 
-Private Declare PtrSafe Sub glRasterPos3d Lib "opengl32.dll" (ByVal X As Double, ByVal Y As Double, ByVal z As Double)
+Private Declare PtrSafe Sub glRasterPos3d Lib "opengl32.dll" (ByVal X As Double, ByVal Y As Double, ByVal Z As Double)
 Private Declare PtrSafe Sub glRasterPos2d Lib "opengl32.dll" (ByVal X As Double, ByVal Y As Double)
-Private Declare PtrSafe Sub glTranslated Lib "opengl32.dll" (ByVal X As Double, ByVal Y As Double, ByVal z As Double)
-Private Declare PtrSafe Sub glScaled Lib "opengl32.dll" (ByVal X As Double, ByVal Y As Double, ByVal z As Double)
+Private Declare PtrSafe Sub glTranslated Lib "opengl32.dll" (ByVal X As Double, ByVal Y As Double, ByVal Z As Double)
+Private Declare PtrSafe Sub glScaled Lib "opengl32.dll" (ByVal X As Double, ByVal Y As Double, ByVal Z As Double)
 
 Private Declare PtrSafe Function glIsList Lib "opengl32.dll" (ByVal Index As Long) As Byte
 Private Declare PtrSafe Sub glNewList Lib "opengl32.dll" (ByVal Index As Long, ByVal Glenum As Long)
@@ -108,17 +108,17 @@ End Sub
 Public Function IsList(ByVal Index As Long) As Boolean
     IsList = glIsList(Index)
 End Function
-Public Sub RasterPos3d(ByVal X As Double, ByVal Y As Double, ByVal z As Double)
-    Call glRasterPos3d(X, Y, z)
+Public Sub RasterPos3d(ByVal X As Double, ByVal Y As Double, ByVal Z As Double)
+    Call glRasterPos3d(X, Y, Z)
 End Sub
 Public Sub RasterPos2d(ByVal X As Double, ByVal Y As Double)
     Call glRasterPos2d(X, Y)
 End Sub
-Public Sub Scaled(ByVal X As Double, ByVal Y As Double, ByVal z As Double)
-    Call glScaled(X, Y, z)
+Public Sub Scaled(ByVal X As Double, ByVal Y As Double, ByVal Z As Double)
+    Call glScaled(X, Y, Z)
 End Sub
-Public Sub Translated(ByVal X As Double, ByVal Y As Double, ByVal z As Double)
-    Call glTranslated(X, Y, z)
+Public Sub Translated(ByVal X As Double, ByVal Y As Double, ByVal Z As Double)
+    Call glTranslated(X, Y, Z)
 End Sub
 Public Sub PointSize(ByVal size As Single)
     Call glPointSize(size)
@@ -206,11 +206,11 @@ End Sub
 Public Sub Vertex2d(ByVal A As Double, ByVal B As Double)
     Call glVertex2d(A, B)
 End Sub
-Public Sub Vertex3d(ByVal X As Double, ByVal Y As Double, ByVal z As Double)
-    Call glVertex3d(X, Y, z)
+Public Sub Vertex3d(ByVal X As Double, ByVal Y As Double, ByVal Z As Double)
+    Call glVertex3d(X, Y, Z)
 End Sub
-Public Sub Normal3d(ByVal X As Double, ByVal Y As Double, ByVal z As Double)
-    Call glNormal3d(X, Y, z)
+Public Sub Normal3d(ByVal X As Double, ByVal Y As Double, ByVal Z As Double)
+    Call glNormal3d(X, Y, Z)
 End Sub
 Public Sub Vertex3dv(ByVal Vec4Ptr As LongPtr)
     Call glVertex3dv(Vec4Ptr)

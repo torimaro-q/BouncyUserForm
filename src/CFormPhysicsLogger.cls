@@ -9,7 +9,7 @@ Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
 Option Explicit
 Implements ICFormPhysicsEx
-Private Const BUF_SIZE As Long = 10000
+Private Const BUF_SIZE As Long = 30000
 Private WithEvents myCore As CFormPhysics
 Attribute myCore.VB_VarHelpID = -1
 Private ws As Worksheet
@@ -110,11 +110,13 @@ End Sub
 Private Sub ClearCharts()
     Dim tcht As ChartObject
     If ws Is Nothing Then Exit Sub
+    Application.ScreenUpdating = False
     For Each tcht In ws.ChartObjects
         If tcht.Name Like "*FormPhysic*" Then
             tcht.Delete
         End If
     Next tcht
+    Application.ScreenUpdating = True
 End Sub
 Private Sub CreateChart()
     Dim i As Long, nw As Series, AX As Axes, labels As Variant
