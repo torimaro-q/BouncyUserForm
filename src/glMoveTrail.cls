@@ -99,8 +99,7 @@ Private Sub ICFormPhysicsEf_Reset(cx As Double, cy As Double, ddmg As Double, Op
     dmg = dmg + ddmg
     ofsy = hh
     ofsx = hw
-    Dim td As Single
-    td = dmg * InvDMAX
+    Dim td As Single: td = dmg * InvDMAX
     If td > 1 Then td = 1
     dR = td
     dB = 1 - td

@@ -58,8 +58,8 @@ Private Sub myCore_Move(ByRef X As Double, ByRef Y As Double, ByRef veloc As Dou
                 End If
                 .time = time
                 With myCore
-                    .VX = .VX * -3
-                    .VY = .VY * -3
+                    .VX = .VX * -1.5
+                    .VY = .VY * -1.5
                     .UpdateVeloc
                     .ApplyDamage
                 End With

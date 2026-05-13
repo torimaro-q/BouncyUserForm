@@ -36,7 +36,7 @@ Private Const EF_MAX_CNT = 3
 Private Const DICT As String = "Scripting.Dictionary"
 Private GL As OpenGL
 Private hWnd As LongPtr, exStyle As LongPtr, style As LongPtr, rhWnd As LongPtr
-Private width As Double, height As Double, hh As Double, hw As Double, ptime As Long, pdmg As Double, Tw2Px As Double
+Private width As Double, height As Double, mhh As Double, mhw As Double, ptime As Long, pdmg As Double, Tw2Px As Double
 Private WithEvents myCore As CFormPhysics
 Attribute myCore.VB_VarHelpID = -1
 Private ChFct As Variant, ccnt As Long, BkFct As Variant, bcnt As Long, MvFct As Variant
@@ -103,7 +103,7 @@ Private Sub myCore_Crash(X As Double, Y As Double, dmg As Double, time As Long)
         Dim effName As Variant
         With ChDict
             For Each effName In .keys()
-                Call .Item(effName).Item(ccnt).Reset(tx, ty, ddmg, hw, hh)
+                Call .Item(effName).Item(ccnt).Reset(tx, ty, ddmg, mhw, mhh)
             Next effName
         End With
         ccnt = ccnt + 1
@@ -111,7 +111,7 @@ Private Sub myCore_Crash(X As Double, Y As Double, dmg As Double, time As Long)
     End If
     With MvDict
         For Each effName In .keys()
-            Call .Item(effName).Reset(tx, ty, ddmg, hw, hh)
+            Call .Item(effName).Reset(tx, ty, ddmg, mhw, mhh)
         Next effName
     End With
     pdmg = dmg
@@ -131,7 +131,7 @@ Private Sub myCore_Started(X As Double, Y As Double, time As Long)
     ptime = Timer
     With MvDict
         For Each effName In .keys()
-            Call .Item(effName).Reset(X * Tw2Px, Y * Tw2Px, 0, hw, hh)
+            Call .Item(effName).Reset(X * Tw2Px, Y * Tw2Px, 0, mhw, mhh)
         Next effName
     End With
 End Sub
@@ -140,6 +140,10 @@ Private Sub myCore_Stopped(X As Double, Y As Double, time As Long)
         .Clear GL_COLOR_BUFFER_BIT Or GL_DEPTH_BUFFER_BIT
         .SwapBuffers
     End With
+End Sub
+Private Sub myCore_SizeChanged(hw As Double, hh As Double)
+    mhw = hw * Tw2Px
+    mhh = hh * Tw2Px
 End Sub
 Private Sub UserForm_Activate()
     If GL Is Nothing Then
@@ -155,17 +159,11 @@ Private Sub UserForm_Activate()
             style = (style Or WS_THICKFRAME Or &H30000) And Not WS_CAPTION
             #If Win64 Then
                 SetWindowLongPtr hWnd, GWL_STYLE, style
-            #Else
-                SetWindowLong hWnd, GWL_STYLE, style
-            #End If
-            #If Win64 Then
                 exStyle = GetWindowLongPtr(hWnd, GWL_EXSTYLE)
-            #Else
-                exStyle = GetWindowLong(hWnd, GWL_EXSTYLE)
-            #End If
-            #If Win64 Then
                 SetWindowLongPtr hWnd, GWL_EXSTYLE, exStyle Or WS_EX_LAYERED
             #Else
+                SetWindowLong hWnd, GWL_STYLE, style
+                exStyle = GetWindowLong(hWnd, GWL_EXSTYLE)
                 SetWindowLong hWnd, GWL_EXSTYLE, exStyle Or WS_EX_LAYERED
             #End If
             'Force-enable SetLayeredWindowAttributes by rendering OpenGL
@@ -187,8 +185,13 @@ Public Sub GLInit()
         .Enable GL_DEPTH_TEST
         .Viewport 0, 0, width, height
         .Disable GL_LIGHTING
+        Set .Param = CreateObject(DICT)
+        With .Param
+            .Add "FormName", myCore.mFrmRaw.Caption
+            .Add "width", RenderFrame.width * Tw2Px
+            .Add "height", RenderFrame.height * Tw2Px
+        End With
     End With
-    DoEvents
     Set ChDict = CreateObject(DICT)
     Set MvDict = CreateObject(DICT)
     Set BkDict = CreateObject(DICT)
@@ -237,8 +240,8 @@ Public Sub GLInit()
         End If
 err:
     With myCore
-        hw = .hw * Tw2Px
-        hh = .hh * Tw2Px
+        mhw = .hw * Tw2Px
+        mhh = .hh * Tw2Px
     End With
     Call Render
 End Sub

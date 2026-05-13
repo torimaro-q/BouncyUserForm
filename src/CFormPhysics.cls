@@ -49,6 +49,7 @@ Public Event Move(ByRef X As Double, ByRef Y As Double, ByRef veloc As Double, B
 Public Event Started(ByRef X As Double, ByRef Y As Double, ByRef time As Long)
 Public Event Stopped(ByRef X As Double, ByRef Y As Double, ByRef time As Long)
 Public Event Initialized()
+Public Event SizeChanged(ByRef hw As Double, ByRef hh As Double)
 Private Sub AnimationLoop()
     Dim dt As Double, isCrashed As Boolean
     With mFrmRaw
@@ -113,7 +114,6 @@ Private Function ApplyCollision() As Boolean
 End Function
 Public Sub ApplyDamage()
     Damage = Damage + DRate * Abs(pV * pV - cV * cV)
-    RaiseEvent Crash(lx + hw, ty + hh, Damage, cTime)
     If Damage > 10 Then
         Dim th As Double, cntr As MSForms.Control
         th = 1 - Damage * 0.002
@@ -130,6 +130,17 @@ Public Sub ApplyDamage()
             Next cntr
         On Error GoTo 0
     End If
+    If Damage > 150 Then
+        If hh > 75 Then
+            With mFrmRaw
+                .height = 70
+                .BackColor = &HFFFFFF
+            End With
+            Call EvaluateMass
+            RaiseEvent SizeChanged(hw, hh)
+        End If
+    End If
+    RaiseEvent Crash(lx + hw, ty + hh, Damage, cTime)
 err:
 End Sub
 Private Sub mFrm_Layout()
@@ -140,21 +151,24 @@ Private Sub mFrm_Layout()
             If Abs(ty - .top) > 30 Then StopAnimation
         End With
     Else
-        With mFrmRaw
-            Dim tw As Double: tw = .width
-            Dim th As Double: th = .height
-            RChk = ScrLeft + ScrWidth * Px2Tw - tw
-            TChk = ScrTop + ScrHeight * Px2Tw - th
-            DragX = th * THICKNESS
-            DragY = tw * THICKNESS
-            hh = th * 0.5
-            hw = tw * 0.5
-            Call Render
-        End With
-        Mass = getMass
-        InvMass = 1 / Mass
-        DRate = DMGCF * 0.5 * Mass
+        Call EvaluateMass
     End If
+End Sub
+Private Sub EvaluateMass()
+    With mFrmRaw
+        Dim tw As Double: tw = .width
+        Dim th As Double: th = .height
+        RChk = ScrLeft + ScrWidth * Px2Tw - tw
+        TChk = ScrTop + ScrHeight * Px2Tw - th
+        DragX = th * THICKNESS
+        DragY = tw * THICKNESS
+        hh = th * 0.5
+        hw = tw * 0.5
+        Call Render
+    End With
+    Mass = getMass
+    InvMass = 1 / Mass
+    DRate = DMGCF * 0.5 * Mass
 End Sub
 Private Function getVeloc(ByRef VX As Double, ByRef VY As Double) As Double
     If Abs(VX) > Abs(VY) Then getVeloc = PA * Abs(VX) + PB * Abs(VY) Else getVeloc = PA * Abs(VY) + PB * Abs(VX)

@@ -43,7 +43,7 @@ Private Declare PtrSafe Sub glPointSize Lib "opengl32.dll" (ByVal size As Single
 Private Declare PtrSafe Sub glLineWidth Lib "opengl32.dll" (ByVal width As Single)
 Private Declare PtrSafe Sub glEnableClientState Lib "opengl32.dll" (ByVal Glenum As Long)
 Private Declare PtrSafe Sub glDisableClientState Lib "opengl32.dll" (ByVal Glenum As Long)
-Private Declare PtrSafe Sub glMaterialfv Lib "opengl32.dll" (ByVal Face As Long, ByVal pname As Long, ByVal param As LongPtr)
+Private Declare PtrSafe Sub glMaterialfv Lib "opengl32.dll" (ByVal Face As Long, ByVal pname As Long, ByVal Param As LongPtr)
 Private Declare PtrSafe Sub glClear Lib "opengl32.dll" (ByVal Mask As Long)
 Private Declare PtrSafe Sub glClearColor Lib "opengl32.dll" (ByVal red As Single, ByVal green As Single, ByVal blue As Single, ByVal alpha As Single)
 Private Declare PtrSafe Sub glColorPointer Lib "opengl32.dll" (ByVal size As Long, ByVal Glenum As Long, ByVal Stride As Long, ByVal ptR As LongPtr)
@@ -72,6 +72,7 @@ Private Declare PtrSafe Sub glListBase Lib "opengl32.dll" (ByVal base As Long)
 Private Declare PtrSafe Sub glCallLists Lib "opengl32.dll" (ByVal size As Long, ByVal vType As Long, ByVal ptR As LongPtr)
 Private pfd As PIXELFORMATDESCRIPTOR
 Public hformat As Long, hGLRC As LongPtr, hdc As LongPtr
+Public Param As Object
 Private myhwnd As LongPtr
 Public Sub CreateFontList(Optional ByVal FontSize As Long = 30, Optional ByVal FontName As String = "Arial", Optional ByVal weight As Long = 200, Optional listbase As Long = 1000)
     Dim hFont As LongPtr, hOldFont As LongPtr
@@ -179,8 +180,8 @@ End Sub
 Public Sub MatrixMode(ByVal Gle As Glenum)
     Call glMatrixMode(Gle)
 End Sub
-Public Sub Materialfv(ByVal GLe1 As Glenum, ByVal GLe2 As Glenum, ByVal param As LongPtr)
-    Call glMaterialfv(GLe1, GLe2, param)
+Public Sub Materialfv(ByVal GLe1 As Glenum, ByVal GLe2 As Glenum, ByVal Param As LongPtr)
+    Call glMaterialfv(GLe1, GLe2, Param)
 End Sub
 Public Sub LoadIdentity()
     Call glLoadIdentity

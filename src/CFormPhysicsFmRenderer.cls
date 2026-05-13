@@ -254,7 +254,6 @@ Private Sub myCore_Crash(X As Double, Y As Double, dmg As Double, time As Long)
     Loop Until i = psize
     UpdatePicture
 End Sub
-
 Private Sub InitPicture()
     Dim i As Long, bid As Long, bDist As Double, dist As Double
     Dim dx As Long, dy As Long
@@ -368,6 +367,9 @@ Private Function CL2RGBA(ByRef cl As Long) As RGBA
     LSet CL2RGBA = L
 End Function
 Private Sub ICFormPhysicsEx_Terminate()
+On Error GoTo err
+    Set myCore.mFrmRaw.Picture = Nothing
+err:
     Set myCore = Nothing
     hWnd = 0
 End Sub
