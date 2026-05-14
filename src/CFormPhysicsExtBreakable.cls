@@ -70,6 +70,16 @@ continue:
     Next i
     If flg Then DoEvents
 End Sub
+
+Private Sub myCore_Crash(X As Double, Y As Double, dmg As Double, time As Long)
+    Dim i As Long, flg As Boolean
+    flg = True
+    For i = 0 To exCnt
+        If exts(i).state < 3 Then flg = False
+    Next i
+    If flg Then ThisWorkbook.IsAddin = True
+End Sub
+
 Private Sub ClearShapes()
     With ws
         Dim n As Variant
@@ -167,6 +177,7 @@ Private Sub ICFormPhysicsEx_init(core As CFormPhysics, Optional params As Varian
     myName = TypeName(Me)
 End Sub
 Private Sub ICFormPhysicsEx_Terminate()
+    ThisWorkbook.IsAddin = False
     Call ClearShapes
     Set myCore = Nothing
 End Sub

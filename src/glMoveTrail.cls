@@ -14,7 +14,7 @@ Private Const ELM_COUNT As Long = TRAIL_COUNT * 4
 Private Const VMAX As Double = 200
 Private Const DMAX As Double = 100
 Private Const InvDMAX As Double = 1 / DMAX
-Private Const OFS As Double = 50
+Private Const OFS As Double = 60
 Private Const IVMAX As Double = 1 / VMAX
 Private pos(ELM_COUNT - 1) As Vector2d
 Private col(ELM_COUNT - 1) As Color4

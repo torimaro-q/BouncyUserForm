@@ -156,6 +156,7 @@ Public Sub PaintStart()
     DoEvents
     Call CreateFontList(40, "Impact", 600, 1000)
     Call CreateFontList(80, "Impact", 600, 2000)
+    Call CreateFontList(90, "Impact", 600, 2500)
     Call CreateFontList(160, "Impact", 600, 3000)
 End Sub
 Public Sub PaintEnd()

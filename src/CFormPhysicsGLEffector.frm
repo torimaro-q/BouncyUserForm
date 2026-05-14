@@ -1,10 +1,10 @@
 VERSION 5.00
 Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} CFormPhysicsGLEffector 
    Caption         =   "CFormPhysicsEffecter"
-   ClientHeight    =   9570.001
+   ClientHeight    =   1800
    ClientLeft      =   45
    ClientTop       =   390
-   ClientWidth     =   11910
+   ClientWidth     =   1950
    OleObjectBlob   =   "CFormPhysicsGLEffector.frx":0000
    ShowModal       =   0   'False
    StartUpPosition =   1  'オーナー フォームの中央
@@ -190,6 +190,7 @@ Public Sub GLInit()
             .Add "FormName", myCore.mFrmRaw.Caption
             .Add "width", RenderFrame.width * Tw2Px
             .Add "height", RenderFrame.height * Tw2Px
+            .Add "color", myCore.SysCL2RGB(myCore.mFrmRaw.BackColor)
         End With
     End With
     Set ChDict = CreateObject(DICT)
@@ -255,7 +256,6 @@ Private Sub ICFormPhysicsEx_init(core As CFormPhysics, Optional params As Varian
     ccnt = 1
     bcnt = 1
     On Error GoTo err
-        'params = Array(Array(glExplosion, glShockWave), Array(glMoveTrail))
         If IsEmpty(params) Then
             Debug.Print "NoEffects"
         Else
@@ -288,7 +288,7 @@ Private Sub UserForm_Layout()
     With Me.RenderFrame
         Me.Label1.width = Me.width
         .width = Me.width
-        .height = Me.height - Me.top
+        .height = Me.height - .top
     End With
 End Sub
 Private Sub Label1_DblClick(ByVal Cancel As MSForms.ReturnBoolean)

@@ -19,8 +19,7 @@ Private engine As CFormPhysics
 Private Sub UserForm_Initialize()
     If Rnd > 0.9 Then ApplyExColor
     Set engine = New CFormPhysics
-    engine.init Me, Array(CFormPhysicsGLEffector, _
-                          CFormPhysicsController), _
+    engine.init Me, Array(CFormPhysicsGLEffector), _
                     Array(glShockWave, glExplosion, glHitNumber), _
                     Array(glMoveTrail, glStatusVisualizer), _
                     Array(glControlShatter)

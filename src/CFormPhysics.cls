@@ -131,11 +131,8 @@ Public Sub ApplyDamage()
         On Error GoTo 0
     End If
     If Damage > 150 Then
-        If hh > 75 Then
-            With mFrmRaw
-                .height = 70
-                .BackColor = &HFFFFFF
-            End With
+        If hh > 30 Then
+            mFrmRaw.height = 0
             Call EvaluateMass
             RaiseEvent SizeChanged(hw, hh)
         End If
@@ -184,7 +181,7 @@ Private Sub Render()
             End With
         End If
         frameCnt = frameCnt + 1
-        If frameCnt > 30 Then
+        If frameCnt > 50 Then
             Caps(1) = format(cV, FMT)
             Caps(3) = format(Damage, FMT)
             mFrmRaw.Caption = Join(Caps, "")
@@ -210,10 +207,6 @@ Private Sub Restore()
     Render
 End Sub
 Private Sub Class_Terminate()
-    With Application
-        .ScreenUpdating = True
-        .Calculation = xlCalculationAutomatic
-    End With
     isDragging = True
     If Not (ex Is Nothing) Then
         On Error GoTo err
@@ -224,6 +217,11 @@ Private Sub Class_Terminate()
 err:
         Set ex = Nothing
     End If
+    With Application
+        .ScreenUpdating = True
+        .Calculation = xlCalculationAutomatic
+    End With
+    ThisWorkbook.IsAddin = False
 End Sub
 Private Sub mFrm_MouseDown(ByVal Button As Integer, ByVal Shift As Integer, ByVal X As Single, ByVal Y As Single)
     If Button = 1 Then
@@ -282,7 +280,7 @@ Public Sub init(ByRef form As Object, Optional ByRef extenions As Variant = Empt
         Set mFrm = form
         Px2Tw = 72 / GetDPI()
         With mFrmRaw
-            .DrawBuffer = 640000 'prevent flickering
+            .DrawBuffer = 1048576 'prevent flickering
             dCap = .Caption
             tCL = SysCL2RGB(.BackColor)
             With CL2RGBA(tCL)
@@ -321,7 +319,7 @@ Public Function SysCL2RGB(ByVal sysCL As Long) As Long
 End Function
 Private Sub Class_Initialize()
     ScrLeft = GetSystemMetrics(SM_XVIRTUALSCREEN): ScrTop = GetSystemMetrics(SM_YVIRTUALSCREEN)
-    ScrWidth = GetSystemMetrics(SM_CXVIRTUALSCREEN): ScrHeight = GetSystemMetrics(SM_CYVIRTUALSCREEN)
+    ScrWidth = GetSystemMetrics(SM_CXVIRTUALSCREEN): ScrHeight = GetSystemMetrics(SM_CYVIRTUALSCREEN) - 40
     Caps(0) = "speed : ": Caps(2) = "   damage : "
 End Sub
 Public Sub Terminate()
