@@ -2,8 +2,8 @@
 (minimal)
 ![screenshot](pic/Minimal.gif)
 
-(full)
-![screenshot](pic/full.gif)
+(gl)
+![screenshot](pic/gl.gif)
 
 - BouncyUserForm は、**Excel VBA の UserForm を物理オブジェクトとして扱い、
 重力・反発・空気抵抗・ダメージ表現を伴うアニメーションを実現するモジュール**です。
