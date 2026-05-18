@@ -186,11 +186,6 @@ Public Const DEFAULT_QUALITY As Long = 0
 Public Const DEFAULT_PITCH As Long = 0
 Public Const FF_SCRIPT As Long = 64
 Public Const ANTIALIASED_QUALITY As Long = 4
-Public Function OpenGL(ByVal hWnd As LongPtr) As OpenGL
-    Dim GL As OpenGL: Set GL = New OpenGL
-    GL.hWnd = hWnd
-    Set OpenGL = GL
-End Function
 Public Function B2Single(ByRef B1, ByRef B2, ByRef B3, ByRef B4) As Single
     Dim X As B4, Y As S1
     With X: .B(0) = B1: .B(1) = B2: .B(2) = B3: .B(3) = B4: End With
@@ -238,4 +233,9 @@ Public Function FastCos(ByRef th As Double) As Double
         init = True
     End If
     FastCos = mycos(CLng(th * 100))
+End Function
+Public Function GenOpenGL(Optional ByVal hWnd As LongPtr = -1) As OpenGL
+    Dim GL As OpenGL: Set GL = New OpenGL
+    If hWnd > 0 Then GL.hWnd = hWnd
+    Set GenOpenGL = GL
 End Function

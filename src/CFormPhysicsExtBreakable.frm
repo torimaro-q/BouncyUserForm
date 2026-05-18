@@ -12,6 +12,8 @@ Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
+
+
 Option Explicit
 Private Type RECT
     left As Long
@@ -296,13 +298,14 @@ Private Sub UserForm_Activate()
         Call MoveWindow(e2Hwnd, 0, 0, ww, wh, 1)
         tHwnd = e2Hwnd
         If tHwnd = 0 Then GoTo err
-        Set GL = New OpenGL
+        On Error GoTo err
+        Set GL = Application.Run("GenOpenGL")
         With GL
             .hWnd = tHwnd
             .PaintStart
             .Viewport 0, 0, ww, wh
             .ClearColor 0.1, 0.1, 0.1, 1
-            .Enable GL_DEPTH_TEST
+            .Enable &HB71& 'GL_DEPTH_TEST
         End With
         busy = False
         Call StafRoll
