@@ -221,7 +221,7 @@ err:
         .ScreenUpdating = True
         .Calculation = xlCalculationAutomatic
     End With
-    ThisWorkbook.IsAddin = False
+    ThisWorkbook.isAddin = False
 End Sub
 Private Sub mFrm_MouseDown(ByVal Button As Integer, ByVal Shift As Integer, ByVal X As Single, ByVal Y As Single)
     If Button = 1 Then
