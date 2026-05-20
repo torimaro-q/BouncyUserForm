@@ -20,18 +20,37 @@ Private WithEvents myCore As CFormPhysics
 Attribute myCore.VB_VarHelpID = -1
 Private strArr(50) As String
 Private Initialized As Boolean, ptime As Long
-Private Sub LabelA_MouseMove(ByVal Button As Integer, ByVal Shift As Integer, ByVal X As Single, ByVal Y As Single)
+Private Sub myCore_Move(X As Double, Y As Double, veloc As Double, time As Long)
+    If ptime > 0 Then Call ApplyAnalogVelocity(time - ptime)
+    ptime = time
+End Sub
+Private Sub ApplyAnalogVelocity(ByRef time)
+    Dim tx As Double, ty As Double
     With LabelA
-        If Button = 1 Then
+        tx = .left - 34
+        ty = .top - 35
+        If Abs(tx) < 3 Then Exit Sub
+        If Abs(ty) < 3 Then Exit Sub
+        With myCore
+            .VY = .VY + ty * time * 0.02
+            .VX = .VX + tx * time * 0.02
+        End With
+    End With
+End Sub
+Private Sub LabelA_MouseMove(ByVal Button As Integer, ByVal Shift As Integer, ByVal X As Single, ByVal Y As Single)
+    If Button = 1 Then
+        With LabelA
             .left = .left + X - .width * 0.5
             .top = .top + Y - .height * 0.5
             Me.Repaint
-            If myCore.isAnimation Then Exit Sub
+        End With
+        With myCore
+            If .isAnimation Then Exit Sub
             ptime = 0
             Call ApplyAnalogVelocity(100)
-            myCore.Launch
-        End If
-    End With
+            .Launch
+        End With
+    End If
 End Sub
 Private Sub DButton(ByVal dx As Double, ByVal dy As Double)
     With myCore
@@ -40,21 +59,6 @@ Private Sub DButton(ByVal dx As Double, ByVal dy As Double)
         ptime = 0
         .Launch
     End With
-End Sub
-Private Sub ApplyAnalogVelocity(ByRef time)
-    Dim tx As Double, ty As Double
-    With LabelA
-            tx = .left - 34
-            ty = .top - 35
-            With myCore
-                .VY = .VY + ty * time * 0.02
-                .VX = .VX + tx * time * 0.02
-            End With
-    End With
-End Sub
-Private Sub myCore_Move(X As Double, Y As Double, veloc As Double, time As Long)
-    If ptime > 0 Then Call ApplyAnalogVelocity(time - ptime)
-    ptime = time
 End Sub
 Private Sub CommandButtonB_Click()
     DButton 0, 3000

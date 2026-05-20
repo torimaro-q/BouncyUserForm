@@ -70,9 +70,14 @@ Private Declare PtrSafe Sub glDeleteLists Lib "opengl32.dll" (ByVal Index As Lon
 Private Declare PtrSafe Sub glDeleteList Lib "opengl32.dll" (ByVal Index As Long)
 Private Declare PtrSafe Sub glListBase Lib "opengl32.dll" (ByVal base As Long)
 Private Declare PtrSafe Sub glCallLists Lib "opengl32.dll" (ByVal size As Long, ByVal vType As Long, ByVal ptR As LongPtr)
+
+Private Declare PtrSafe Function wglGetProcAddress Lib "opengl32.dll" (ByVal lpszProc As String) As LongPtr
+Private Declare PtrSafe Function wglSwapIntervalEXT Lib "opengl32.dll" (ByVal interval As Long) As LongPtr
+Private Declare PtrSafe Function CallWindowProc Lib "user32.dll" Alias "CallWindowProcA" (ByVal lpPrevWndFunc As LongPtr, ByVal hWnd As LongPtr, ByVal Msg As Long, ByVal wParam As LongPtr, ByVal lParam As LongPtr) As LongPtr
+
 Private pfd As PIXELFORMATDESCRIPTOR
 Public hformat As Long, hGLRC As LongPtr, hdc As LongPtr
-Public Param As Object
+Public Param As Object, pDict As Object
 Private myhwnd As LongPtr
 Public Sub CreateFontList(Optional ByVal FontSize As Long = 30, Optional ByVal FontName As String = "Arial", Optional ByVal weight As Long = 200, Optional listbase As Long = 1000)
     Dim hFont As LongPtr, hOldFont As LongPtr
@@ -142,11 +147,11 @@ End Sub
 Public Sub NormalPointer(ByVal Gle As Glenum, ByVal Stride As Long, ByVal ptR As LongPtr)
     Call glNormalPointer(Gle, Stride, ptR)
 End Sub
-Public Sub DrawArrays(ByVal Mode As Glenum, ByVal first As Long, ByVal size As Long)
-    Call glDrawArrays(Mode, first, size)
+Public Sub DrawArrays(ByVal mode As Glenum, ByVal first As Long, ByVal size As Long)
+    Call glDrawArrays(mode, first, size)
 End Sub
-Public Sub DrawElements(ByVal Mode As Glenum, ByVal count As Long, ByVal Type1 As Glenum, ByVal ptR As LongPtr)
-    Call glDrawElements(Mode, count, Type1, ptR)
+Public Sub DrawElements(ByVal mode As Glenum, ByVal count As Long, ByVal Type1 As Glenum, ByVal ptR As LongPtr)
+    Call glDrawElements(mode, count, Type1, ptR)
 End Sub
 Public Sub MultMatrixd(ByVal ptR As LongPtr)
     Call glMultMatrixd(ptR)
@@ -241,7 +246,21 @@ End Sub
 Public Sub LookAt(ByVal eyex As Double, ByVal eyey As Double, ByVal eyez As Double, ByVal centerx As Double, ByVal centery As Double, ByVal centerz As Double, ByVal upx As Double, ByVal upy As Double, ByVal upz As Double)
     Call gluLookAt(eyex, eyey, eyez, centerx, centery, centerz, upx, upy, upz)
 End Sub
-'//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+'Ex
+Private Function GetPointer(ByVal fname As String) As LongPtr
+    If pDict.exists(fname) = False Then
+        Dim addr As LongPtr
+        addr = wglGetProcAddress(fname)
+        pDict.Add fname, addr
+    End If
+    GetPointer = pDict.Item(fname)
+End Function
+Public Sub SwapIntervalEXT(ByVal mode As Long)
+    Dim p As LongPtr
+    p = GetPointer("wglSwapIntervalEXT")
+    Call CallWindowProc(p, mode, 0, 0, 0)
+End Sub
+'Init/Term
 Public Property Let hWnd(newPtr As LongPtr)
     myhwnd = newPtr
     Call Inithwnd
@@ -290,6 +309,7 @@ Private Sub Class_Initialize()
         .dwVisibleMask = 0
         .dwDamageMask = 0
     End With
+    Set pDict = CreateObject("Scripting.Dictionary")
 End Sub
 Private Sub Class_Terminate()
     Call Releasehwnd

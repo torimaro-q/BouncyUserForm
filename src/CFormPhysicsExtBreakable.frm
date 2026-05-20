@@ -1,6 +1,6 @@
 VERSION 5.00
 Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} CFormPhysicsExtBreakable 
-   ClientHeight    =   495
+   ClientHeight    =   735
    ClientLeft      =   45
    ClientTop       =   390
    ClientWidth     =   2385
@@ -12,8 +12,6 @@ Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
-
-
 Option Explicit
 Private Type RECT
     left As Long
@@ -49,7 +47,7 @@ Private Type PhEx
     obj As ICFormPhysicsEx
     shp As Shape
 End Type
-Private mylock As Boolean
+Private mylock As Boolean, isUseGL As Boolean
 Private Const H_OFS As Double = 200, E_SIZE As Double = 45
 Private exKeys As Variant, exCnt As Long, myName As String, exts() As PhEx, i As Long, ptime As Long, flg As Boolean, d As Double
 Private Sub myCore_Move(ByRef X As Double, ByRef Y As Double, ByRef veloc As Double, time As Long)
@@ -108,7 +106,7 @@ Private Sub myCore_Crash(X As Double, Y As Double, dmg As Double, time As Long)
         If mylock = False Then
             mylock = True
             ThisWorkbook.isAddin = True
-            Me.Show vbModal
+            If isUseGL Then Me.Show vbModal
         End If
     End If
 End Sub
@@ -123,6 +121,7 @@ On Error GoTo err
 err:
 End Sub
 Private Sub CreateShapes()
+    isUseGL = False
     With ws
         Dim n As Variant
         With myCore
@@ -135,6 +134,10 @@ Private Sub CreateShapes()
                 With exts(i)
                     .state = -1
                     If myName = n Then .state = 10
+                    If n Like "*GLEffect*" Then
+                        .state = -3
+                        isUseGL = True
+                    End If
                     If .state <= 0 Then
                         Set .obj = myCore.ex.Item(n)
                         Set .shp = ws.Shapes.AddShape(msoShapeHexagon, E_SIZE + baseL * Rnd(), baseH * Rnd(), E_SIZE * 2, E_SIZE * 2)
@@ -216,7 +219,7 @@ Private Sub ICFormPhysicsEx_Terminate()
     Set myCore = Nothing
     Call ClearShapes
 End Sub
-'###########################################################################################################
+'---
 Private Sub Label1_Click() 'SKIP
     isSkip = True
 End Sub
@@ -224,6 +227,10 @@ Private Sub StafRoll()
     Dim i As Long, arr, tmp, Name, tt, pt
     arr = Array("Producer", "Director", "Main Programmer", "Art Director", "Motion Director", "Thank you for playing BouncyUserform")
     Name = "torimaro-q"
+    With GL
+        .Enable GL_DEPTH_TEST
+        .SwapIntervalEXT 0
+    End With
     For Each tmp In arr
         oy = 0
         Do Until oy < -wh
@@ -305,7 +312,6 @@ Private Sub UserForm_Activate()
             .PaintStart
             .Viewport 0, 0, ww, wh
             .ClearColor 0.1, 0.1, 0.1, 1
-            .Enable &HB71& 'GL_DEPTH_TEST
         End With
         busy = False
         Call StafRoll

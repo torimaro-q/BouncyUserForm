@@ -1,31 +1,35 @@
 VERSION 5.00
-Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} CalculatorGL 
-   Caption         =   "CalculatorGL"
+Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} Calculator 
+   Caption         =   "Calculator"
    ClientHeight    =   4710
    ClientLeft      =   45
    ClientTop       =   390
    ClientWidth     =   4455
-   OleObjectBlob   =   "CalculatorGL.frx":0000
+   OleObjectBlob   =   "Calculator.frx":0000
    ShowModal       =   0   'False
    StartUpPosition =   1  'オーナー フォームの中央
 End
-Attribute VB_Name = "CalculatorGL"
+Attribute VB_Name = "Calculator"
 Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
 Option Explicit
 Private engine As CFormPhysics
+Private Sub UserForm_Error(ByVal Number As Integer, ByVal Description As MSForms.ReturnString, ByVal SCode As Long, ByVal Source As String, ByVal HelpFile As String, ByVal HelpContext As Long, ByVal CancelDisplay As MSForms.ReturnBoolean)
+    Unload Me
+End Sub
 Private Sub UserForm_Initialize()
     If Rnd > 0.9 Then ApplyExColor
+End Sub
+Public Sub init(Optional ByVal ExLibs = Empty, Optional ByVal ChLibs = Empty, Optional ByVal MvLibs = Empty, Optional ByVal BkLibs = Empty)
     Set engine = New CFormPhysics
-    engine.init Me, Array(CFormPhysicsGLEffector), _
-                    Array(glShockWave, glExplosion, glHitNumber), _
-                    Array(glMoveTrail, glStatusVisualizer), _
-                    Array(glControlShatter)
+    Call engine.init(Me, ExLibs, ChLibs, MvLibs, BkLibs)
 End Sub
 Private Sub UserForm_Terminate()
+On Error GoTo err
     engine.Terminate
+err:
 End Sub
 '############################################################################################################################
 Private Sub btnInput(ByVal inp As String)

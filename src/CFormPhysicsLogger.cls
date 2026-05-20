@@ -128,7 +128,7 @@ Private Sub CreateChart()
         mySeries(i).cnt = 0
     Next i
     With myCore
-        Set chartObj = ws.ChartObjects.Add(left:=5, top:=5, width:=(.ScrWidth * .Px2Tw) * 0.3, height:=(.ScrHeight * .Px2Tw) * 0.3)
+        Set chartObj = ws.ChartObjects.Add(left:=(.ScrWidth * .Px2Tw) * 0.65, top:=5, width:=(.ScrWidth * .Px2Tw) * 0.3, height:=(.ScrHeight * .Px2Tw) * 0.3)
     End With
     With chartObj
         .Name = "CFormPhysicLogScatter"

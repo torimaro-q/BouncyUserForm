@@ -41,60 +41,46 @@ Private WithEvents myCore As CFormPhysics
 Attribute myCore.VB_VarHelpID = -1
 Private ChFct As Variant, ccnt As Long, BkFct As Variant, bcnt As Long, MvFct As Variant
 Public ChDict As Object, BkDict As Object, MvDict As Object
-Public Sub Render(Optional time = 0, Optional X As Double = -1, Optional Y As Double = -1, Optional v As Double = -1)
-    Dim dt As Long, i As Long
-    Dim effName As Variant
+Private Sub myCore_Move(ByRef X As Double, ByRef Y As Double, ByRef veloc As Double, ByRef time As Long)
+    Render time, X * Tw2Px, Y * Tw2Px, veloc
+End Sub
+Public Sub Render(Optional ByRef time = 0, Optional ByRef X As Double = -1, Optional ByRef Y As Double = -1, Optional ByRef v As Double = -1)
+    Dim dt As Long, efn As Variant, ef As Variant
     dt = time - ptime
     ptime = time
     With GL
         .Clear GL_COLOR_BUFFER_BIT Or GL_DEPTH_BUFFER_BIT
-        .MatrixMode GL_PROJECTION
-        .LoadIdentity
-        .Ortho2D 0, width, height, 0
-        .MatrixMode GL_MODELVIEW
-        .LoadIdentity
-        If ChDict.count > 0 Then
-            .PushMatrix
-                With ChDict
-                    For Each effName In .keys()
-                        With .Item(effName)
-                            For i = 1 To EF_MAX_CNT
-                                Call .Item(i).Render(X, Y, dt, v)
-                            Next i
-                        End With
-                    Next effName
-                End With
-            .PopMatrix
-        End If
-        If BkDict.count > 0 Then
-            .PushMatrix
-                With BkDict
-                    For Each effName In .keys()
-                        With .Item(effName)
-                            For i = 1 To EF_MAX_CNT
-                                Call .Item(i).Render(X, Y, dt, v)
-                            Next i
-                        End With
-                    Next effName
-                End With
-            .PopMatrix
-        End If
-        If MvDict.count > 0 Then
-            .PushMatrix
-                With MvDict
-                    For Each effName In .keys()
-                        Call .Item(effName).Render(X, Y, dt, v)
-                    Next effName
-                End With
-            .PopMatrix
-        End If
+        .PushMatrix
+            With ChDict
+                If .count <= 0 Then GoTo bk
+                For Each efn In .keys
+                    For Each ef In .Item(efn)
+                        Call ef.Render(X, Y, dt, v)
+                    Next ef
+                Next efn
+            End With
+bk:
+            With BkDict
+                If .count <= 0 Then GoTo mv
+                For Each efn In .keys
+                    For Each ef In .Item(efn)
+                        Call ef.Render(X, Y, dt, v)
+                    Next ef
+                Next efn
+            End With
+mv:
+            With MvDict
+                If .count <= 0 Then GoTo sw
+                For Each efn In .keys
+                    Call .Item(efn).Render(X, Y, dt, v)
+                Next efn
+            End With
+sw:
+        .PopMatrix
         .SwapBuffers
     End With
 End Sub
-Private Sub myCore_Move(X As Double, Y As Double, veloc As Double, time As Long)
-    Render time, X * Tw2Px, Y * Tw2Px, veloc
-End Sub
-Private Sub myCore_Crash(X As Double, Y As Double, dmg As Double, time As Long)
+Private Sub myCore_Crash(ByRef X As Double, ByRef Y As Double, ByRef dmg As Double, ByRef time As Long)
     Dim ddmg As Double, tx As Double, ty As Double
     ddmg = dmg - pdmg
     tx = Tw2Px * X
@@ -116,7 +102,7 @@ Private Sub myCore_Crash(X As Double, Y As Double, dmg As Double, time As Long)
     End With
     pdmg = dmg
 End Sub
-Private Sub myCore_Break(X As Double, Y As Double, ofsx As Double, ofsy As Double, hw As Double, hh As Double)
+Private Sub myCore_Break(ByRef X As Double, ByRef Y As Double, ByRef ofsx As Double, ByRef ofsy As Double, ByRef hw As Double, ByRef hh As Double)
     Dim effName As Variant
     With BkDict
         For Each effName In .keys()
@@ -185,6 +171,12 @@ Public Sub GLInit()
         .Enable GL_DEPTH_TEST
         .Viewport 0, 0, width, height
         .Disable GL_LIGHTING
+        .MatrixMode GL_PROJECTION
+        .LoadIdentity
+        .Ortho2D 0, width, height, 0
+        .MatrixMode GL_MODELVIEW
+        .LoadIdentity
+        .SwapIntervalEXT 0
         Set .Param = CreateObject(DICT)
         With .Param
             .Add "FormName", myCore.mFrmRaw.Caption
@@ -291,7 +283,7 @@ Private Sub UserForm_Layout()
         .height = Me.height - .top
     End With
 End Sub
-Private Sub Label1_DblClick(ByVal Cancel As MSForms.ReturnBoolean)
+Private Sub Label1_Click()
     Call ICFormPhysicsEx_Terminate
 End Sub
 Private Sub UserForm_DblClick(ByVal Cancel As MSForms.ReturnBoolean)

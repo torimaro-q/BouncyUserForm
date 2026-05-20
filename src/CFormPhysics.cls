@@ -60,29 +60,31 @@ Private Sub AnimationLoop()
     dgx = DragX * InvMass
     dgy = DragY * InvMass
     RaiseEvent Started(lx + hw, ty + hh, cTime)
-    Do
-        cTime = GetTickCount
-        If ptime <> 0 Then
-            dt = SAFEOFS + (cTime - ptime) * 0.001
-            AX = -dgx * (VX + PRES2VIS * (VX * Abs(VX)))
-            AY = GRAV - dgy * (VY + PRES2VIS * (VY * Abs(VY)))
-            VX = VX + AX * dt
-            VY = VY + AY * dt
-            lx = lx + VX * dt
-            ty = ty + VY * dt
-        End If
-        ptime = cTime
-        isCrashed = ApplyCollision
-        Call UpdateVeloc
-        If isDragging Then Exit Do
-        If isAnimation = False Then Exit Do
-        If isCrashed Then ApplyDamage
-        If cV < 10 Then Exit Do
-        On Error GoTo err 'avoid automation errors
-            mFrmRaw.Move lx, ty
-        On Error GoTo 0
-        Render
-    Loop
+    With mFrmRaw
+        Do
+            cTime = GetTickCount
+            If ptime <> 0 Then
+                dt = SAFEOFS + (cTime - ptime) * 0.001
+                AX = -dgx * (VX + PRES2VIS * (VX * Abs(VX)))
+                AY = GRAV - dgy * (VY + PRES2VIS * (VY * Abs(VY)))
+                VX = VX + AX * dt
+                VY = VY + AY * dt
+                lx = lx + VX * dt
+                ty = ty + VY * dt
+            End If
+            ptime = cTime
+            isCrashed = ApplyCollision
+            Call UpdateVeloc
+            If isDragging Then Exit Do
+            If isAnimation = False Then Exit Do
+            If isCrashed Then ApplyDamage
+            If cV < 10 Then Exit Do
+            On Error GoTo err 'avoid automation errors
+                .Move lx, ty
+            On Error GoTo 0
+            Render
+        Loop
+    End With
     RaiseEvent Stopped(lx + hw, ty + hh, cTime)
     ResetPhysics
     Render
@@ -114,29 +116,27 @@ Private Function ApplyCollision() As Boolean
 End Function
 Public Sub ApplyDamage()
     Damage = Damage + DRate * Abs(pV * pV - cV * cV)
-    If Damage > 10 Then
-        Dim th As Double, cntr As MSForms.Control
-        th = 1 - Damage * 0.002
-        On Error GoTo err 'avoid automation errors
-            For Each cntr In mFrmRaw.Controls
-                If Rnd() > th Then
-                    With cntr
-                        If .Visible Then
-                            RaiseEvent Break(lx + hw, ty + hh, lx + .left, ty + .top, 0.5 * .width, 0.5 * .height)
-                            .Visible = False
-                        End If
-                    End With
-                End If
-            Next cntr
-        On Error GoTo 0
-    End If
-    If Damage > 150 Then
-        If hh > 30 Then
-            mFrmRaw.height = 0
-            Call EvaluateMass
-            RaiseEvent SizeChanged(hw, hh)
-        End If
-    End If
+    If Damage < 10 Then GoTo continue
+    Dim th As Double, cntr As MSForms.Control
+    th = 1 - Damage * 0.002
+    On Error GoTo err 'avoid automation errors
+        For Each cntr In mFrmRaw.Controls
+            If Rnd() > th Then
+                With cntr
+                    If .Visible Then
+                        RaiseEvent Break(lx + hw, ty + hh, lx + .left, ty + .top, 0.5 * .width, 0.5 * .height)
+                        .Visible = False
+                    End If
+                End With
+            End If
+        Next cntr
+    On Error GoTo 0
+    If Damage < 150 Then GoTo continue
+    If hh < 30 Then GoTo continue
+    mFrmRaw.height = 0
+    Call EvaluateMass
+    RaiseEvent SizeChanged(hw, hh)
+continue:
     RaiseEvent Crash(lx + hw, ty + hh, Damage, cTime)
 err:
 End Sub
@@ -181,12 +181,14 @@ Private Sub Render()
             End With
         End If
         frameCnt = frameCnt + 1
-        If frameCnt > 50 Then
-            Caps(1) = format(cV, FMT)
-            Caps(3) = format(Damage, FMT)
-            mFrmRaw.Caption = Join(Caps, "")
-            frameCnt = 0: DoEvents
-        End If
+        If frameCnt < 60 Then GoTo err
+        'Static pptime
+        'If pptime > 0 Then Debug.Print (cTime - pptime)
+        'pptime = cTime
+        Caps(1) = format(cV, FMT)
+        Caps(3) = format(Damage, FMT)
+        mFrmRaw.Caption = Join(Caps, "")
+        frameCnt = 0: DoEvents
 err:
 End Sub
 Public Sub UpdateVeloc()
@@ -210,7 +212,11 @@ Private Sub Class_Terminate()
     isDragging = True
     If Not (ex Is Nothing) Then
         On Error GoTo err
-        Dim tmp As Variant
+        Dim tmp As Variant, glex As String: glex = "CFormPhysicsGLEffector"
+        If ex.exists(glex) Then
+            ex.Item(glex).Terminate
+            ex.Remove glex
+        End If
         For Each tmp In ex.keys()
             ex.Item(tmp).Terminate
         Next tmp
@@ -273,14 +279,13 @@ Private Function ResetPhysics()
     pV = 0: cV = 0: ptime = 0
     isAnimation = False
 End Function
-Public Sub init(ByRef form As Object, Optional ByRef extenions As Variant = Empty, _
-                        Optional ByRef cEffectors As Variant = Empty, Optional ByRef mEffectors As Variant = Empty, Optional ByRef bEffectors As Variant = Empty)
+Public Sub init(ByRef form As Object, Optional ByRef extenions As Variant = Empty, Optional ByRef cEffectors As Variant = Empty, Optional ByRef mEffectors As Variant = Empty, Optional ByRef bEffectors As Variant = Empty)
     If mFrmRaw Is Nothing Then
         Set mFrmRaw = form
         Set mFrm = form
         Px2Tw = 72 / GetDPI()
         With mFrmRaw
-            .DrawBuffer = 1048576 'prevent flickering
+            .DrawBuffer = 640000 'prevent flickering
             dCap = .Caption
             tCL = SysCL2RGB(.BackColor)
             With CL2RGBA(tCL)
