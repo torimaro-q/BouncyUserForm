@@ -256,9 +256,11 @@ Private Function GetPointer(ByVal fname As String) As LongPtr
     GetPointer = pDict.Item(fname)
 End Function
 Public Sub SwapIntervalEXT(ByVal mode As Long)
+#If Win64 Then
     Dim p As LongPtr
     p = GetPointer("wglSwapIntervalEXT")
     Call CallWindowProc(p, mode, 0, 0, 0)
+#End If
 End Sub
 'Init/Term
 Public Property Let hWnd(newPtr As LongPtr)
