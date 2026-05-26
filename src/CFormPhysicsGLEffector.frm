@@ -1,10 +1,10 @@
 VERSION 5.00
 Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} CFormPhysicsGLEffector 
    Caption         =   "CFormPhysicsEffecter"
-   ClientHeight    =   1800
+   ClientHeight    =   7410
    ClientLeft      =   45
    ClientTop       =   390
-   ClientWidth     =   1950
+   ClientWidth     =   11760
    OleObjectBlob   =   "CFormPhysicsGLEffector.frx":0000
    ShowModal       =   0   'False
    StartUpPosition =   1  'オーナー フォームの中央

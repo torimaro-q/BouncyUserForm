@@ -80,10 +80,10 @@ Private Sub ResetButtons()
     Next shp
     Set LibBuf = AllExDict
     With ws.Shapes
-        With .AddFormControl(xlButtonControl, 10, 10, 100, 30)
+        With .AddFormControl(xlButtonControl, 200, 55, 90, 25)
             .OnAction = "ShowForm"
             .TextFrame.Characters.Text = "ShowForm"
-            .DrawingObject.Font.size = 18
+            .DrawingObject.Font.size = 16
         End With
         tofs = 60
         i = 0

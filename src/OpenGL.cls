@@ -74,10 +74,30 @@ Private Declare PtrSafe Sub glCallLists Lib "opengl32.dll" (ByVal size As Long, 
 Private Declare PtrSafe Function wglGetProcAddress Lib "opengl32.dll" (ByVal lpszProc As String) As LongPtr
 Private Declare PtrSafe Function wglSwapIntervalEXT Lib "opengl32.dll" (ByVal interval As Long) As LongPtr
 Private Declare PtrSafe Function CallWindowProc Lib "user32.dll" Alias "CallWindowProcA" (ByVal lpPrevWndFunc As LongPtr, ByVal hWnd As LongPtr, ByVal Msg As Long, ByVal wParam As LongPtr, ByVal lParam As LongPtr) As LongPtr
+Private Declare PtrSafe Function DispCallFunc Lib "oleaut32" (ByVal pvInstance As LongPtr, ByVal oVft As LongPtr, ByVal cc As Long, ByVal vtReturn As Integer, ByVal cActuals As Long, ByRef prgvt As Integer, ByRef prgpvarg As LongPtr, ByRef pvargResult As Variant) As Long
 
+Private Const CC_STDCALL As Long = 4
+#If Win64 Then
+    Private Const NULLPTR As LongPtr = 0
+#Else
+    Private Const NULLPTR As Long = 0
+#End If
+Private Enum VARENUM
+    VT_I8 = 20
+    VT_I4 = 3
+    VT_I2 = 2
+    VT_EMPTY = 0
+    VT_BYREF = &H4000
+    #If Win64 Then
+        VT_PTR2 = VT_I8
+    #Else
+        VT_PTR2 = VT_I4
+    #End If
+End Enum
+Private attribs(6) As Long
 Private pfd As PIXELFORMATDESCRIPTOR
 Public hformat As Long, hGLRC As LongPtr, hdc As LongPtr
-Public Param As Object, pDict As Object
+Public Param As Object, pDict As Object, tDict As Object
 Private myhwnd As LongPtr
 Public Sub CreateFontList(Optional ByVal FontSize As Long = 30, Optional ByVal FontName As String = "Arial", Optional ByVal weight As Long = 200, Optional listbase As Long = 1000)
     Dim hFont As LongPtr, hOldFont As LongPtr
@@ -155,18 +175,6 @@ Public Sub DrawElements(ByVal mode As Glenum, ByVal count As Long, ByVal Type1 A
 End Sub
 Public Sub MultMatrixd(ByVal ptR As LongPtr)
     Call glMultMatrixd(ptR)
-End Sub
-Public Sub PaintStart()
-    Call wglMakeCurrent(hdc, hGLRC)
-    DoEvents
-    Call CreateFontList(40, "Impact", 600, 1000)
-    Call CreateFontList(80, "Impact", 600, 2000)
-    Call CreateFontList(90, "Impact", 600, 2500)
-    Call CreateFontList(160, "Impact", 600, 3000)
-End Sub
-Public Sub PaintEnd()
-    Call SwapBuffersA(hdc)
-    Call wglMakeCurrent(0, 0)
 End Sub
 Public Sub MakeCurrent(ByVal hdc As LongPtr, ByVal hGLRC As LongPtr)
     Call wglMakeCurrent(hdc, hGLRC)
@@ -248,21 +256,60 @@ Public Sub LookAt(ByVal eyex As Double, ByVal eyey As Double, ByVal eyez As Doub
 End Sub
 'Ex
 Private Function GetPointer(ByVal fname As String) As LongPtr
-    If pDict.exists(fname) = False Then
-        Dim addr As LongPtr
-        addr = wglGetProcAddress(fname)
-        pDict.Add fname, addr
-    End If
-    GetPointer = pDict.Item(fname)
+    With pDict
+        Dim addr As LongPtr:
+        If .exists(fname) = False Then
+            addr = wglGetProcAddress(fname)
+            .Add fname, addr
+        Else
+            If CLng(.Item(fname)) = 0 Then
+                addr = wglGetProcAddress(fname)
+                .Item(fname) = addr
+            End If
+        End If
+        GetPointer = .Item(fname)
+    End With
 End Function
-Public Sub SwapIntervalEXT(ByVal mode As Long)
-#If Win64 Then
-    Dim p As LongPtr
-    p = GetPointer("wglSwapIntervalEXT")
-    Call CallWindowProc(p, mode, 0, 0, 0)
-#End If
-End Sub
+Private Function CallStd(ByVal pFunc As LongPtr, ByVal rType As VARENUM, ParamArray args()) As Variant
+    If pFunc = 0 Then Exit Function
+    Dim n As Long, hr As Long, i As Long, ret As Variant: ret = vbEmpty
+    If UBound(args) >= 0 Then n = UBound(args) Else n = -1
+    If n > -1 Then
+        Dim vars() As Variant: ReDim vars(n)
+        Dim typs() As Integer: ReDim typs(n)
+        Dim ptrs() As LongPtr: ReDim ptrs(n)
+        For i = 0 To n
+            vars(i) = args(i)
+            typs(i) = CInt(tDict.Item(TypeName(args(i))))
+            #If Win64 Then
+                ptrs(i) = VarPtr(vars(i))
+            #Else
+                ptrs(i) = VarPtr(vars(i))
+            #End If
+        Next i
+        hr = DispCallFunc(NULLPTR, pFunc, CC_STDCALL, CInt(rType), CLng(n + 1), typs(0), ptrs(0), ret)
+    Else
+        hr = DispCallFunc(NULLPTR, pFunc, CC_STDCALL, CInt(rType), CLng(0), CInt(0), NULLPTR, ret)
+    End If
+    If hr = 0 Then CallStd = ret
+End Function
+Public Function SwapIntervalEXT(ByVal interval As Long) As Long
+    SwapIntervalEXT = CallStd(GetPointer("wglSwapIntervalEXT"), VT_I4, interval)
+End Function
+Public Function CreateContextAttribsARB(ByVal hdc As LongPtr, ByVal hShare As LongPtr, ByVal attribList As LongPtr) As LongPtr
+    CreateContextAttribsARB = CallStd(GetPointer("wglCreateContextAttribsARB"), VT_PTR2, hdc, hShare, attribList)
+End Function
 'Init/Term
+Public Sub PaintStart()
+    Call CreateFontList(40, "Impact", 600, 1000)
+    Call CreateFontList(80, "Impact", 600, 2000)
+    Call CreateFontList(90, "Impact", 600, 2500)
+    Call CreateFontList(160, "Impact", 600, 3000)
+End Sub
+Public Sub PaintEnd()
+    Call SwapBuffersA(hdc)
+    Call wglMakeCurrent(0, 0)
+End Sub
 Public Property Let hWnd(newPtr As LongPtr)
     myhwnd = newPtr
     Call Inithwnd
@@ -275,7 +322,16 @@ Private Sub Inithwnd()
     hdc = GetDC(myhwnd)
     hformat = ChoosePixelFormat(hdc, pfd)
     Call SetPixelFormat(hdc, hformat, pfd)
-    hGLRC = wglCreateContext(hdc)
+    Dim ohGLRC As LongPtr: ohGLRC = wglCreateContext(hdc)
+    Call wglMakeCurrent(hdc, ohGLRC)
+    Dim nhGLRC As LongPtr: nhGLRC = CreateContextAttribsARB(hdc, 0, VarPtr(attribs(0)))
+    If nhGLRC <> 0 Then
+        Call wglMakeCurrent(hdc, nhGLRC)
+        Call wglDeleteContext(ohGLRC)
+        hGLRC = nhGLRC
+    Else
+        hGLRC = ohGLRC
+    End If
 End Sub
 Private Sub Releasehwnd()
     Call DisposeFontList
@@ -285,36 +341,25 @@ Private Sub Releasehwnd()
 End Sub
 Private Sub Class_Initialize()
     With pfd
-        .nSize = 40 ' LenB(pfd)
+        .nSize = 40
         .nVersion = 1
         .dwFlags = PFD_DRAW_TO_WINDOW Or PFD_SUPPORT_OPENGL Or PFD_SUPPORT_GDI 'GDI
         .cColorBits = 32
-        .cRedBits = 0
-        .cRedShift = 0
-        .cGreenBits = 0
-        .cGreenShift = 0
-        .cBlueBits = 0
-        .cBlueShift = 0
-        .cAlphaBits = 0
-        .cAlphaShift = 0
-        .cAccumBits = 0
-        .cAccumRedBits = 0
-        .cAccumGreenBits = 0
-        .cAccumBlueBits = 0
-        .cAccumAlphaBits = 0
         .cDepthBits = 32
         .cStencilBits = 8
-        .cAuxBuffers = 0
-        .iLayerType = 0 'PFD_MAIN_PLANE
-        .bReserved = 0
-        .dwLayerMask = 0
-        .dwVisibleMask = 0
-        .dwDamageMask = 0
     End With
+    attribs(0) = WGL_CONTEXT_MAJOR_VERSION_ARB: attribs(1) = 2
+    attribs(2) = WGL_CONTEXT_MINOR_VERSION_ARB: attribs(3) = 1
+    attribs(4) = WGL_CONTEXT_FLAGS_ARB: attribs(5) = 0
+    attribs(6) = 0
     Set pDict = CreateObject("Scripting.Dictionary")
+    Set tDict = CreateObject("Scripting.Dictionary")
+    With tDict
+        .Add "Integer", VT_I2
+        .Add "Long", VT_I4
+        .Add "LongLong", VT_I8
+    End With
 End Sub
 Private Sub Class_Terminate()
     Call Releasehwnd
 End Sub
-
-

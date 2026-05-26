@@ -1,6 +1,16 @@
 Attribute VB_Name = "glh"
 Option Explicit
 Public Enum Glenum
+    GL_VERTEX_SHADER = &H8B31&
+    GL_FRAGMENT_SHADER = &H8B30&
+    GL_GEOMETRY_SHADER = &H8DD9&
+    GL_COMPILE_STATUS = &H8B81&
+    GL_LINK_STATUS = &H8B82&
+    GL_ARRAY_BUFFER = &H8892&
+    GL_ELEMENT_ARRAY_BUFFER = &H8893&
+    GL_STATIC_DRAW = &H88E4&
+    GL_DYNAMIC_DRAW = &H88E8&
+    GL_STREAM_DRAW = &H88E0&
     GLU_FALSE = &H0&
     GLU_TRUE = &H1&
     GLU_SMOOTH = &H186A0
@@ -176,6 +186,14 @@ End Type
 Public Type L1
     L As Long
 End Type
+Public Const WGL_CONTEXT_MAJOR_VERSION_ARB As Long = &H2091
+Public Const WGL_CONTEXT_MINOR_VERSION_ARB As Long = &H2092
+Public Const WGL_CONTEXT_FLAGS_ARB         As Long = &H2094
+Public Const WGL_CONTEXT_PROFILE_MASK_ARB  As Long = &H9126
+Public Const WGL_CONTEXT_DEBUG_BIT_ARB              As Long = &H1
+Public Const WGL_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB As Long = &H2
+Public Const WGL_CONTEXT_CORE_PROFILE_BIT_ARB       As Long = &H1
+Public Const WGL_CONTEXT_COMPATIBILITY_PROFILE_BIT_ARB As Long = &H2
 Public Const WGL_FONT_POLYGONS As Long = 1
 Public Const FW_NORMAL As Long = 400
 Public Const FW_BOLD As Long = 700
