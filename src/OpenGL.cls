@@ -85,7 +85,6 @@ Private Const CC_STDCALL As Long = 4
 Private Enum VARENUM
     VT_I8 = 20
     VT_I4 = 3
-    VT_I2 = 2
     VT_EMPTY = 0
     VT_BYREF = &H4000
     #If Win64 Then
@@ -95,9 +94,11 @@ Private Enum VARENUM
     #End If
 End Enum
 Private attribs(6) As Long
+Private ShaderBuf() As Byte
 Private pfd As PIXELFORMATDESCRIPTOR
 Public hformat As Long, hGLRC As LongPtr, hdc As LongPtr
-Public Param As Object, pDict As Object, tDict As Object
+Public Param As Object
+Private pDict As Object, pArr(99) As LongPtr
 Private myhwnd As LongPtr
 Public Sub CreateFontList(Optional ByVal FontSize As Long = 30, Optional ByVal FontName As String = "Arial", Optional ByVal weight As Long = 200, Optional listbase As Long = 1000)
     Dim hFont As LongPtr, hOldFont As LongPtr
@@ -257,17 +258,14 @@ End Sub
 'Ex
 Private Function GetPointer(ByVal fname As String) As LongPtr
     With pDict
-        Dim addr As LongPtr:
         If .exists(fname) = False Then
-            addr = wglGetProcAddress(fname)
-            .Add fname, addr
-        Else
-            If CLng(.Item(fname)) = 0 Then
-                addr = wglGetProcAddress(fname)
-                .Item(fname) = addr
-            End If
+            Dim adr As LongPtr, idx As Long
+            adr = wglGetProcAddress(fname)
+            idx = .count
+            .Add fname, idx
+            pArr(idx) = adr
         End If
-        GetPointer = .Item(fname)
+        GetPointer = pArr(.Item(fname))
     End With
 End Function
 Private Function CallStd(ByVal pFunc As LongPtr, ByVal rType As VARENUM, ParamArray args()) As Variant
@@ -280,7 +278,7 @@ Private Function CallStd(ByVal pFunc As LongPtr, ByVal rType As VARENUM, ParamAr
         Dim ptrs() As LongPtr: ReDim ptrs(n)
         For i = 0 To n
             vars(i) = args(i)
-            typs(i) = CInt(tDict.Item(TypeName(args(i))))
+            typs(i) = VarType(args(i))
             #If Win64 Then
                 ptrs(i) = VarPtr(vars(i))
             #Else
@@ -298,6 +296,55 @@ Public Function SwapIntervalEXT(ByVal interval As Long) As Long
 End Function
 Public Function CreateContextAttribsARB(ByVal hdc As LongPtr, ByVal hShare As LongPtr, ByVal attribList As LongPtr) As LongPtr
     CreateContextAttribsARB = CallStd(GetPointer("wglCreateContextAttribsARB"), VT_PTR2, hdc, hShare, attribList)
+End Function
+Public Function CreateShader(ByVal shaderType As Glenum) As Long
+    CreateShader = CallStd(GetPointer("glCreateShader"), VT_I4, shaderType)
+End Function
+Public Sub ShaderSource(ByVal shader As Long, ByVal src As String)
+    Dim srcLen As Long, pText As LongPtr, P As LongPtr
+    ShaderBuf = StrConv(src & vbNullChar, vbFromUnicode)
+    srcLen = UBound(ShaderBuf) + 1
+    pText = VarPtr(ShaderBuf(0))
+    P = GetPointer("glShaderSource")
+    CallStd P, VT_EMPTY, shader, CLng(1&), VarPtr(pText), VarPtr(srcLen)
+End Sub
+Public Sub CompileShader(ByVal shader As Long)
+    CallStd GetPointer("glCompileShader"), VT_EMPTY, CLng(shader)
+End Sub
+Public Function GetShaderiv(ByVal shader As Long, ByVal pname As Glenum) As Long
+    Dim outVal As Long
+    CallStd GetPointer("glGetShaderiv"), VT_EMPTY, CLng(shader), CLng(pname), VarPtr(outVal)
+    GetShaderiv = outVal
+End Function
+Public Function GetProgramiv(ByVal program As Long, ByVal pname As Glenum) As Long
+    Dim Value As Long
+    CallStd GetPointer("glGetProgramiv"), VT_EMPTY, CLng(program), CLng(pname), VarPtr(Value)
+    GetProgramiv = Value
+End Function
+Public Function CreateProgram() As Long
+    CreateProgram = CallStd(GetPointer("glCreateProgram"), VT_I4)
+End Function
+Public Sub AttachShader(ByVal program As Long, ByVal shader As Long)
+    CallStd GetPointer("glAttachShader"), VT_EMPTY, CLng(program), CLng(shader)
+End Sub
+Public Sub LinkProgram(ByVal program As Long)
+    CallStd GetPointer("glLinkProgram"), VT_EMPTY, program
+End Sub
+Public Function GetShaderInfoLog(ByVal shader As Long) As String
+    Dim bufSize As Long: bufSize = 4096
+    Dim utf8() As Byte: ReDim utf8(bufSize - 1)
+    Dim Length As Long
+    CallStd GetPointer("glGetShaderInfoLog"), VT_EMPTY, shader, bufSize, VarPtr(Length), VarPtr(utf8(0))
+    If Length <= 0 Then Exit Function
+    GetShaderInfoLog = StrConv(LeftB$(utf8, Length), vbUnicode)
+End Function
+Public Function GetProgramInfoLog(ByVal program As Long) As String
+    Dim bufSize As Long: bufSize = 4096
+    Dim utf8() As Byte: ReDim utf8(bufSize - 1)
+    Dim Length As Long
+    CallStd GetPointer("glGetProgramInfoLog"), VT_EMPTY, program, bufSize, VarPtr(Length), VarPtr(utf8(0))
+    If Length <= 0 Then Exit Function
+    GetProgramInfoLog = StrConv(LeftB$(utf8, Length), vbUnicode)
 End Function
 'Init/Term
 Public Sub PaintStart()
@@ -353,12 +400,6 @@ Private Sub Class_Initialize()
     attribs(4) = WGL_CONTEXT_FLAGS_ARB: attribs(5) = 0
     attribs(6) = 0
     Set pDict = CreateObject("Scripting.Dictionary")
-    Set tDict = CreateObject("Scripting.Dictionary")
-    With tDict
-        .Add "Integer", VT_I2
-        .Add "Long", VT_I4
-        .Add "LongLong", VT_I8
-    End With
 End Sub
 Private Sub Class_Terminate()
     Call Releasehwnd
