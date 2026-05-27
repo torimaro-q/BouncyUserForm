@@ -1,4 +1,79 @@
-# **BouncyUserForm**
+<svg width="400" height="80" viewBox="0 0 400 80" xmlns="http://www.w3.org/2000/svg">
+ <style>
+    text {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI",Helvetica, Arial, sans-serif;
+      font-weight: 900;font-size: 33px;
+    }
+    @media (prefers-color-scheme: dark) {
+      .bg { fill: #0d1117; }
+      .t { fill: #e6edf3; }
+    }
+    @media (prefers-color-scheme: light) {
+      .bg { fill: #ffffff; }
+      .t { fill: #24292f; }
+    }
+  </style>
+  <rect class="bg" width="400" height="80" />
+  <text x="5" y="-20" class="t1">B
+    <animate attributeName="y" values="-20; 60; 60" 
+    keyTimes="0; 0.02; 1" dur="5s" begin="0.0s" repeatCount="indefinite" />
+  </text>
+  <text x="27" y="-20" class="t1">o
+    <animate attributeName="y" values="-20; 60; 60" 
+    keyTimes="0; 0.02; 1" dur="5s" begin="0.1s" repeatCount="indefinite" />
+  </text>
+  <text x="47" y="-20" class="t1">u
+    <animate attributeName="y" values="-20; 60; 60" 
+    keyTimes="0; 0.02; 1" dur="5s" begin="0.2s" repeatCount="indefinite" />
+  </text>
+  <text x="66" y="-20" class="t1">n
+    <animate attributeName="y" values="-20; 60; 60" 
+    keyTimes="0; 0.02; 1" dur="5s" begin="0.3s" repeatCount="indefinite" />
+  </text>
+  <text x="85" y="-20" class="t1">c
+    <animate attributeName="y" values="-20; 60; 60" 
+    keyTimes="0; 0.02; 1" dur="5s" begin="0.4s" repeatCount="indefinite" />
+  </text>
+  <text x="100" y="-20" class="t1">y
+    <animate attributeName="y" values="-20; 60; 60" 
+    keyTimes="0; 0.02; 1" dur="5s" begin="0.5s" repeatCount="indefinite" />
+  </text>
+  <text x="119" y="-20" class="t1">U
+    <animate attributeName="y" values="-20; 60; 60" 
+    keyTimes="0; 0.02; 1" dur="5s" begin="0.6s" repeatCount="indefinite" />
+  </text>
+  <text x="141" y="-20" class="t1">s
+    <animate attributeName="y" values="-20; 60; 60" 
+    keyTimes="0; 0.02; 1" dur="5s" begin="0.7s" repeatCount="indefinite" />
+  </text>
+  <text x="156" y="-20" class="t1">e
+    <animate attributeName="y" values="-20; 60; 60" 
+    keyTimes="0; 0.02; 1" dur="5s" begin="0.8s" repeatCount="indefinite" />
+  </text>
+  <text x="173" y="-20" class="t1">r
+    <animate attributeName="y" values="-20; 60; 60" 
+    keyTimes="0; 0.02; 1" dur="5s" begin="0.9s" repeatCount="indefinite" />
+  </text>
+  <text x="186" y="-20" class="t1">F
+    <animate attributeName="y" values="-20; 60; 60" 
+    keyTimes="0; 0.02; 1" dur="5s" begin="1.0s" repeatCount="indefinite" />
+  </text>
+  <text x="202" y="-20" class="t1">o
+    <animate attributeName="y" values="-20; 60; 60" 
+    keyTimes="0; 0.02; 1" dur="5s" begin="1.1s" repeatCount="indefinite" />
+  </text>
+  <text x="222" y="-20" class="t1">r
+    <animate attributeName="y" values="-20; 60; 60" 
+    keyTimes="0; 0.02; 1" dur="5s" begin="1.2s" repeatCount="indefinite" />
+  </text>
+  <text x="236" y="-20" class="t1">m
+    <animate attributeName="y" values="-20; 60; 60" 
+    keyTimes="0; 0.02; 1" dur="5s" begin="1.3s" repeatCount="indefinite" />
+  </text>
+</svg>
+
+---
+
 (minimal)
 ![screenshot](pic/Minimal.gif)
 
