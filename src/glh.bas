@@ -1,6 +1,32 @@
 Attribute VB_Name = "glh"
 Option Explicit
 Public Enum Glenum
+    GL_FUNC_ADD = &H8006&
+    GL_FUNC_SUBTRACT = &H800A&
+    GL_CULL_FACE = &HB44&
+    GL_BACK = &H405&
+    GL_FLOAT_VEC2 = &H8B50&
+    GL_FLOAT_VEC3 = &H8B51&
+    GL_FLOAT_VEC4 = &H8B52&
+    GL_FLOAT_MAT4 = &H8B5C&
+    GL_FRAMEBUFFER = &H8D40&
+    GL_RENDERBUFFER = &H8D41&
+    GL_COLOR_ATTACHMENT0 = &H8CE0&
+    GL_DEPTH_ATTACHMENT = &H8D00&
+    GL_FRAMEBUFFER_COMPLETE = &H8CD5&
+    GL_TEXTURE_2D = &HDE1&
+    GL_TEXTURE0 = &H84C0&
+    GL_TEXTURE1 = &H84C1&
+    GL_TEXTURE2 = &H84C2&
+    GL_TEXTURE_MIN_FILTER = &H2801&
+    GL_TEXTURE_MAG_FILTER = &H2800&
+    GL_TEXTURE_WRAP_S = &H2802&
+    GL_TEXTURE_WRAP_T = &H2803&
+    GL_REPEAT = &H2901&
+    GL_CLAMP = &H2900&
+    GL_CLAMP_TO_EDGE = &H812F&
+    GL_NEAREST = &H2600&
+    GL_LINEAR = &H2601&
     GL_VERTEX_SHADER = &H8B31&
     GL_FRAGMENT_SHADER = &H8B30&
     GL_GEOMETRY_SHADER = &H8DD9&
@@ -55,7 +81,6 @@ Public Enum Glenum
     GL_TRUE = &H1&
     GL_POINT_SMOOTH_HINT = &HC51&
     GL_FRONT = &H408&
-    GL_BACK = &H409&
     GL_FRONT_AND_BACK = &H40A&
     GL_SHININESS = &H1601&
     GL_BLEND = &HBE2&
@@ -156,9 +181,18 @@ Public Type PIXELFORMATDESCRIPTOR
     dwVisibleMask As Long
     dwDamageMask As Long
 End Type
+Public Type Vector2f
+    X As Single
+    Y As Single
+End Type
 Public Type Vector2d
     X As Double
     Y As Double
+End Type
+Public Type Vector3f
+    X As Single
+    Y As Single
+    Z As Single
 End Type
 Public Type Vector3d
     X As Double
@@ -222,11 +256,20 @@ End Function
 Public Function Vector3d(ByVal X As Double, ByVal Y As Double, ByVal Z As Double) As Vector3d
     With Vector3d: .X = X: .Y = Y: .Z = Z: End With
 End Function
+Public Function Vector2f(ByVal X As Single, ByVal Y As Single) As Vector2f
+    With Vector2f: .X = X: .Y = Y: End With
+End Function
+Public Function Vector3f(ByVal X As Single, ByVal Y As Single, ByVal Z As Single) As Vector3f
+    With Vector3f: .X = X: .Y = Y: .Z = Z: End With
+End Function
 Public Function Vector4d(ByVal X As Double, ByVal Y As Double, ByVal Z As Double, ByVal W As Double) As Vector4d
     With Vector4d: .X = X: .Y = Y: .Z = Z: .W = W: End With
 End Function
 Public Function Color4(ByVal R As Single, ByVal G As Single, ByVal B As Single, ByVal A As Single) As Color4
     With Color4: .A = A: .B = B: .G = G: .R = R: End With
+End Function
+Public Function BUFFER_OFFSET(ByVal n As LongPtr) As LongPtr
+    BUFFER_OFFSET = n
 End Function
 Public Function FastSin(ByRef th As Double) As Double
     Static mySin(-2000 To 2000) As Double

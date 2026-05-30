@@ -33,6 +33,7 @@ Private Function AllEfArray() As Variant
                        glMoveTrail, _
                        glStatusVisualizer, _
                        glControlShatter)
+                       'glShaderTest)
 End Function
 Private Function toDict(arr) As Object
     Dim i As Long, DICT: Set DICT = CreateObject("Scripting.Dictionary")

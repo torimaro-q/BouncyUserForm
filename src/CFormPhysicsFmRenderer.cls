@@ -103,8 +103,8 @@ Private Property Let Mask(ByRef X As Long, ByRef Y As Long, ByRef rhs As Long)
 End Property
 Private Property Get PX(ByRef X As Long, ByRef Y As Long) As RGBA
     Dim i As Long: i = (pw * Y + X) * 4
-    If i < 0 Then Exit Function
-    If i > ubpX Then Exit Function
+    If i < 0 Then Exit Property
+    If i > ubpX Then Exit Property
     With PX
         .B = myPX(i + 0)
         .G = myPX(i + 1)
