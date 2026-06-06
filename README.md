@@ -1,4 +1,4 @@
-![title](pic/title.svg)
+<img src="pic/title.svg" width="100%">
 
 ---
 
