@@ -93,57 +93,144 @@ Private Enum VARENUM
         VT_PTR2 = VT_I4
     #End If
 End Enum
-Private attribs(6) As Long
-Private ShaderBuf() As Byte
-Private pfd As PIXELFORMATDESCRIPTOR
-Public hformat As Long, hGLRC As LongPtr, hdc As LongPtr
-Public Param As Object
-Private pDict As Object, pArr(300) As LongPtr
-Private myhwnd As LongPtr
-Private Function GetPointer(ByVal fname As String) As LongPtr
+Private attribs(6) As Long, pfd As PIXELFORMATDESCRIPTOR
+Public hformat As Long, hGLRC As LongPtr, hdc As LongPtr, Param As Object
+Private pDict As Object, ShaderBuf() As Byte, myhwnd As LongPtr
+Private Type CallCache
+    pfunc As LongPtr
+    rType As VARENUM
+    n As Long
+    typs() As Integer
+    vars() As Variant
+    ptrs() As LongPtr
+End Type
+Private cCache(300) As CallCache
+Private Function CallFp(ByRef rtId As Long, ByRef fname As String, ByVal rType As VARENUM, ParamArray args()) As Variant
     With pDict
-        If .exists(fname) = False Then
-            Dim adr As LongPtr, idx As Long
-            adr = wglGetProcAddress(fname)
-            idx = .count
-            .Add fname, idx
-            pArr(idx) = adr
+        Dim i As Long
+        If .exists(fname) Then
+            rtId = .Item(fname)
+        Else
+            rtId = .count
+            .Add fname, rtId
+            With cCache(rtId)
+                .pfunc = wglGetProcAddress(fname)
+                .rType = CInt(rType)
+                .n = UBound(args)
+                If .n >= 0 Then
+                    ReDim .vars(.n): ReDim .typs(.n): ReDim .ptrs(.n)
+                    For i = 0 To .n
+                        .typs(i) = VarType(args(i))
+                    Next i
+                End If
+            End With
         End If
-        GetPointer = pArr(.Item(fname))
+    End With
+    With cCache(rtId)
+        If .pfunc = 0 Then Exit Function
+        Dim hr As Long, ret As Variant: ret = vbEmpty
+        If .n >= 0 Then
+            For i = 0 To .n
+                .vars(i) = args(i)
+                .ptrs(i) = VarPtr(.vars(i))
+            Next i
+            hr = DispCallFunc(NULLPTR, .pfunc, CC_STDCALL, .rType, CLng(.n + 1), .typs(0), .ptrs(0), ret)
+        Else
+            hr = DispCallFunc(NULLPTR, .pfunc, CC_STDCALL, .rType, CLng(0), CInt(0), NULLPTR, ret)
+        End If
+        If hr = 0 Then CallFp = ret
     End With
 End Function
-Private Function CallStd(ByVal pFunc As LongPtr, ByVal rType As VARENUM, ParamArray args()) As Variant
-    If pFunc = 0 Then Exit Function
-    Dim hr As Long, i As Long, ret As Variant: ret = vbEmpty
-    If UBound(args) >= 0 Then
-        Dim n As Long: n = UBound(args)
-        Dim vars() As Variant: ReDim vars(n)
-        Dim typs() As Integer: ReDim typs(n)
-        Dim ptrs() As LongPtr: ReDim ptrs(n)
-        For i = 0 To n
-            vars(i) = args(i)
-            typs(i) = VarType(vars(i))
-            ptrs(i) = VarPtr(vars(i))
-        Next i
-        hr = DispCallFunc(NULLPTR, pFunc, CC_STDCALL, CInt(rType), CLng(n + 1), typs(0), ptrs(0), ret)
+Public Sub BindBuffer(ByVal target As Long, ByVal buf As Long)
+    Static fid As Long
+    If fid > 0 Then
+        With cCache(fid)
+            .vars(0) = target: .vars(1) = buf
+            .ptrs(0) = VarPtr(.vars(0)): .ptrs(1) = VarPtr(.vars(1))
+            Call DispCallFunc(NULLPTR, .pfunc, CC_STDCALL, .rType, 2, .typs(0), .ptrs(0), vbEmpty)
+        End With
     Else
-        hr = DispCallFunc(NULLPTR, pFunc, CC_STDCALL, CInt(rType), CLng(0), CInt(0), NULLPTR, ret)
+        CallFp fid, "glBindBuffer", VT_EMPTY, target, buf
     End If
-    If hr = 0 Then CallStd = ret
-End Function
-Public Sub CreateFontList(Optional ByVal FontSize As Long = 30, Optional ByVal FontName As String = "Arial", Optional ByVal weight As Long = 200, Optional listbase As Long = 1000)
-    Dim hFont As LongPtr, hOldFont As LongPtr
-    If glIsList(listbase) = 1 Then glDeleteLists listbase, 255
-    hFont = CreateFont(FontSize, 0, 0, 0, weight, 0, 0, 0, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, ANTIALIASED_QUALITY, DEFAULT_PITCH Or FF_SCRIPT, FontName)
-    If hFont = 0 Then Exit Sub
-    hOldFont = SelectObject(hdc, hFont)
-    wglUseFontBitmaps hdc, 0, 255, listbase
-    Call SelectObject(hdc, hOldFont)
-    Call DeleteObject(hFont)
-    DoEvents
 End Sub
-Public Sub DisposeFontList()
-    If glIsList(1000) = 1 Then glDeleteLists 1000, 10000
+Public Sub BufferSubData(ByVal target As Long, ByVal offset As Long, ByVal size As Long, ByVal data As LongPtr)
+    Static fid As Long
+    If fid > 0 Then
+        With cCache(fid)
+            .vars(0) = target: .vars(1) = offset: .vars(2) = size: .vars(3) = data
+            .ptrs(0) = VarPtr(.vars(0)): .ptrs(1) = VarPtr(.vars(1)): .ptrs(2) = VarPtr(.vars(2)): .ptrs(3) = VarPtr(.vars(3))
+            Call DispCallFunc(NULLPTR, .pfunc, CC_STDCALL, .rType, 4, .typs(0), .ptrs(0), vbEmpty)
+        End With
+    Else
+        CallFp fid, "glBufferSubData", VT_EMPTY, target, offset, size, data
+    End If
+End Sub
+Public Sub EnableVertexAttribArray(ByVal idx As Long)
+    Static fid As Long
+    If fid > 0 Then
+        With cCache(fid)
+            .vars(0) = idx
+            .ptrs(0) = VarPtr(.vars(0))
+            Call DispCallFunc(NULLPTR, .pfunc, CC_STDCALL, .rType, 1, .typs(0), .ptrs(0), vbEmpty)
+        End With
+    Else
+        CallFp fid, "glEnableVertexAttribArray", VT_EMPTY, idx
+    End If
+End Sub
+Public Sub VertexAttribPointer(ByVal idx As Long, ByVal size As Long, ByVal typ As Glenum, ByVal normalized As Long, ByVal stride As Long, ByVal ptR As LongPtr)
+    Static fid As Long
+    If fid > 0 Then
+        With cCache(fid)
+            .vars(0) = idx: .vars(1) = size: .vars(2) = typ: .vars(3) = normalized: .vars(4) = stride: .vars(5) = ptR
+            .ptrs(0) = VarPtr(.vars(0)): .ptrs(1) = VarPtr(.vars(1)): .ptrs(2) = VarPtr(.vars(2))
+            .ptrs(3) = VarPtr(.vars(3)): .ptrs(4) = VarPtr(.vars(4)): .ptrs(5) = VarPtr(.vars(5))
+            Call DispCallFunc(NULLPTR, .pfunc, CC_STDCALL, .rType, 6, .typs(0), .ptrs(0), vbEmpty)
+        End With
+    Else
+        CallFp fid, "glVertexAttribPointer", VT_EMPTY, idx, size, typ, normalized, stride, ptR
+    End If
+End Sub
+Public Sub DisableVertexAttribArray(ByVal idx As Long)
+    Static fid As Long
+    If fid > 0 Then
+        With cCache(fid)
+            .vars(0) = idx
+            .ptrs(0) = VarPtr(.vars(0))
+            Call DispCallFunc(NULLPTR, .pfunc, CC_STDCALL, .rType, 1, .typs(0), .ptrs(0), vbEmpty)
+        End With
+    Else
+        CallFp fid, "glDisableVertexAttribArray", VT_EMPTY, idx
+    End If
+End Sub
+Public Sub UseProgram(ByVal program As Long)
+    Static fid As Long
+    If fid > 0 Then
+        With cCache(fid)
+            .vars(0) = program
+            .ptrs(0) = VarPtr(.vars(0))
+            Call DispCallFunc(NULLPTR, .pfunc, CC_STDCALL, .rType, 1, .typs(0), .ptrs(0), vbEmpty)
+        End With
+    Else
+        CallFp fid, "glUseProgram", VT_EMPTY, program
+    End If
+End Sub
+Public Sub PushMatrix()
+    Call glPushMatrix
+End Sub
+Public Sub PopMatrix()
+    Call glPopMatrix
+End Sub
+Public Sub Enable(ByVal Gle As Glenum)
+    Call glEnable(Gle)
+End Sub
+Public Sub Disable(ByVal Gle As Glenum)
+    Call glDisable(Gle)
+End Sub
+Public Sub EnableClientState(ByVal Gle As Glenum)
+    Call glEnableClientState(Gle)
+End Sub
+Public Sub DisableClientState(ByVal Gle As Glenum)
+    Call glDisableClientState(Gle)
 End Sub
 Public Sub NewList(ByVal Index As Long, CompileMode As Glenum)
     Call glNewList(Index, CompileMode)
@@ -184,12 +271,6 @@ End Sub
 Public Sub LineWidth(ByVal size As Single)
     Call glLineWidth(size)
 End Sub
-Public Sub EnableClientState(ByVal Gle As Glenum)
-    Call glEnableClientState(Gle)
-End Sub
-Public Sub DisableClientState(ByVal Gle As Glenum)
-    Call glDisableClientState(Gle)
-End Sub
 Public Sub ColorPointer(ByVal size As Long, ByVal Gle As Glenum, ByVal stride As Long, ByVal ptR As LongPtr)
     Call glColorPointer(size, Gle, stride, ptR)
 End Sub
@@ -217,12 +298,6 @@ End Sub
 Public Sub Viewport(ByVal X As Long, ByVal Y As Long, ByVal width As Long, ByVal height As Long)
     Call glViewport(X, Y, width, height)
 End Sub
-Public Sub Enable(ByVal Gle As Glenum)
-    Call glEnable(Gle)
-End Sub
-Public Sub Disable(ByVal Gle As Glenum)
-    Call glDisable(Gle)
-End Sub
 Public Sub MatrixMode(ByVal Gle As Glenum)
     Call glMatrixMode(Gle)
 End Sub
@@ -231,12 +306,6 @@ Public Sub Materialfv(ByVal GLe1 As Glenum, ByVal GLe2 As Glenum, ByVal Param As
 End Sub
 Public Sub LoadIdentity()
     Call glLoadIdentity
-End Sub
-Public Sub PushMatrix()
-    Call glPushMatrix
-End Sub
-Public Sub PopMatrix()
-    Call glPopMatrix
 End Sub
 Public Sub Begin(ByVal Gle As Glenum)
     Call glBegin(Gle)
@@ -287,52 +356,51 @@ Public Sub LookAt(ByVal eyex As Double, ByVal eyey As Double, ByVal eyez As Doub
     Call gluLookAt(eyex, eyey, eyez, centerx, centery, centerz, upx, upy, upz)
 End Sub
 Public Function SwapIntervalEXT(ByVal interval As Long) As Long
-    SwapIntervalEXT = CallStd(GetPointer("wglSwapIntervalEXT"), VT_I4, interval)
+    SwapIntervalEXT = CallFp(0, "wglSwapIntervalEXT", VT_I4, interval)
 End Function
 Public Function CreateContextAttribsARB(ByVal hdc As LongPtr, ByVal hShare As LongPtr, ByVal attribList As LongPtr) As LongPtr
-    CreateContextAttribsARB = CallStd(GetPointer("wglCreateContextAttribsARB"), VT_PTR2, hdc, hShare, attribList)
+    CreateContextAttribsARB = CallFp(0, "wglCreateContextAttribsARB", VT_PTR2, hdc, hShare, attribList)
 End Function
 Public Function CreateShader(ByVal shaderType As Glenum) As Long
-    CreateShader = CallStd(GetPointer("glCreateShader"), VT_I4, shaderType)
+    CreateShader = CallFp(0, "glCreateShader", VT_I4, shaderType)
 End Function
 Public Sub ShaderSource(ByVal shader As Long, ByVal src As String)
     Dim srcLen As Long, pText As LongPtr, P As LongPtr
     ShaderBuf = StrConv(src & vbNullChar, vbFromUnicode)
     srcLen = UBound(ShaderBuf) + 1
     pText = VarPtr(ShaderBuf(0))
-    P = GetPointer("glShaderSource")
-    CallStd P, VT_EMPTY, shader, CLng(1&), VarPtr(pText), VarPtr(srcLen)
+    CallFp 0, "glShaderSource", VT_EMPTY, shader, CLng(1&), VarPtr(pText), VarPtr(srcLen)
 End Sub
 Public Sub CompileShader(ByVal shader As Long)
-    CallStd GetPointer("glCompileShader"), VT_EMPTY, CLng(shader)
+    CallFp 0, "glCompileShader", VT_EMPTY, CLng(shader)
 End Sub
 Public Function GetShaderiv(ByVal shader As Long, ByVal pname As Glenum) As Long
     Dim outVal As Long
-    CallStd GetPointer("glGetShaderiv"), VT_EMPTY, CLng(shader), CLng(pname), VarPtr(outVal)
+    CallFp 0, "glGetShaderiv", VT_EMPTY, CLng(shader), CLng(pname), VarPtr(outVal)
     GetShaderiv = outVal
 End Function
 Public Function GetProgramiv(ByVal program As Long, ByVal pname As Glenum) As Long
     Dim Value As Long
-    CallStd GetPointer("glGetProgramiv"), VT_EMPTY, CLng(program), CLng(pname), VarPtr(Value)
+    CallFp 0, "glGetProgramiv", VT_EMPTY, CLng(program), CLng(pname), VarPtr(Value)
     GetProgramiv = Value
 End Function
 Public Function CreateProgram() As Long
-    CreateProgram = CallStd(GetPointer("glCreateProgram"), VT_I4)
+    CreateProgram = CallFp(0, "glCreateProgram", VT_I4)
 End Function
 Public Sub DeleteProgram(ByVal program As Long)
-    CallStd GetPointer("glDeleteProgram"), VT_EMPTY, program
+    CallFp 0, "glDeleteProgram", VT_EMPTY, program
 End Sub
 Public Sub AttachShader(ByVal program As Long, ByVal shader As Long)
-    CallStd GetPointer("glAttachShader"), VT_EMPTY, CLng(program), CLng(shader)
+    CallFp 0, "glAttachShader", VT_EMPTY, CLng(program), CLng(shader)
 End Sub
 Public Sub LinkProgram(ByVal program As Long)
-    CallStd GetPointer("glLinkProgram"), VT_EMPTY, program
+    CallFp 0, "glLinkProgram", VT_EMPTY, program
 End Sub
 Public Function GetShaderInfoLog(ByVal shader As Long) As String
     Dim bufSize As Long: bufSize = 4096
     Dim utf8() As Byte: ReDim utf8(bufSize - 1)
     Dim Length As Long
-    CallStd GetPointer("glGetShaderInfoLog"), VT_EMPTY, shader, bufSize, VarPtr(Length), VarPtr(utf8(0))
+    CallFp 0, "glGetShaderInfoLog", VT_EMPTY, shader, bufSize, VarPtr(Length), VarPtr(utf8(0))
     If Length <= 0 Then Exit Function
     GetShaderInfoLog = StrConv(LeftB$(utf8, Length), vbUnicode)
 End Function
@@ -340,73 +408,69 @@ Public Function GetProgramInfoLog(ByVal program As Long) As String
     Dim bufSize As Long: bufSize = 4096
     Dim utf8() As Byte: ReDim utf8(bufSize - 1)
     Dim Length As Long
-    CallStd GetPointer("glGetProgramInfoLog"), VT_EMPTY, program, bufSize, VarPtr(Length), VarPtr(utf8(0))
+    CallFp 0, "glGetProgramInfoLog", VT_EMPTY, program, bufSize, VarPtr(Length), VarPtr(utf8(0))
     If Length <= 0 Then Exit Function
     GetProgramInfoLog = StrConv(LeftB$(utf8, Length), vbUnicode)
 End Function
-Public Sub UseProgram(ByVal program As Long)
-    CallStd GetPointer("glUseProgram"), VT_EMPTY, CLng(program)
-End Sub
 Public Function GetUniformLocation(ByVal program As Long, ByVal Name As String) As Long
     Dim B() As Byte: B = StrConv(Name & vbNullChar, vbFromUnicode)
-    GetUniformLocation = CallStd(GetPointer("glGetUniformLocation"), VT_I4, CLng(program), VarPtr(B(0)))
+    GetUniformLocation = CallFp(0, "glGetUniformLocation", VT_I4, CLng(program), VarPtr(B(0)))
 End Function
 Public Sub Uniform1f(ByVal loc As Long, ByVal v0 As Single)
-    CallStd GetPointer("glUniform1f"), VT_EMPTY, CLng(loc), CSng(v0)
+    CallFp 0, "glUniform1f", VT_EMPTY, CLng(loc), CSng(v0)
 End Sub
 Public Sub Uniform1i(ByVal loc As Long, ByVal v0 As Long)
-    CallStd GetPointer("glUniform1i"), VT_EMPTY, CLng(loc), CLng(v0)
+    CallFp 0, "glUniform1i", VT_EMPTY, CLng(loc), CLng(v0)
 End Sub
 Public Sub UniformMatrix4fv(ByVal loc As Long, ByVal count As Long, ByVal transpose As Long, ByVal ptrMat As LongPtr)
-    CallStd GetPointer("glUniformMatrix4fv"), VT_EMPTY, CLng(loc), CLng(count), CLng(transpose), ptrMat
+    CallFp 0, "glUniformMatrix4fv", VT_EMPTY, CLng(loc), CLng(count), CLng(transpose), ptrMat
 End Sub
 Public Function GetAttribLocation(ByVal program As Long, ByVal Name As String) As Long
     Dim B() As Byte: B = StrConv(Name & vbNullChar, vbFromUnicode)
-    GetAttribLocation = CallStd(GetPointer("glGetAttribLocation"), VT_I4, CLng(program), VarPtr(B(0)))
+    GetAttribLocation = CallFp(0, "glGetAttribLocation", VT_I4, CLng(program), VarPtr(B(0)))
 End Function
-Public Sub EnableVertexAttribArray(ByVal idx As Long)
-    CallStd GetPointer("glEnableVertexAttribArray"), VT_EMPTY, CLng(idx)
-End Sub
-Public Sub DisableVertexAttribArray(ByVal idx As Long)
-    CallStd GetPointer("glDisableVertexAttribArray"), VT_EMPTY, CLng(idx)
-End Sub
-Public Sub VertexAttribPointer(ByVal idx As Long, ByVal size As Long, ByVal typ As Glenum, ByVal normalized As Long, ByVal stride As Long, ByVal ptR As LongPtr)
-    CallStd GetPointer("glVertexAttribPointer"), VT_EMPTY, CLng(idx), CLng(size), CLng(typ), CLng(normalized), CLng(stride), ptR
-End Sub
 Public Sub GenBuffers(ByVal n As Long, ByVal ptrBuf As LongPtr)
-    CallStd GetPointer("glGenBuffers"), VT_EMPTY, CLng(n), ptrBuf
-End Sub
-Public Sub BindBuffer(ByVal target As Long, ByVal buf As Long)
-    CallStd GetPointer("glBindBuffer"), VT_EMPTY, CLng(target), CLng(buf)
+    CallFp 0, "glGenBuffers", VT_EMPTY, CLng(n), ptrBuf
 End Sub
 Public Sub BufferData(ByVal target As Long, ByVal size As Long, ByVal data As LongPtr, ByVal usage As Glenum)
-    CallStd GetPointer("glBufferData"), VT_EMPTY, CLng(target), CLng(size), data, CLng(usage)
+    CallFp 0, "glBufferData", VT_EMPTY, CLng(target), CLng(size), data, CLng(usage)
 End Sub
 Public Sub ActiveTexture(ByVal tex As Glenum)
-    CallStd GetPointer("glActiveTexture"), VT_EMPTY, CLng(tex)
-End Sub
-Public Sub BufferSubData(ByVal target As Long, ByVal offset As Long, ByVal size As Long, ByVal data As LongPtr)
-    CallStd GetPointer("glBufferSubData"), VT_EMPTY, CLng(target), CLng(offset), CLng(size), data
+    CallFp 0, "glActiveTexture", VT_EMPTY, CLng(tex)
 End Sub
 Public Sub DeleteBuffers(ByVal n As Long, ByVal ptrBuf As LongPtr)
-    CallStd GetPointer("glDeleteBuffers"), VT_EMPTY, CLng(n), ptrBuf
+    CallFp 0, "glDeleteBuffers", VT_EMPTY, CLng(n), ptrBuf
 End Sub
 Public Sub DeleteShader(ByVal shader As Long)
-    CallStd GetPointer("glDeleteShader"), VT_EMPTY, CLng(shader)
+    CallFp 0, "glDeleteShader", VT_EMPTY, CLng(shader)
 End Sub
 Public Sub GenVertexArrays(ByVal n As Long, ByVal ptrArr As LongPtr)
-    CallStd GetPointer("glGenVertexArrays"), VT_EMPTY, CLng(n), ptrArr
+    CallFp 0, "glGenVertexArrays", VT_EMPTY, CLng(n), ptrArr
 End Sub
 Public Sub BindVertexArray(ByVal arr As Long)
-    CallStd GetPointer("glBindVertexArray"), VT_EMPTY, CLng(arr)
+    CallFp 0, "glBindVertexArray", VT_EMPTY, CLng(arr)
 End Sub
 Public Sub DeleteVertexArrays(ByVal n As Long, ByVal ptrArr As LongPtr)
-    CallStd GetPointer("glDeleteVertexArrays"), VT_EMPTY, CLng(n), ptrArr
+    CallFp 0, "glDeleteVertexArrays", VT_EMPTY, CLng(n), ptrArr
 End Sub
 Public Sub DrawArraysShd(ByVal mode As Glenum, ByVal first As Long, ByVal count As Long)
-    CallStd GetPointer("glDrawArrays"), VT_EMPTY, CLng(mode), CLng(first), CLng(count)
+    CallFp 0, "glDrawArrays", VT_EMPTY, CLng(mode), CLng(first), CLng(count)
 End Sub
 'Init/Term
+Public Sub CreateFontList(Optional ByVal FontSize As Long = 30, Optional ByVal FontName As String = "Arial", Optional ByVal weight As Long = 200, Optional listbase As Long = 1000)
+    Dim hFont As LongPtr, hOldFont As LongPtr
+    If glIsList(listbase) = 1 Then glDeleteLists listbase, 255
+    hFont = CreateFont(FontSize, 0, 0, 0, weight, 0, 0, 0, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, ANTIALIASED_QUALITY, DEFAULT_PITCH Or FF_SCRIPT, FontName)
+    If hFont = 0 Then Exit Sub
+    hOldFont = SelectObject(hdc, hFont)
+    wglUseFontBitmaps hdc, 0, 255, listbase
+    Call SelectObject(hdc, hOldFont)
+    Call DeleteObject(hFont)
+    DoEvents
+End Sub
+Public Sub DisposeFontList()
+    If glIsList(1000) = 1 Then glDeleteLists 1, 10000
+End Sub
 Public Sub PaintStart()
     Call CreateFontList(40, "Impact", 600, 1000)
     Call CreateFontList(80, "Impact", 600, 2000)

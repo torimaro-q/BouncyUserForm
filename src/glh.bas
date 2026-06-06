@@ -1,6 +1,9 @@
 Attribute VB_Name = "glh"
 Option Explicit
 Public Enum Glenum
+    GL_RGBA32F_ARB = &H8814&
+    GL_PROGRAM_POINT_SIZE = &H8642&
+    GL_POINT_SPRITE = &H8861&
     GL_FUNC_ADD = &H8006&
     GL_FUNC_SUBTRACT = &H800A&
     GL_CULL_FACE = &HB44&
@@ -210,6 +213,12 @@ Public Type Color4
     G As Single
     B As Single
     A As Single
+End Type
+Private Type Color4UB
+    R As Byte
+    G As Byte
+    B As Byte
+    A As Byte
 End Type
 Public Type B4
     B(3) As Byte
