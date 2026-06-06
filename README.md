@@ -1,24 +1,32 @@
 ![title](pic/title.svg)
+
+A solution that accelerates Excel business UI productivity through the laws of physics
+
 ---
 
-(minimal)
-![screenshot](pic/Minimal.gif)
-
-(gl)
 ![screenshot](pic/gl.gif)
 
-- BouncyUserForm は、**Excel VBA の UserForm を物理オブジェクトとして扱い、
-重力・反発・空気抵抗・ダメージ表現を伴うアニメーションを実現するモジュール**です。
-フォームをぶん投げてストレスを解消できます。
-フォームが画面内を跳ね回り、衝突時にはコントロールが破損（非表示）します。
-- 本コードでPCやデータに異常・損害が発生しても、作成者は一切責任を取りません。自己責任で遊んでください。
+- BouncyUserForm は、Excel VBA の UserForm に物理エンジンを導入し、
+インタラクティブなUIを実現することで、ユーザー体験と業務効率を同時に向上させる革新的フレームワークです。
+
+- 重力・反発・空気抵抗などのパラメータを備え、ユーザーがフォームをドラッグして離すと、自然な慣性とともに業務が加速します。
+
+- 衝突時には UI 要素が自動的に整理（非表示）されるため、不要なコントロールや業務を物理的に断捨離できます。
+
+- 本コードでPCやデータに異常・損害が発生しても、作成者は一切責任を取りません。自己責任で業務を加速してください。
 
 ---
-- BouncyUserForm is modules that treats an Excel VBA UserForm as a physical object, enabling animations with gravity, bouncing, air resistance, and damage effects.
-You can throw the form around to relieve stress.
-The form bounces around the screen, and when it collides with something, its controls can break (become hidden).
+- BouncyUserForm introduces a physics engine into Excel VBA UserForms,
+enabling an interactive UI that enhances both user experience and operational efficiency.
+
+- Equipped with parameters such as gravity, restitution, and air resistance,
+the form accelerates your workflow with natural inertia when you drag and release it.
+
+- Upon collision, UI elements are automatically reorganized (hidden),
+allowing you to physically declutter unnecessary controls — and unnecessary tasks.
+
 - The creator assumes no responsibility for any issues or damage to your PC or data caused by this code.
-Use it at your own risk.
+Accelerate your workflow at your own risk.
 
 # 🐧 特徴 / Features
 ### 🧠物理エンジン / Physics Engine
