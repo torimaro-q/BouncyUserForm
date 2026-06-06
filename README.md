@@ -1,7 +1,5 @@
 ![title](pic/title.svg)
 
-A solution that accelerates Excel business UI productivity through the laws of physics
-
 ---
 
 ![screenshot](pic/gl.gif)
