@@ -49,7 +49,7 @@ Accelerate your workflow at your own risk.
 
 # 🧩拡張機能 / Extensions
 以下のような拡張やエフェクトを自由に追加できます。
-- OpenGL によるエフェクト
+- OpenGL(バージョン2.1、シェーダー対応) によるエフェクト
 - Excel シートへのリアルタイム描画
 - Excel 散布図による軌跡ログ
 - 操作用 UI（コントローラー）
@@ -59,7 +59,7 @@ Accelerate your workflow at your own risk.
 - カスタム拡張（ICFormPhysicsEx）
 ---
 You can freely add optional extensions such as:
-- OpenGL‑based visual effects
+- OpenGL(version 2.1 with shader support)‑based visual effects
 - Real‑time drawing onto an Excel worksheet
 - Trajectory logging using Excel scatter charts
 - A controller UI for manual operation
