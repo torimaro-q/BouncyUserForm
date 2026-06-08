@@ -196,5 +196,9 @@ MIT License
 [Sample](sample.xlsm)
 
 # 🔍 Search keywords
-Excel physics engine, VBA animation, Excel game engine,
-UserForm animation, OpenGL in VBA, Excel OpenGL, VBA graphics
+Event-driven physics engine for Excel UserForms
+Plugin architecture (ICFormPhysicsEx / ICFormPhysicsEf)
+OpenGL 2.1 renderer with runtime function loading
+GLSL shader editor and compiler
+Particle effect framework
+Transparent overlay rendering
