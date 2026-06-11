@@ -1,6 +1,4 @@
-![title](pic/title.svg)
-
-A solution that accelerates Excel business UI productivity through the laws of physics
+<img src="pic/title.svg" width="100%">
 
 ---
 
@@ -51,7 +49,7 @@ Accelerate your workflow at your own risk.
 
 # 🧩拡張機能 / Extensions
 以下のような拡張やエフェクトを自由に追加できます。
-- OpenGL によるエフェクト
+- OpenGL(バージョン2.1、シェーダー対応) によるエフェクト
 - Excel シートへのリアルタイム描画
 - Excel 散布図による軌跡ログ
 - 操作用 UI（コントローラー）
@@ -61,7 +59,7 @@ Accelerate your workflow at your own risk.
 - カスタム拡張（ICFormPhysicsEx）
 ---
 You can freely add optional extensions such as:
-- OpenGL‑based visual effects
+- OpenGL(version 2.1 with shader support)‑based visual effects
 - Real‑time drawing onto an Excel worksheet
 - Trajectory logging using Excel scatter charts
 - A controller UI for manual operation
@@ -198,5 +196,9 @@ MIT License
 [Sample](sample.xlsm)
 
 # 🔍 Search keywords
-Excel physics engine, VBA animation, Excel game engine,
-UserForm animation, OpenGL in VBA, Excel OpenGL, VBA graphics
+Event-driven physics engine for Excel UserForms
+Plugin architecture (ICFormPhysicsEx / ICFormPhysicsEf)
+OpenGL 2.1 renderer with runtime function loading
+GLSL shader editor and compiler
+Particle effect framework
+Transparent overlay rendering
