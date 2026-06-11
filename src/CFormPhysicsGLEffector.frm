@@ -131,6 +131,7 @@ Private Sub myCore_SizeChanged(hw As Double, hh As Double)
     mhw = hw * Tw2Px
     mhh = hh * Tw2Px
 End Sub
+
 Private Sub UserForm_Activate()
     If GL Is Nothing Then
         Me.RenderFrame.BackColor = RGB(254, 254, 254)

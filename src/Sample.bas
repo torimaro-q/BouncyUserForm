@@ -18,6 +18,10 @@ Public Sub ShowForm()
     
     cf.Show
 End Sub
+Public Sub ShowShaderForm()
+    glShaderPoi.Show
+End Sub
+
 Private Function AllExArray() As Variant
     AllExArray = Array(CFormPhysicsLogger, _
                        CFormPhysicsWsRenderer, _
@@ -33,7 +37,7 @@ Private Function AllEfArray() As Variant
                        glMoveTrail, _
                        glStatusVisualizer, _
                        glControlShatter, _
-                       glShaderTest)
+                       glShaderPoi)
 End Function
 Private Function toDict(arr) As Object
     Dim i As Long, DICT: Set DICT = CreateObject("Scripting.Dictionary")
@@ -84,7 +88,7 @@ Private Sub ResetButtons()
         With .AddFormControl(xlButtonControl, 200, 55, 90, 25)
             .OnAction = "ShowForm"
             .TextFrame.Characters.Text = "ShowForm"
-            .DrawingObject.Font.size = 16
+            .DrawingObject.Font.size = 14
         End With
         tofs = 60
         i = 0
@@ -109,17 +113,26 @@ Private Sub ResetButtons()
         For j = LBound(ct) To UBound(ct)
             i = 0
             For Each lb In LibBuf.keys()
-                With .AddFormControl(xlCheckBox, 30 + j * 170, tofs + i * 20, 150, 30)
-                    .TextFrame.Characters.Text = lb
-                    .Name = ct(j) & lb
-                End With
-                i = i + 1
+                If (lb <> "glShaderPoi") Or (ct(j) Like "Move*") Then
+                    With .AddFormControl(xlCheckBox, 30 + j * 170, tofs + i * 20, 150, 30)
+                        .TextFrame.Characters.Text = lb
+                        .Name = ct(j) & lb
+                    End With
+                    i = i + 1
+                End If
             Next lb
-            With .AddFormControl(xlGroupBox, 25 + j * 170, tofs - 5, 150, (LibBuf.count + 1) * 20)
+            If ct(j) Like "Move*" Then
+                With .AddFormControl(xlButtonControl, 30 + j * 170, tofs + (i + 0.5) * 20, 80, 20)
+                    .OnAction = "ShowShaderForm"
+                    .TextFrame.Characters.Text = "Test Shader"
+                    .DrawingObject.Font.size = 10.5
+                End With
+            End If
+            With .AddFormControl(xlGroupBox, 25 + j * 170, tofs - 5, 150, (LibBuf.count + 2) * 20)
                 .TextFrame.Characters.Text = ct(j) & "ICFormPhysicsEf"
             End With
         Next j
-        With .AddFormControl(xlGroupBox, 20, tofs - 45, 170 * 3 - 10, (LibBuf.count + 1) * 20 + 50)
+        With .AddFormControl(xlGroupBox, 20, tofs - 45, 170 * 3 - 10, (LibBuf.count + 2) * 20 + 50)
             .TextFrame.Characters.Text = "GLExtensions"
         End With
     End With

@@ -1,6 +1,8 @@
 Attribute VB_Name = "glh"
 Option Explicit
-Public Enum Glenum
+Public Enum GLenum
+    GL_RGBA32F = &H8814&
+    GL_ACTIVE_ATTRIBUTES = &H8B89&
     GL_RGBA32F_ARB = &H8814&
     GL_PROGRAM_POINT_SIZE = &H8642&
     GL_POINT_SPRITE = &H8861&
