@@ -26,6 +26,7 @@ Private Declare PtrSafe Sub glColor4f Lib "opengl32.dll" (ByVal red As Single, B
 Private Declare PtrSafe Sub glColor3d Lib "opengl32.dll" (ByVal red As Double, ByVal green As Double, ByVal blue As Double)
 Private Declare PtrSafe Sub glVertex2d Lib "opengl32.dll" (ByVal A As Double, ByVal B As Double)
 Private Declare PtrSafe Sub glVertex2f Lib "opengl32.dll" (ByVal A As Single, ByVal B As Single)
+Private Declare PtrSafe Sub glVertex3f Lib "opengl32.dll" (ByVal X As Single, ByVal Y As Single, ByVal Z As Single)
 Private Declare PtrSafe Sub glVertex3d Lib "opengl32.dll" (ByVal X As Double, ByVal Y As Double, ByVal Z As Double)
 Private Declare PtrSafe Sub glNormal3d Lib "opengl32.dll" (ByVal X As Double, ByVal Y As Double, ByVal Z As Double)
 Private Declare PtrSafe Sub glVertex3dv Lib "opengl32.dll" (ByVal dPtr As LongPtr)
@@ -246,6 +247,22 @@ Public Sub Uniform1f(ByVal loc As Long, ByVal v0 As Single)
         CallFp 0, "glUniform1f", VT_EMPTY, CLng(loc), CSng(v0)
     End If
 End Sub
+Public Sub Uniform2f(ByVal loc As Long, ByVal v0 As Single, ByVal v1 As Single)
+    Static fid As Long
+    If fid > 0 Then
+        With cCache(fid)
+            .vars(0) = loc
+            .vars(1) = v0
+            .vars(2) = v1
+            .ptrs(0) = VarPtr(.vars(0))
+            .ptrs(1) = VarPtr(.vars(1))
+            .ptrs(2) = VarPtr(.vars(2))
+            Call DispCallFunc(NULLPTR, .pfunc, CC_STDCALL, .rType, 2, .typs(0), .ptrs(0), vbEmpty)
+        End With
+    Else
+        CallFp 0, "glUniform2f", VT_EMPTY, CLng(loc), CSng(v0), CSng(v1)
+    End If
+End Sub
 Public Sub Uniform1i(ByVal loc As Long, ByVal v0 As Long)
     Static fid As Long
     If fid > 0 Then
@@ -404,6 +421,9 @@ Public Sub Vertex2d(ByVal A As Double, ByVal B As Double)
 End Sub
 Public Sub Vertex2f(ByVal A As Single, ByVal B As Single)
     Call glVertex2f(A, B)
+End Sub
+Public Sub Vertex3f(ByVal X As Single, ByVal Y As Single, ByVal Z As Single)
+    Call glVertex3f(X, Y, Z)
 End Sub
 Public Sub Vertex3d(ByVal X As Double, ByVal Y As Double, ByVal Z As Double)
     Call glVertex3d(X, Y, Z)

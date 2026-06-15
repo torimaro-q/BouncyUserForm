@@ -19,9 +19,6 @@ Private engine As CFormPhysics
 Private Sub UserForm_Error(ByVal Number As Integer, ByVal Description As MSForms.ReturnString, ByVal SCode As Long, ByVal Source As String, ByVal HelpFile As String, ByVal HelpContext As Long, ByVal CancelDisplay As MSForms.ReturnBoolean)
     Unload Me
 End Sub
-Private Sub UserForm_Initialize()
-    If Rnd > 0.9 Then ApplyExColor
-End Sub
 Public Sub init(Optional ByVal ExLibs = Empty, Optional ByVal ChLibs = Empty, Optional ByVal MvLibs = Empty, Optional ByVal BkLibs = Empty)
     Set engine = New CFormPhysics
     Call engine.init(Me, ExLibs, ChLibs, MvLibs, BkLibs)
@@ -89,11 +86,4 @@ Private Sub CommandButton13_Click()
 End Sub
 Private Sub CommandButton14_Click()
     btnInput "/"
-End Sub
-Private Sub ApplyExColor()
-    Dim tmp As Variant
-    Me.BackColor = RGB(15, 125, 65)
-    For Each tmp In Me.Controls
-        tmp.BackColor = RGB(240, 255, 190)
-    Next tmp
 End Sub
