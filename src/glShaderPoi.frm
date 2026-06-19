@@ -20,9 +20,10 @@ Private Declare PtrSafe Function GetDeviceCaps Lib "gdi32" (ByVal hdc As LongPtr
 Private Declare PtrSafe Function ReleaseDC Lib "user32" (ByVal hWnd As LongPtr, ByVal hdc As LongPtr) As Long
 Private Declare PtrSafe Sub Sleep Lib "kernel32" (ByVal ms As Long)
 Private Declare PtrSafe Function GetTickCount Lib "kernel32" () As Long
-Private uCenter As Long
-Private uLife   As Long
-Private uScreen As Long
+
+Private uCrashPos As Long, uMovePos As Long, uScreen As Long
+Private PCrash As Vector2f, PMove As Vector2f
+
 Private Const TXSZ As Long = 64
 Private Const lf As String = vbLf
 Private Const WD As Long = 1920, HT As Long = 1080
@@ -30,17 +31,19 @@ Private Const BCL As Single = 254 / 255
 Private Const EMSG_SH As String = "Shader Error id:"
 Private Const EMSG_PG As String = "Program Link Error id:"
 Private Const OMSG As String = " Compile OK : vsh-fsh-prg x2 : "
+
 Implements ICFormPhysicsEf
 Private myGL As OpenGL, canRender As Boolean, cSrc As Long, fbo As Long
 Private tex(1) As Long, vsh(1) As Long, fsh(1) As Long, prg(1) As Long
-Private life As Single, sw As Long, sh As Long, tx As Single, ty As Single
+Private sw As Long, sh As Long
 Private IsTest As Boolean, chkX As Double, chkY As Double
+
 Private Sub ICFormPhysicsEf_Render(ByRef X As Double, ByRef Y As Double, ByRef dt As Long, ByRef v As Double)
     If canRender = False Then Exit Sub
-    life = life - dt
-    If life < 0 Then Exit Sub
+    PMove.X = X
+    PMove.Y = Y
     Call Update(dt)
-    Call DrawParticles
+    Call DrawMain
 End Sub
 Private Sub Update(ByVal dt As Long)
     Dim dst As Long: dst = 1 - cSrc
@@ -48,18 +51,17 @@ Private Sub Update(ByVal dt As Long)
         .BindFramebufferEXT GL_FRAMEBUFFER, fbo
         .FramebufferTexture2DEXT GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, tex(dst), 0
         .Viewport 0, 0, TXSZ, TXSZ
-        
         .UseProgram prg(1)
         .Uniform1i .GetUniformLocation(prg(1), "posTex"), 0
         .Uniform1f .GetUniformLocation(prg(1), "dt"), CSng(dt)
         .Uniform1f .GetUniformLocation(prg(1), "damp"), 0.999
-        
-        .Uniform2f .GetUniformLocation(prg(1), "uCenter"), CSng(tx), CSng(ty)
+        .Uniform2f .GetUniformLocation(prg(1), "texSize"), CSng(TXSZ), CSng(TXSZ)
+        .Uniform2f .GetUniformLocation(prg(1), "uCrashPos"), CSng(PCrash.X), CSng(PCrash.Y)
+        .Uniform2f .GetUniformLocation(prg(1), "uMovePos"), CSng(PMove.X), CSng(PMove.Y)
         .Uniform2f .GetUniformLocation(prg(1), "uScreen"), CSng(sw), CSng(sh)
-        
         .ActiveTexture GL_TEXTURE0
         .BindTexture GL_TEXTURE_2D, tex(cSrc)
-        DrawFullScreenQuad
+        DrawFScrQuad
         .BindTexture GL_TEXTURE_2D, 0
         .UseProgram 0
         .BindFramebufferEXT GL_FRAMEBUFFER, 0
@@ -67,51 +69,43 @@ Private Sub Update(ByVal dt As Long)
     End With
     cSrc = dst
 End Sub
-
-Private Sub DrawFullScreenQuad()
+Private Sub DrawFScrQuad(Optional ByVal Depth As Single = 0.1)
     With myGL
         .Enable GL_DEPTH_TEST
         .Begin GL_TRIANGLE_STRIP
             .TexCoord2f 0, 1
-            .Vertex3f -1, -1, 0.1
-
+            .Vertex3f -1, -1, Depth
             .TexCoord2f 1, 1
-            .Vertex3f 1, -1, 0.1
-
+            .Vertex3f 1, -1, Depth
             .TexCoord2f 0, 0
-            .Vertex3f -1, 1, 0.1
-
+            .Vertex3f -1, 1, Depth
             .TexCoord2f 1, 0
-            .Vertex3f 1, 1, 0.1
+            .Vertex3f 1, 1, Depth
         .End1
         .Disable GL_DEPTH_TEST
     End With
 End Sub
-
-Private Sub DrawParticles()
+Private Sub DrawMain()
     With myGL
         .Disable GL_DEPTH_TEST
         .UseProgram prg(0)
         .Uniform1i .GetUniformLocation(prg(0), "posTex"), 0
         .ActiveTexture GL_TEXTURE0
         .BindTexture GL_TEXTURE_2D, tex(cSrc)
-        .Uniform2f .GetUniformLocation(prg(0), "uCenter"), CSng(tx), CSng(ty)
-        .Uniform1f .GetUniformLocation(prg(0), "uLife"), life
+        .Uniform2f .GetUniformLocation(prg(0), "uCrashPos"), CSng(PCrash.X), CSng(PCrash.Y)
         .Uniform2f .GetUniformLocation(prg(0), "uScreen"), CSng(sw), CSng(sh)
-        DrawFullScreenQuad
+        DrawFScrQuad
         .BindTexture GL_TEXTURE_2D, 0
         .UseProgram 0
         .Enable GL_DEPTH_TEST
     End With
 End Sub
-
 Private Sub ICFormPhysicsEf_Reset(ByRef cx As Double, ByRef cy As Double, ByRef ddmg As Double, Optional ByRef hw As Double = 0#, Optional ByRef hh As Double = 0#)
     If canRender = False Then Exit Sub
     If ddmg < 1 Then Exit Sub
     Dim i As Long, rv As Double, d(1) As Single
-    life = 400
-    tx = cx
-    ty = cy
+    PCrash.X = cx
+    PCrash.Y = cy
     With myGL
         .BindFramebufferEXT GL_FRAMEBUFFER, fbo
         For i = 0 To 1
@@ -122,6 +116,7 @@ Private Sub ICFormPhysicsEf_Reset(ByRef cx As Double, ByRef cy As Double, ByRef 
         .BindFramebufferEXT GL_FRAMEBUFFER, 0
     End With
     cSrc = 0
+    Update -1 'reset
 End Sub
 Private Sub ICFormPhysicsEf_Init(ByRef targetGL As OpenGL)
     Set myGL = targetGL
@@ -185,12 +180,13 @@ Private Sub ICFormPhysicsEf_Init(ByRef targetGL As OpenGL)
                 For i = 0 To 9 'warm up
                     Call ICFormPhysicsEf_Render(9, 9, i, 9)
                 Next i
+                Call ICFormPhysicsEf_Reset(0, 0, 0)
                 mg = OMSG & vsh(0) & "-" & fsh(0) & "-" & prg(0) & "," & vsh(1) & "-" & fsh(1) & "-" & prg(1)
             End If
         End If
-        uCenter = .GetUniformLocation(prg(0), "uCenter")
+        uCrashPos = .GetUniformLocation(prg(0), "uCrashPos")
+        uMovePos = .GetUniformLocation(prg(0), "uMovePos")
         uScreen = .GetUniformLocation(prg(0), "uScreen")
-        uLife = .GetUniformLocation(prg(0), "uLife")
     End With
     With TextBox0
         .Value = .Value & lf & mg
@@ -285,12 +281,14 @@ Private Function GetLog(Optional ByVal shd As Long = 0, Optional ByVal prg As Lo
     GetLog = msg
 End Function
 Private Sub TestRender()
-    Dim i As Long, fw As Long, fh As Long, ct As Long, pt As Long, dt As Long, t0 As Long, fc As Long
+    Dim i As Long, fw As Long, fh As Long, ct As Long, pt As Long, dt As Long, t0 As Long, fc As Long, dfw As Single
+    
     With Frame1
         fw = .width * Tw2Px
         fh = .height * Tw2Px
     End With
     fc = 100
+    dfw = fw / fc
     With myGL
         Call ICFormPhysicsEf_Reset(chkX * fw, chkY * fh, 3, 0, 0)
         .Viewport 0, 0, fw, fh
