@@ -116,7 +116,7 @@ Private Sub ICFormPhysicsEf_Reset(ByRef cx As Double, ByRef cy As Double, ByRef 
         .BindFramebufferEXT GL_FRAMEBUFFER, 0
     End With
     cSrc = 0
-    Update -1 'reset
+    Update -1
 End Sub
 Private Sub ICFormPhysicsEf_Init(ByRef targetGL As OpenGL)
     Set myGL = targetGL
@@ -180,7 +180,7 @@ Private Sub ICFormPhysicsEf_Init(ByRef targetGL As OpenGL)
                 For i = 0 To 9 'warm up
                     Call ICFormPhysicsEf_Render(9, 9, i, 9)
                 Next i
-                Call ICFormPhysicsEf_Reset(0, 0, 0)
+                Call ICFormPhysicsEf_Reset(0, 0, 10)
                 mg = OMSG & vsh(0) & "-" & fsh(0) & "-" & prg(0) & "," & vsh(1) & "-" & fsh(1) & "-" & prg(1)
             End If
         End If
