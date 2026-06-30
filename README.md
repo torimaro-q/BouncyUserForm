@@ -70,16 +70,26 @@ You can freely add optional extensions such as:
 
 
 ### 🧩拡張 / Extensions
-|||
-|---|---|
-| Excel ロガー / Excel logger | ![screenshot](pic/ex/CFormPhysicsLogger.gif) |
-|シートレンダラー / Worksheet renderer|![screenshot](pic/ex/CFormPhysicsWsRenderer.gif)|
-|コントローラー UI / Controller UI|![screenshot](pic/ex/CFormPhysicsController.gif)|
-|フォーム描画 / Form renderer|![screenshot](pic/ex/CFormPhysicsFmRenderer.gif)|
-|拡張破壊 / disables extensions|![screenshot](pic/ex/CFormPhysicsExtBreakable.gif)|
+||||
+|---|---|---|
+| Excel ロガー / Excel logger<br><br>Logs physics events and positions to Excel. | ![screenshot](pic/ex/CFormPhysicsLogger.gif) |
+|シートレンダラー / Worksheet renderer<br><br>Renders the simulation directly onto a worksheet in real time.|![screenshot](pic/ex/CFormPhysicsWsRenderer.gif)|
+|コントローラー UI / Controller UI<br><br>Control the UserForm with a game controller.|![screenshot](pic/ex/CFormPhysicsController.gif)|
+|フォーム描画 / Form renderer<br><br>Voronoi-based fracture rendering|![screenshot](pic/ex/CFormPhysicsFmRenderer.gif)|
+|拡張破壊 / disables extensions<br><br>Extensions can be broken by collisions.|![screenshot](pic/ex/CFormPhysicsExtBreakable.gif)|
 
+---
 
 ### 💥エフェクト(OpenGL) / Effects(OpenGL)
+
+##### ✨GLSL (glShaderpoi)
+- Shader-based effect with an integrated GLSL editor on the UserForm.
+
+|||
+|---|---|
+|![screenshot](pic/ef/glShaderpoi0.gif)|![screenshot](pic/ef/glShaderpoi1.gif)|
+
+##### 📼固定パイプライン:Fixed-Function Pipeline
 |||
 |---|---|
 |爆発（glExplosion）|![screenshot](pic/ef/glExplosion.gif)|
@@ -88,6 +98,8 @@ You can freely add optional extensions such as:
 |コントロール破損(glControlShatter)|![screenshot](pic/ef/glControlShatter.gif)|
 |ダメージ表示（glHitNumber）|![screenshot](pic/ef/glHitNumber.gif)|
 |ステータス表示（glStatusVisualizer）|![screenshot](pic/ef/glStatusVisualizer.gif)|
+
+---
 
 # 🐧使い方 / Usage
 ## 1. クラスモジュールを追加 / Add the class modules
@@ -125,6 +137,7 @@ You can freely add optional extensions such as:
 + glControlShatter.cls
 + glHitNumber.cls
 + glStatusVisualizer.cls
++ glShaderpoi.frm
 ```
 
 ## 2. UserForm にコードを追加 / Add code to your UserForm
