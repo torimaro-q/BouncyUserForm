@@ -70,8 +70,8 @@ You can freely add optional extensions such as:
 
 
 ### 🧩拡張 / Extensions
-||||
-|---|---|---|
+|||
+|---|---|
 | Excel ロガー / Excel logger<br><br>Logs physics events and positions to Excel. | ![screenshot](pic/ex/CFormPhysicsLogger.gif) |
 |シートレンダラー / Worksheet renderer<br><br>Renders the simulation directly onto a worksheet in real time.|![screenshot](pic/ex/CFormPhysicsWsRenderer.gif)|
 |コントローラー UI / Controller UI<br><br>Control the UserForm with a game controller.|![screenshot](pic/ex/CFormPhysicsController.gif)|
