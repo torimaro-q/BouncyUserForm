@@ -208,6 +208,10 @@ MIT License
 # 🐧デモファイル / Demo file
 [Sample](sample.xlsm)
 
+
+# 🐧Learn More
+https://zenn.dev/torimaro/articles/a992015c4b2845
+
 # 🔍 Search keywords
 Event-driven physics engine for Excel UserForms
 Plugin architecture (ICFormPhysicsEx / ICFormPhysicsEf)
