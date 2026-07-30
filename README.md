@@ -199,7 +199,7 @@ End Sub
 - OpenGL (included with Windows)
 
 # 動作確認済み(Operation confirmed)
-- Excel 2011(32bit)
+- Excel 2010(32bit)
 - Excel 2024(64bit)
 
 # 🐧ライセンス / License
