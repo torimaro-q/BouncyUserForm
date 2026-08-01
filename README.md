@@ -195,11 +195,11 @@ End Sub
 - Drag the form body (not the title bar) and release it to start the physics simulation.
 
 # 🐧Requirements
-- Windows + Excel (32‑bit / 64‑bit), likely Excel 2011 or later
+- Windows + Excel (32‑bit / 64‑bit), likely Excel 2013 or later
 - OpenGL (included with Windows)
 
 # 動作確認済み(Operation confirmed)
-- Excel 2010(32bit)
+- Excel 2013(32bit)
 - Excel 2024(64bit)
 
 # 🐧ライセンス / License
